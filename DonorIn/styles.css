@@ -1,0 +1,240 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #fff9f9;
+}
+
+.wadah {
+    max-width: 1100px;
+    margin: auto;
+    padding: 0 20px;
+}
+
+.header-utama {
+    background-color: #8b0000;
+    color: #ffffff;
+    padding: 15px 0;
+}
+
+.flex-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navigasi-utama a {
+    color: white;
+    text-decoration: none;
+    margin-right: 20px;
+    font-size: 14px;
+    padding: 5px 0;
+}
+
+.navigasi-utama a:hover{
+    color: #ffcccc;
+    border-bottom: 2px solid white;
+}
+
+.tombol-admin {
+    background: white;
+    color: #8b0000;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.bagian-hero {
+    padding: 80px 0;
+    text-align: center;
+}
+
+.badge {
+    border: 1px solid #8b0000;
+    display: inline-block;
+    padding-bottom: 5px 15px;
+    border-radius: 20px;
+    font-size: 12px;
+    color: #8b0000;
+    margin-bottom: 20px;
+}
+
+.judul-hero {
+    font-size: 3rem;
+    color: #1a1a1a;
+    margin-bottom: 20px;
+}
+
+.judul-hero span {
+    color: #8b0000;
+}
+
+.deskripsi-hero {
+    color: #666;
+    max-width: 700px;
+    margin: 0 auto 30px;
+}
+
+.tombol-utama {
+    background: #8b0000;
+    color: white;
+    text-decoration: none;
+    padding: 15px 30px;
+    border-radius: 10px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.tombol-sekunder {
+    background: white;
+    color: #333;
+    border: 1px solid #ddd;
+    text-decoration: none;
+    padding: 15px 30px;
+    border-radius: 10px;
+    margin-left: 10px;
+    display: inline-block;
+}
+
+.bagian-info {
+    padding: 60px 0;
+}
+
+.bagian-info h2 {
+    color: #8b0000;
+    margin-bottom: 15px;
+    font-size: 2rem;
+}
+
+.text-tengah {
+    text-align: center;
+}
+
+.kartu-info {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 40px;
+}
+
+.kartu {
+    flex: 1;
+    padding: 25px;
+    border-radius: 12px;
+    background: #fff9f9;
+    border: 1px solid #eee;
+}
+
+.kartu h3 {
+    color: #8b0000;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+.kartu p {
+    font-size: 0.95rem;
+    color: #555;
+    line-height: 1.5;
+}
+
+.footer-utama {
+    background: #1a1a1a;
+    color: white;
+    text-align: center;
+    padding: 20px 0px;
+    margin-top: 20px;
+}
+
+.tabel-data {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;   
+}
+
+.tabel-data th, .tabel-data td {
+    border: 1px solid #ddd;
+    padding: 12px;
+}
+
+.tabel-data th {
+    background: #8b0000;
+    color: white;
+}
+
+.grup-form {
+    margin-bottom: 15px; 
+
+}
+
+.grup-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.grup-form input, .grup-form select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc
+}
+
+.tombol-kirim {
+    background: #27ae60;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.form-pendaftaran button:hover {
+    background: #219653;
+}
+
+        .pesan-sukses {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .pesan-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .badge-kategori {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .badge-kritik    { background: #f8d7da; color: #721c24; }
+        .badge-saran     { background: #d4edda; color: #155724; }
+        .badge-pertanyaan{ background: #cce5ff; color: #004085; }
+        .kartu-pesan {
+            background: white;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 18px 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .kartu-pesan h4 { margin: 0 0 6px; color: #1a1a1a; font-size: 1rem; }
+        .kartu-pesan p  { margin: 8px 0 0; color: #444; line-height: 1.6; }
+        .kartu-meta     { font-size: 12px; color: #999; margin-top: 8px; }
+        .dua-kolom { display: flex; gap: 40px; flex-wrap: wrap; }
+        .kolom-kiri  { flex: 1; min-width: 300px; }
+        .kolom-kanan { flex: 1.2; min-width: 300px; }
+        .judul-seksi { color: #8b0000; font-size: 1.4rem; margin-bottom: 20px; border-bottom: 2px solid #8b0000; padding-bottom: 8px; }
+        .radio-grup { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 6px; }
+        .radio-item { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.95rem; }
+        .kosong { color: #999; text-align: center; padding: 30px; font-style: italic; }

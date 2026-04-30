@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DonorIn - Kritik & Saran</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+    <style>
+        .radio-grup {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            color: #333;
+        }
+        .radio-item input[type="radio"] {
+            width: auto;
+            cursor: pointer;
+        }
+        .grup-form textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            resize: vertical;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+        }
+        .tombol-lihat {
+            display: inline-block;
+            margin-top: 15px;
+            background: white;
+            color: #8b0000;
+            border: 2px solid #8b0000;
+            padding: 10px 25px;
+            border-radius: 5px;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .tombol-lihat:hover {
+            background: #8b0000;
+            color: white;
+        }
+        .info-box {
+            background: #fff3f3;
+            border-left: 4px solid #8b0000;
+            padding: 15px 20px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 25px;
+            color: #555;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header-utama">
+        <div class="wadah flex-header">
+            <div class="logo">
+                <strong>DonorIn</strong>
+            </div>
+            <nav class="navigasi-utama">
+                <a href="index.html">Home</a>
+                <a href="page2.html">Butuh Donor</a>
+                <a href="page2.html#stok-darah">Stok Darah</a>
+                <a href="page2.html#daftar-relawan">Daftar Relawan</a>
+                <a href="kritik_saran.html" class="aktif">Kritik & Saran</a>
+            </nav>
+            <button class="tombol-admin">LOGIN ADMIN</button>
+        </div>
+    </header>
+
+    <main class="wadah konten-halaman">
+        <section class="blok-konten">
+            <h2>Kritik & Saran</h2>
+
+            <div class="info-box">
+                💡 Pendapat Anda sangat berarti bagi kami! Silakan kirim kritik, saran, 
+                atau pertanyaan seputar layanan DonorIn.
+            </div>
+
+            <form action="simpan_kritik.php" method="POST" class="form-pendaftaran">
+
+                <div class="grup-form">
+                    <label for="nama">Nama Lengkap</label>
+                    <input type="text" id="nama" name="nama" placeholder="Masukkan nama lengkap Anda">
+                </div>
+
+                <div class="grup-form">
+                    <label for="email">Email Aktif</label>
+                    <input type="email" id="email" name="email" placeholder="nama@email.com">
+                </div>
+
+                <div class="grup-form">
+                    <label>Kategori</label>
+                    <div class="radio-grup">
+                        <label class="radio-item">
+                            <input type="radio" name="kategori" value="kritik"> 🔴 Kritik
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="kategori" value="saran"> 🟢 Saran
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="kategori" value="pertanyaan"> 🔵 Pertanyaan
+                        </label>
+                    </div>
+                </div>
+
+                <div class="grup-form">
+                    <label for="pesan">Pesan</label>
+                    <textarea id="pesan" name="pesan" rows="5"
+                        placeholder="Tulis kritik, saran, atau pertanyaan Anda di sini..."></textarea>
+                </div>
+
+                <button type="submit" name="kirim" class="tombol-kirim">
+                    📨 KIRIM PESAN
+                </button>
+
+            </form>
+
+            <br>
+            <a href="tampil_kritik.php" class="tombol-lihat">📋 Lihat Semua Pesan Masuk</a>
+        </section>
+    </main>
+
+    <footer class="footer-utama">
+        <div class="wadah">
+            <p>&copy; 2026 DonorIn System. Dibuat oleh: ZUNNUN QORINA (F1D02410030)</p>
+        </div>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DonorIn-Layanan</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+</head>
+    <body>
+    <header class = "header-utama">
+        <div class = "wadah flex-header">
+            <div class = "logo">
+                <strong>DonorIn</strong>
+            </div>
+            <nav class = "navigasi-utama">
+                <a href="index.html" class = "aktif">Home</a>
+                <a href="page2.html">Butuh Donor</a>
+                <a href="page2.html#stok-darah">Stok Darah</a>
+                <a href="page2.html#daftar-relawan">Daftar Relawan</a>
+                <a href="kritik_saran.php">Kritik & Saran</a>
+            </nav>
+            <button class = "tombol-admin">LOGIN ADMIN</button>
+        </div>
+    </header>
+
+    <main class = "wadah konten-halaman">
+        <section id = "stok-darah" class = "blok-konten">
+            <h2>Ketersediaan Stok Darah</h2>
+            <table class = "tabel-data">
+                <thead>
+                    <tr>
+                        <th>Golongan Darah</th>
+                        <th>Jumlah Kantong</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>A</td>
+                        <td>12</td>
+                        <td>Tersedia</td>
+                    </tr>
+                    <tr>
+                        <td>B</td>
+                        <td>3</td>
+                        <td>Kritis</td>
+                    </tr>
+                    <tr>
+                        <td>AB</td>
+                        <td>35</td>
+                        <td>Tersedia</td>
+                    </tr>
+                    <tr>
+                        <td>O</td>
+                        <td>5</td>
+                        <td>Kritis</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="daftar-relawan" class="blok-konten">
+            <h3>Pendaftaran Relawan Baru</h3>
+            <form action="simpan_relawan.php" class="form-pendaftaran" method="post">
+                <div class="grup-form">
+                    <label for="full-name">Nama Lengkap</label>
+                    <input type="text" id="full-name" name="nama" placeholder="Masukkan Nama Lengkap">
+                </div>
+
+                <div class="grup-form">
+                    <label for="user-email">Email Aktif</label>
+                    <input type="email" id="user-email" name="email"  placeholder="nama@email.com">
+                </div>
+
+                <div class="grup-form">
+                    <label for="birth-date">Tanggal Lahir</label>
+                    <input type="date" id="birth-date" name="tgl">
+                </div>
+
+                <div class="grup-form">
+                    <label for="blood-type">Golongan Darah</label>
+                    <select id="blood-type" name="goldar">
+                        <option value="">-- Pilih --</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="O">O</option>
+                        <option value="AB">AB</option>
+                    </select>
+                </div>
+                <button type = "submit" name = "kirim_relawan" class = "tombol-kirim">KIRIM DATA</button>
+            </form>
+        </section>
+    </main>
+    
+    <footer class = "footer-utama">
+        <div class = "wadah">
+            <p>&copy; 2026 DonorIn System. Dibuat oleh: ZUNNUN QORINA (F1D02410030)</p>
+        </div>
+    </footer>
+</body>
+</html>
