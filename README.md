@@ -267,7 +267,7 @@ DonorIn bertujuan untuk mengatasi kesulitan pencarian donor darah yang selama in
 ---
 
 > **Mata Kuliah:** Analisis dan Perancangan Berorientasi Objek  
-> **Dosen Pengampu:** Royana Afwani, S.T., M.T 
+> **Dosen Pengampu:** Royana Afwani, S.Kom., M.T.  
 > **Program Studi:** Teknik Informatika — Fakultas Teknik, Universitas Mataram  
 > **Tahun:** 2026
 
