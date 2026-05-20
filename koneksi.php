@@ -1,7 +1,14 @@
 <?php
+// ============================================================
+//  Koneksi Database & Inisialisasi Session
+//  Semua halaman yang butuh DB/session wajib include file ini
+// ============================================================
+
+session_start();
+
 $dbServer = "localhost";
 $dbUser   = "root";
-$dbPass   = "";      
+$dbPass   = "";
 $dbName   = "donorin";
 
 $conn = mysqli_connect($dbServer, $dbUser, $dbPass, $dbName);
@@ -11,5 +18,6 @@ if (!$conn) {
         Koneksi gagal: " . mysqli_connect_error() . "
     </p>");
 }
+
 mysqli_set_charset($conn, "utf8");
 ?>
