@@ -1,8 +1,4 @@
 <?php
-// ============================================================
-//  Tampil Semua Kritik & Saran dalam bentuk tabel
-// ============================================================
-
 include 'koneksi.php';
 $halaman_aktif = 'kritik';
 ?>

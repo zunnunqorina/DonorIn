@@ -1,9 +1,4 @@
 <?php
-// ============================================================
-//  Koneksi Database & Inisialisasi Session
-//  Semua halaman yang butuh DB/session wajib include file ini
-// ============================================================
-
 session_start();
 
 $dbServer = "localhost";

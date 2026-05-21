@@ -1,11 +1,5 @@
 <?php
-// ============================================================
-//  Komponen Header — include di semua halaman publik
-//  Variabel $halaman_aktif harus di-set sebelum include ini
-//  Contoh: $halaman_aktif = 'home';
-// ============================================================
 
-// Cek apakah admin sedang login (untuk tampilkan info di header)
 $admin_login = isset($_SESSION['admin_login']) && $_SESSION['admin_login'] === true;
 ?>
 <header class="header-utama">
@@ -25,7 +19,6 @@ $admin_login = isset($_SESSION['admin_login']) && $_SESSION['admin_login'] === t
         </nav>
 
         <?php if ($admin_login): ?>
-            <!-- Jika admin sudah login, tampilkan link ke dashboard -->
             <a href="dashboard_admin.php" class="tombol-admin" style="text-decoration:none;">
                 👤 <?php echo htmlspecialchars($_SESSION['admin_username']); ?>
             </a>

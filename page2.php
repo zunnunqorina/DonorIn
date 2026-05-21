@@ -1,8 +1,4 @@
 <?php
-// ============================================================
-//  Halaman Layanan: Stok Darah & Daftar Relawan
-// ============================================================
-
 include 'koneksi.php';
 $halaman_aktif = 'donor';
 ?>
@@ -21,7 +17,6 @@ $halaman_aktif = 'donor';
 
 <main class="wadah konten-halaman">
 
-    <!-- ===== STOK DARAH ===== -->
     <section id="stok-darah" class="blok-konten">
         <h2>Ketersediaan Stok Darah</h2>
         <table class="tabel-data">
@@ -41,7 +36,6 @@ $halaman_aktif = 'donor';
         </table>
     </section>
 
-    <!-- ===== FORM DAFTAR RELAWAN ===== -->
     <section id="daftar-relawan" class="blok-konten">
         <h3>📋 Pendaftaran Relawan Donor Darah</h3>
         <p style="color:#666; margin-bottom:20px;">

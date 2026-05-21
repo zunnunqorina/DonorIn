@@ -1,8 +1,4 @@
 <?php
-// ============================================================
-//  Halaman Utama (Home)
-// ============================================================
-
 include 'koneksi.php';
 $halaman_aktif = 'home';
 ?>
@@ -21,7 +17,6 @@ $halaman_aktif = 'home';
 
 <main>
 
-    <!-- ===== HERO ===== -->
     <section class="bagian-hero">
         <div class="wadah text-tengah">
             <div class="badge">AYO DONOR DARAH</div>
@@ -37,7 +32,6 @@ $halaman_aktif = 'home';
         </div>
     </section>
 
-    <!-- ===== APA ITU DONOR DARAH ===== -->
     <section class="bagian-apa-itu">
         <div class="wadah">
             <div class="apa-itu-layout">
@@ -99,7 +93,6 @@ $halaman_aktif = 'home';
         </div>
     </section>
 
-    <!-- ===== MANFAAT ===== -->
     <section class="bagian-manfaat">
         <div class="wadah">
             <div class="blok-teks text-tengah">
@@ -152,7 +145,6 @@ $halaman_aktif = 'home';
         </div>
     </section>
 
-    <!-- ===== SYARAT ===== -->
     <section class="bagian-syarat">
         <div class="wadah">
             <div class="blok-teks text-tengah">
@@ -198,7 +190,6 @@ $halaman_aktif = 'home';
         </div>
     </section>
 
-    <!-- ===== GALERI ===== -->
     <section class="bagian-galeri">
         <div class="wadah">
             <div class="blok-teks text-tengah">
@@ -230,7 +221,6 @@ $halaman_aktif = 'home';
         </div>
     </section>
 
-    <!-- ===== CTA ===== -->
     <section class="bagian-cta">
         <div class="wadah text-tengah">
             <h2>"Setetes Darah Anda <span style="color:#ffcccc">Berarti Hidupku</span>"</h2>

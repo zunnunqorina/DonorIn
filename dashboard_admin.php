@@ -1,10 +1,7 @@
 <?php
-// ============================================================
-//  Dashboard Admin — dilindungi oleh session
-// ============================================================
 
 include 'koneksi.php';
-include 'cek_session.php'; // redirect jika belum login
+include 'cek_session.php'; 
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -108,7 +105,6 @@ include 'cek_session.php'; // redirect jika belum login
             </div>
         </div>
 
-        <!-- Tabel Data Relawan -->
         <div class="blok-konten">
             <h3 class="tab-judul">👥 Data Relawan Terdaftar</h3>
             <?php

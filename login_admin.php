@@ -1,19 +1,12 @@
 <?php
-// ============================================================
-//  Login Admin — menggunakan SESSION
-//  Materi: session_start(), $_SESSION, session_destroy()
-// ============================================================
-
 include 'koneksi.php';
 
 $pesan_error = "";
 
-// Proses form login
 if (isset($_POST['login'])) {
     $username = mysqli_real_escape_string($conn, trim($_POST['username']));
     $password = mysqli_real_escape_string($conn, trim($_POST['password']));
 
-    // Cari admin di database, password dibandingkan dengan MD5
     $query = "SELECT * FROM admin 
               WHERE username = '$username' AND password = MD5('$password')";
     $hasil = mysqli_query($conn, $query);
@@ -21,7 +14,6 @@ if (isset($_POST['login'])) {
     if (mysqli_num_rows($hasil) == 1) {
         $data = mysqli_fetch_assoc($hasil);
 
-        // Simpan data ke SESSION
         $_SESSION['admin_login']    = true;
         $_SESSION['admin_username'] = $data['username'];
 
@@ -32,7 +24,6 @@ if (isset($_POST['login'])) {
     }
 }
 
-// Jika sudah login, langsung redirect
 if (isset($_SESSION['admin_login']) && $_SESSION['admin_login'] === true) {
     header("Location: dashboard_admin.php");
     exit;

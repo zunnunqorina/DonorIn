@@ -1,18 +1,11 @@
 <?php
-// ============================================================
-//  Simpan Data Relawan ke Database
-//  Dipanggil oleh form di page2.php (method POST)
-// ============================================================
-
 include 'koneksi.php';
 
 if (!isset($_POST['kirim_relawan'])) {
-    // Akses langsung tanpa POST → redirect
     header("Location: page2.php");
     exit;
 }
 
-// Ambil dan bersihkan data POST
 $nama          = mysqli_real_escape_string($conn, trim($_POST['nama']));
 $email         = mysqli_real_escape_string($conn, trim($_POST['email']));
 $no_hp         = mysqli_real_escape_string($conn, trim($_POST['no_hp']));
@@ -25,16 +18,13 @@ $pekerjaan     = mysqli_real_escape_string($conn, trim($_POST['pekerjaan'] ?? ''
 $alamat        = mysqli_real_escape_string($conn, trim($_POST['alamat'] ?? ''));
 $pernah_donor  = mysqli_real_escape_string($conn, $_POST['pernah_donor']);
 
-// Tanggal donor terakhir hanya diisi jika pernah donor
 $terakhir_donor = (!empty($_POST['terakhir_donor']) && $pernah_donor === 'ya')
                   ? "'" . mysqli_real_escape_string($conn, $_POST['terakhir_donor']) . "'"
                   : "NULL";
 
-// Hitung umur dari tanggal lahir
 $lahir = new DateTime($tgl);
 $umur  = $lahir->diff(new DateTime())->y;
 
-// ===== Validasi =====
 if ($nama=='' || $email=='' || $no_hp=='' || $tgl=='' || $jenis_kelamin=='' || $goldar=='' || $berat_badan==0 || $kota=='') {
     echo "<script>alert('❌ Semua kolom wajib harus diisi!'); history.back();</script>";
     exit;
@@ -52,7 +42,6 @@ if ($berat_badan < 45) {
     exit;
 }
 
-// ===== Simpan ke database =====
 $query = "INSERT INTO relawan
             (nama, email, no_hp, tgl_lahir, umur, jenis_kelamin, goldar,
              berat_badan, alamat, kota, pekerjaan, pernah_donor, terakhir_donor)

@@ -1,7 +1,5 @@
 <?php
-// ============================================================
-//  Komponen Footer — include di semua halaman publik
-// ============================================================
+
 ?>
 <footer class="footer-utama">
     <div class="wadah">

@@ -1,13 +1,8 @@
 <?php
-// ============================================================
-//  Simpan Kritik & Saran ke Database
-//  Dipanggil oleh form di kritik_saran.php (method POST)
-// ============================================================
 
 include 'koneksi.php';
 
 if (!isset($_POST['kirim'])) {
-    // Akses langsung tanpa POST → redirect
     header("Location: kritik_saran.php");
     exit;
 }
@@ -17,7 +12,6 @@ $email    = mysqli_real_escape_string($conn, trim($_POST['email']));
 $kategori = mysqli_real_escape_string($conn, $_POST['kategori']);
 $pesan    = mysqli_real_escape_string($conn, trim($_POST['pesan']));
 
-// Validasi kolom wajib
 if ($nama == '' || $email == '' || $kategori == '' || $pesan == '') {
     echo "<script>
         alert('❌ Semua kolom harus diisi!');

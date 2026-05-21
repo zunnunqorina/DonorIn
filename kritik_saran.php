@@ -1,15 +1,10 @@
 <?php
-// ============================================================
-//  Halaman Kritik & Saran
-//  Form kirim pesan + tampilkan pesan masuk (dua kolom)
-// ============================================================
 
 include 'koneksi.php';
 $halaman_aktif = 'kritik';
 
 $pesan_status = "";
 
-// Proses form saat di-submit
 if (isset($_POST['kirim'])) {
     $nama     = mysqli_real_escape_string($conn, trim($_POST['nama']));
     $email    = mysqli_real_escape_string($conn, trim($_POST['email']));
@@ -50,7 +45,6 @@ if (isset($_POST['kirim'])) {
 
     <div class="dua-kolom">
 
-        <!-- ===== KOLOM KIRI: Form Kirim ===== -->
         <div class="kolom-kiri">
             <h2 class="judul-seksi">Kirim Kritik & Saran</h2>
 
@@ -105,7 +99,6 @@ if (isset($_POST['kirim'])) {
             </form>
         </div>
 
-        <!-- ===== KOLOM KANAN: Pesan Masuk ===== -->
         <div class="kolom-kanan">
             <h2 class="judul-seksi">Pesan Masuk</h2>
 
