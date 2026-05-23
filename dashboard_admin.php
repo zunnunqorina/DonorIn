@@ -255,10 +255,8 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
             font-size: 13px; font-weight: 600; color: var(--merah);
         }
 
-        /* ── CONTENT ── */
         .content { padding: 28px 32px 40px; flex: 1; }
 
-        /* ── WELCOME BANNER ── */
         .welcome-banner {
             background: linear-gradient(135deg, var(--merah-gelap) 0%, var(--merah) 60%, var(--merah-terang) 100%);
             border-radius: var(--radius); padding: 28px 32px; margin-bottom: 28px;
@@ -271,7 +269,6 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
         .welcome-text p  { font-size: 14px; color: rgba(255,255,255,.75); }
         .welcome-icon { width: 80px; height: 80px; background: rgba(255,255,255,.12); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; flex-shrink: 0; z-index: 1; }
 
-        /* ── STAT CARDS ── */
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 20px; }
         .stats-grid-2 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 28px; }
 
@@ -298,7 +295,6 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
         .stat-value { font-family: 'Fraunces', serif; font-size: 38px; font-weight: 900; color: var(--teks-gelap); line-height: 1; }
         .stat-footer { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--abu-sedang); }
 
-        /* ── SECTION HEADER ── */
         .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
         .section-title { font-size: 16px; font-weight: 800; color: var(--teks-gelap); display: flex; align-items: center; gap: 8px; }
         .section-title i { color: var(--merah); }
@@ -311,16 +307,13 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
         }
         .btn-lihat:hover { background: var(--merah); color: var(--putih); border-color: var(--merah); }
 
-        /* ── GRID ── */
         .two-col   { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
         .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px; }
 
-        /* ── CARD ── */
         .card { background: var(--putih); border-radius: var(--radius); border: 1px solid var(--abu); box-shadow: var(--shadow-sm); overflow: hidden; }
         .card-header { padding: 18px 22px 16px; border-bottom: 1px solid var(--abu); }
         .card-body { padding: 0; }
 
-        /* ── TABLE ── */
         .tbl { width: 100%; border-collapse: collapse; }
         .tbl thead th { padding: 10px 20px; text-align: left; font-size: 11px; font-weight: 700; color: var(--abu-sedang); text-transform: uppercase; letter-spacing: .8px; background: var(--abu-terang); border-bottom: 1px solid var(--abu); }
         .tbl tbody tr { border-bottom: 1px solid var(--abu); transition: var(--trans); }
@@ -333,7 +326,6 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
         .tbl-name-text { font-weight: 600; font-size: 13px; }
         .tbl-name-sub  { font-size: 11px; color: var(--abu-sedang); margin-top: 1px; }
 
-        /* ── BADGE ── */
         .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
         .badge-merah  { background: var(--merah-muda);  color: var(--merah); }
         .badge-hijau  { background: #E8F8F0; color: #1B8A4E; }
@@ -342,14 +334,12 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
         .badge-abu    { background: #F1F3F5; color: #6B7280; }
         .badge-pink   { background: #FFF0F7; color: #BE185D; }
 
-        /* ── GOLONGAN DARAH ── */
         .goldar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 20px; }
         .goldar-item { background: var(--merah-tipis); border: 1px solid var(--merah-muda); border-radius: var(--radius-sm); padding: 14px 10px; text-align: center; transition: var(--trans); }
         .goldar-item:hover { background: var(--merah-muda); border-color: var(--merah); transform: scale(1.03); }
         .goldar-type  { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 900; color: var(--merah); line-height: 1; margin-bottom: 4px; }
         .goldar-total { font-size: 12px; font-weight: 600; color: var(--teks-sedang); }
 
-        /* ── EVENT ITEM ── */
         .event-list { padding: 4px 0; }
         .event-item { display: flex; align-items: center; gap: 14px; padding: 13px 20px; border-bottom: 1px solid var(--abu); transition: var(--trans); }
         .event-item:last-child { border-bottom: none; }
@@ -365,7 +355,6 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
         .event-meta i { color: var(--merah); margin-right: 2px; }
         .event-time  { font-size: 11px; font-weight: 600; color: var(--merah); white-space: nowrap; }
 
-        /* ── HIGHLIGHT CARD ── */
         .highlight-card {
             background: linear-gradient(135deg, #1A1A2E 0%, #2D1B3D 100%);
             border-radius: var(--radius); padding: 22px 24px;
@@ -376,7 +365,6 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
         .highlight-info h3 { font-family: 'Fraunces', serif; font-size: 32px; font-weight: 900; color: var(--putih); line-height: 1; }
         .highlight-info p  { font-size: 12px; color: rgba(255,255,255,.5); margin-top: 4px; }
 
-        /* ── KRITIK SARAN ITEM ── */
         .ks-item { padding: 14px 20px; border-bottom: 1px solid var(--abu); transition: var(--trans); }
         .ks-item:last-child { border-bottom: none; }
         .ks-item:hover { background: var(--merah-tipis); }
@@ -384,12 +372,10 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
         .ks-nama   { font-size: 13px; font-weight: 700; color: var(--teks-gelap); }
         .ks-pesan  { font-size: 12px; color: var(--teks-sedang); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-        /* ── EMPTY STATE ── */
         .empty-state { text-align: center; padding: 32px 20px; color: var(--abu-sedang); }
         .empty-state i { font-size: 36px; color: var(--merah-muda); display: block; margin-bottom: 10px; }
         .empty-state p { font-size: 13px; }
 
-        /* ── ANIMASI ── */
         @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
         .welcome-banner { animation: fadeUp .3s ease both; }
         .stat-card { animation: fadeUp .4s ease both; }
@@ -398,7 +384,6 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
         .stat-card:nth-child(3) { animation-delay: .15s; }
         .card, .highlight-card { animation: fadeUp .35s ease both; animation-delay: .2s; }
 
-        /* ── SCROLLBAR ── */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--merah-muda); border-radius: 3px; }
@@ -423,7 +408,7 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
     <nav class="sidebar-nav">
         <div class="nav-section">
             <div class="nav-label">Utama</div>
-            <a href="dashboard.php" class="nav-item active">
+            <a href="dashboard_admin.php" class="nav-item active">
                 <i class="fas fa-th-large"></i> Dashboard
             </a>
         </div>
@@ -434,7 +419,7 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
                 <i class="fas fa-user-injured"></i> Pasien
                 <span class="nav-badge"><?= $total_pasien ?></span>
             </a>
-            <a href="admin/pendonor.php" class="nav-item">
+            <a href="pendonor_admin.php" class="nav-item">
                 <i class="fas fa-hand-holding-heart"></i> Pendonor
                 <span class="nav-badge"><?= $total_pendonor ?></span>
             </a>
@@ -550,9 +535,9 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
                 <div class="stat-footer">
                     <i class="fas fa-circle-dot" style="color:#5B4FCC;font-size:8px;"></i>
                     Relawan terdaftar
-                    <?php if ($kota_terbanyak): ?>
+                    <!-- <?php if ($kota_terbanyak): ?>
                     &nbsp;·&nbsp; Terbanyak: <strong><?= htmlspecialchars($kota_terbanyak['kota']) ?></strong>
-                    <?php endif; ?>
+                    <?php endif; ?> -->
                 </div>
             </div>
         </div>
