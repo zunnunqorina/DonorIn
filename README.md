@@ -266,6 +266,21 @@ DonorIn bertujuan untuk mengatasi kesulitan pencarian donor darah yang selama in
 
 ---
 
+## Bug Log
+- Gejala :
+- 
+- 
+- 
+---
+
+## AI Usage Statement
+- Toll : 
+- Untuk apa:
+- 2-3 prompt utama:
+- bagian output AI yang dipakai:
+- 
+---
+
 > **Mata Kuliah:** Analisis dan Perancangan Berorientasi Objek  
 > **Dosen Pengampu:** Royana Afwani, S.Kom., M.T.  
 > **Program Studi:** Teknik Informatika — Fakultas Teknik, Universitas Mataram  
