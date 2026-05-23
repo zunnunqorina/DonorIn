@@ -1,0 +1,60 @@
+<?php
+include 'koneksi.php';
+
+if (!isset($_SESSION['pendonor_login']) || $_SESSION['pendonor_login'] !== true) {
+    header("Location: login_pendonor.php");
+    exit;
+}
+
+$pendonor_id = $_SESSION['pendonor_id'];
+
+// Tandai semua sudah dibaca
+mysqli_query($conn, "UPDATE notifikasi SET sudah_baca=1 WHERE tujuan_tipe='pendonor' AND tujuan_id=$pendonor_id");
+
+$q_notif = mysqli_query($conn,
+    "SELECT * FROM notifikasi WHERE tujuan_tipe='pendonor' AND tujuan_id=$pendonor_id ORDER BY tanggal DESC");
+
+$halaman_aktif = 'dashboard_pendonor';
+?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DonorIn — Notifikasi Pendonor</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body style="background:#f4f4f4;">
+
+<?php include 'header.php'; ?>
+
+<main class="wadah" style="padding:40px 20px; max-width:800px;">
+    <h2 style="color:#8b0000; margin-bottom:5px;">🔔 Semua Notifikasi</h2>
+    <p style="color:#888; margin-bottom:25px;"><a href="dashboard_pendonor.php" style="color:#8b0000;">← Dashboard</a></p>
+
+    <?php
+    $jml = mysqli_num_rows($q_notif);
+    if ($jml == 0):
+    ?>
+        <div class="blok-konten">
+            <p class="kosong">Belum ada notifikasi.</p>
+        </div>
+    <?php else:
+        while ($notif = mysqli_fetch_assoc($q_notif)):
+            $tgl_notif = date('d M Y, H:i', strtotime($notif['tanggal']));
+    ?>
+        <div class="kartu-notif sudah-baca" style="margin-bottom:12px;">
+            <div class="ikon-notif">🔔</div>
+            <div class="isi-notif" style="flex:1;">
+                <h5><?php echo htmlspecialchars($notif['judul']); ?></h5>
+                <p><?php echo htmlspecialchars($notif['pesan']); ?></p>
+                <div class="waktu-notif"><?php echo $tgl_notif; ?></div>
+            </div>
+        </div>
+    <?php endwhile; endif; ?>
+</main>
+
+<?php include 'footer.php'; ?>
+<?php mysqli_close($conn); ?>
+</body>
+</html>

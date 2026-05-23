@@ -31,21 +31,6 @@ if (formPendaftaran) {
 }
 
 
-const tombolLoginAdmin = document.querySelector('.tombol-admin');
-
-if (tombolLoginAdmin) {
-    tombolLoginAdmin.addEventListener('click', function() {
-        const username = prompt("Masukkan Username Admin:");
-        const password = prompt("Masukkan Password Admin:");
-
-        if (username === "karin" && password === "karincantik") {
-            alert("✅ Login Admin Berhasil!\n\nSelamat datang di panel admin.");
-        } else {
-            alert("❌ Username atau Password salah!");
-        }
-    });
-}
-
 function hitungUmur(tanggalLahir) {
     const lahir = new Date(tanggalLahir);
     const hariIni = new Date();
