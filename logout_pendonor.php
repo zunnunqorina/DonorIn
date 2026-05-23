@@ -1,0 +1,11 @@
+<?php
+include 'koneksi.php';
+
+unset($_SESSION['pendonor_login']);
+unset($_SESSION['pendonor_id']);
+unset($_SESSION['pendonor_nama']);
+unset($_SESSION['pendonor_goldar']);
+
+header("Location: login_pendonor.php");
+exit;
+?>
