@@ -1,6 +1,9 @@
 <?php
 include 'koneksi.php';
-
+if (isset($_SESSION['admin_login']) && $_SESSION['admin_login'] === true) {
+    header("Location: dashboard_admin.php");
+    exit;
+}
 $pesan_error = "";
 
 if (isset($_POST['login'])) {
@@ -8,7 +11,7 @@ if (isset($_POST['login'])) {
     $password = mysqli_real_escape_string($conn, trim($_POST['password']));
 
     $query = "SELECT * FROM admin 
-              WHERE username = '$username' AND password = MD5('$password')";
+              WHERE username = '$username' AND password = ('$password')";
     $hasil = mysqli_query($conn, $query);
 
     if (mysqli_num_rows($hasil) == 1) {
@@ -24,12 +27,8 @@ if (isset($_POST['login'])) {
     }
 }
 
-if (isset($_SESSION['admin_login']) && $_SESSION['admin_login'] === true) {
-    header("Location: dashboard_admin.php");
-    exit;
-}
 
-mysqli_close($conn);
+
 ?>
 <!DOCTYPE html>
 <html lang="id">

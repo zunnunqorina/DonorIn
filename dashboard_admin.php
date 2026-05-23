@@ -1,14 +1,10 @@
 <?php
-session_start();
+include 'koneksi.php';
 
-// Proteksi halaman - harus login dulu
 if (!isset($_SESSION['admin_login']) || $_SESSION['admin_login'] !== true) {
     header("Location: login_admin.php");
     exit;
 }
-
-// Koneksi database
-include 'koneksi.php';
 
 // Ambil nama admin dari session
 $admin_username = $_SESSION['admin_username'] ?? 'Admin';
@@ -89,15 +85,6 @@ $q_event_bulan = mysqli_query($conn, "
 ");
 $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
 
-// Kota terbanyak relawan
-$q_kota = mysqli_query($conn, "
-    SELECT kota, COUNT(*) as total
-    FROM relawan
-    GROUP BY kota
-    ORDER BY total DESC
-    LIMIT 1
-");
-$kota_terbanyak = mysqli_fetch_assoc($q_kota);
 ?>
 <!DOCTYPE html>
 <html lang="id">
