@@ -2,9 +2,9 @@
 session_start();
 
 // Proteksi halaman - harus login dulu
-if (!isset($_SESSION['admin_id'])) {
-    header("Location: login.php");
-    exit();
+if (!isset($_SESSION['admin_login']) || $_SESSION['admin_login'] !== true) {
+    header("Location: login_admin.php");
+    exit;
 }
 
 // Koneksi database
