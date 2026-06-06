@@ -11,7 +11,8 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
 // ── HAPUS ──
 if (isset($_GET['hapus']) && is_numeric($_GET['hapus'])) {
     $id_hapus = (int) $_GET['hapus'];
-    mysqli_query($conn, "DELETE FROM kritik_saran WHERE id = $id_hapus");
+    $stmt = $conn->prepare("DELETE FROM kritik_saran WHERE id = ?");
+    $stmt->execute([$id_hapus]);
     header("Location: kritik_saran_admin.php?pesan=hapus_sukses");
     exit();
 }
@@ -19,10 +20,13 @@ if (isset($_GET['hapus']) && is_numeric($_GET['hapus'])) {
 // ── TANDAI SUDAH DIBACA / BELUM ──
 if (isset($_GET['toggle']) && is_numeric($_GET['toggle'])) {
     $id_toggle = (int) $_GET['toggle'];
-    $q_status  = mysqli_query($conn, "SELECT sudah_baca FROM kritik_saran WHERE id = $id_toggle");
-    if ($row_s = mysqli_fetch_assoc($q_status)) {
+    $stmt = $conn->prepare("SELECT sudah_baca FROM kritik_saran WHERE id = ?");
+    $stmt->execute([$id_toggle]);
+    $row_s = $stmt->fetch();
+    if ($row_s) {
         $baru = $row_s['sudah_baca'] ? 0 : 1;
-        mysqli_query($conn, "UPDATE kritik_saran SET sudah_baca = $baru WHERE id = $id_toggle");
+        $stmt2 = $conn->prepare("UPDATE kritik_saran SET sudah_baca = ? WHERE id = ?");
+        $stmt2->execute([$baru, $id_toggle]);
     }
     header("Location: kritik_saran_admin.php?pesan=update_sukses");
     exit();
@@ -31,39 +35,45 @@ if (isset($_GET['toggle']) && is_numeric($_GET['toggle'])) {
 // ── BALAS (simpan balasan admin) ──
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['aksi']) && $_POST['aksi'] === 'balas') {
     $id_pesan = (int) $_POST['id_pesan'];
-    $balasan  = mysqli_real_escape_string($conn, trim($_POST['balasan']));
+    $balasan  = trim($_POST['balasan']);
     if ($balasan !== '') {
-        mysqli_query($conn, "UPDATE kritik_saran SET balasan = '$balasan', sudah_baca = 1, tgl_balas = NOW() WHERE id = $id_pesan");
+        $stmt = $conn->prepare("UPDATE kritik_saran SET balasan = ?, sudah_baca = 1, tgl_balas = NOW() WHERE id = ?");
+        $stmt->execute([$balasan, $id_pesan]);
         header("Location: kritik_saran_admin.php?pesan=balas_sukses");
         exit();
     }
 }
 
 // ── FILTER & PAGINASI ──
-$filter_kat  = isset($_GET['kategori']) ? mysqli_real_escape_string($conn, $_GET['kategori']) : '';
+$filter_kat  = isset($_GET['kategori']) ? trim($_GET['kategori']) : '';
 $filter_baca = isset($_GET['status'])   ? $_GET['status'] : '';
-$search      = isset($_GET['search'])   ? trim(mysqli_real_escape_string($conn, $_GET['search'])) : '';
+$search      = isset($_GET['search'])   ? trim($_GET['search']) : '';
 $page        = isset($_GET['page'])     ? max(1, (int) $_GET['page']) : 1;
 $per_page    = 10;
 $offset      = ($page - 1) * $per_page;
 
-$where = "WHERE 1=1";
-if ($filter_kat !== '')  $where .= " AND kategori = '$filter_kat'";
-if ($filter_baca === 'belum') $where .= " AND sudah_baca = 0";
-if ($filter_baca === 'sudah') $where .= " AND sudah_baca = 1";
-if ($search !== '')      $where .= " AND (nama LIKE '%$search%' OR email LIKE '%$search%' OR pesan LIKE '%$search%')";
+$where  = "WHERE 1=1";
+$params = [];
+if ($filter_kat !== '')       { $where .= " AND kategori = ?";                                              $params[] = $filter_kat; }
+if ($filter_baca === 'belum') { $where .= " AND sudah_baca = 0"; }
+if ($filter_baca === 'sudah') { $where .= " AND sudah_baca = 1"; }
+if ($search !== '')           { $where .= " AND (nama LIKE ? OR email LIKE ? OR pesan LIKE ?)";             $params[] = "%$search%"; $params[] = "%$search%"; $params[] = "%$search%"; }
 
-$q_total   = mysqli_query($conn, "SELECT COUNT(*) as total FROM kritik_saran $where");
-$total     = mysqli_fetch_assoc($q_total)['total'] ?? 0;
-$total_pg  = ceil($total / $per_page);
+$stmt_total = $conn->prepare("SELECT COUNT(*) FROM kritik_saran $where");
+$stmt_total->execute($params);
+$total    = $stmt_total->fetchColumn() ?? 0;
+$total_pg = ceil($total / $per_page);
 
-$q_data = mysqli_query($conn, "SELECT * FROM kritik_saran $where ORDER BY tanggal DESC LIMIT $per_page OFFSET $offset");
+$params_data   = array_merge($params, [$per_page, $offset]);
+$stmt_data     = $conn->prepare("SELECT * FROM kritik_saran $where ORDER BY tanggal DESC LIMIT ? OFFSET ?");
+$stmt_data->execute($params_data);
+$q_data = $stmt_data;
 
 // Statistik
-$stat_total   = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as t FROM kritik_saran"))['t'] ?? 0;
-$stat_belum   = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as t FROM kritik_saran WHERE sudah_baca = 0"))['t'] ?? 0;
-$stat_kritik  = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as t FROM kritik_saran WHERE kategori='kritik'"))['t'] ?? 0;
-$stat_saran   = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as t FROM kritik_saran WHERE kategori='saran'"))['t'] ?? 0;
+$stat_total  = $conn->query("SELECT COUNT(*) FROM kritik_saran")->fetchColumn() ?? 0;
+$stat_belum  = $conn->query("SELECT COUNT(*) FROM kritik_saran WHERE sudah_baca = 0")->fetchColumn() ?? 0;
+$stat_kritik = $conn->query("SELECT COUNT(*) FROM kritik_saran WHERE kategori='kritik'")->fetchColumn() ?? 0;
+$stat_saran  = $conn->query("SELECT COUNT(*) FROM kritik_saran WHERE kategori='saran'")->fetchColumn() ?? 0;
 
 $pesan = $_GET['pesan'] ?? '';
 ?>

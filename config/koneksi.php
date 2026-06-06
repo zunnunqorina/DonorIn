@@ -6,13 +6,19 @@ $dbUser   = "root";
 $dbPass   = "";
 $dbName   = "donorin";
 
-$conn = mysqli_connect($dbServer, $dbUser, $dbPass, $dbName);
-
-if (!$conn) {
+try {
+    $conn = new PDO(
+        "mysql:host=$dbServer;dbname=$dbName;charset=utf8",
+        $dbUser,
+        $dbPass,
+        [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        ]
+    );
+} catch (PDOException $e) {
     die("<p style='color:red;font-family:sans-serif;'>
-        Koneksi gagal: " . mysqli_connect_error() . "
+        Koneksi gagal: " . $e->getMessage() . "
     </p>");
 }
-
-mysqli_set_charset($conn, "utf8");
 ?>

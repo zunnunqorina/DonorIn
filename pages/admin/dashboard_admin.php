@@ -10,31 +10,25 @@ if (!isset($_SESSION['admin_login']) || $_SESSION['admin_login'] !== true) {
 $admin_username = $_SESSION['admin_username'] ?? 'Admin';
 
 // Total pasien
-$q_pasien = mysqli_query($conn, "SELECT COUNT(*) as total FROM user WHERE role = 'pasien'");
-$total_pasien = mysqli_fetch_assoc($q_pasien)['total'] ?? 0;
+$total_pasien = $conn->query("SELECT COUNT(*) FROM user WHERE role = 'pasien'")->fetchColumn() ?? 0;
 
 // Total pendonor
-$q_pendonor = mysqli_query($conn, "SELECT COUNT(*) as total FROM user WHERE role = 'pendonor'");
-$total_pendonor = mysqli_fetch_assoc($q_pendonor)['total'] ?? 0;
+$total_pendonor = $conn->query("SELECT COUNT(*) FROM user WHERE role = 'pendonor'")->fetchColumn() ?? 0;
 
 // Total relawan
-$q_relawan = mysqli_query($conn, "SELECT COUNT(*) as total FROM relawan");
-$total_relawan = mysqli_fetch_assoc($q_relawan)['total'] ?? 0;
+$total_relawan = $conn->query("SELECT COUNT(*) FROM relawan")->fetchColumn() ?? 0;
 
 // Total event donor
-$q_event_donor = mysqli_query($conn, "SELECT COUNT(*) as total FROM event_donor WHERE status = 'aktif'");
-$total_event_donor = mysqli_fetch_assoc($q_event_donor)['total'] ?? 0;
+$total_event_donor = $conn->query("SELECT COUNT(*) FROM event_donor WHERE status = 'aktif'")->fetchColumn() ?? 0;
 
 // Total event sosialisasi
-$q_event_sosial = mysqli_query($conn, "SELECT COUNT(*) as total FROM event_sosialisasi WHERE status = 'aktif'");
-$total_event_sosial = mysqli_fetch_assoc($q_event_sosial)['total'] ?? 0;
+$total_event_sosial = $conn->query("SELECT COUNT(*) FROM event_sosialisasi WHERE status = 'aktif'")->fetchColumn() ?? 0;
 
 // Total kritik & saran
-$q_ks = mysqli_query($conn, "SELECT COUNT(*) as total FROM kritik_saran");
-$total_ks = mysqli_fetch_assoc($q_ks)['total'] ?? 0;
+$total_ks = $conn->query("SELECT COUNT(*) FROM kritik_saran")->fetchColumn() ?? 0;
 
 // Event donor mendatang (5 terdekat)
-$q_upcoming_donor = mysqli_query($conn, "
+$q_upcoming_donor = $conn->query("
     SELECT * FROM event_donor
     WHERE tanggal >= CURDATE() AND status = 'aktif'
     ORDER BY tanggal ASC, jam_mulai ASC
@@ -42,7 +36,7 @@ $q_upcoming_donor = mysqli_query($conn, "
 ");
 
 // Event sosialisasi mendatang (5 terdekat)
-$q_upcoming_sosial = mysqli_query($conn, "
+$q_upcoming_sosial = $conn->query("
     SELECT * FROM event_sosialisasi
     WHERE tanggal >= CURDATE() AND status = 'aktif'
     ORDER BY tanggal ASC, jam_mulai ASC
@@ -50,40 +44,39 @@ $q_upcoming_sosial = mysqli_query($conn, "
 ");
 
 // Relawan terbaru (5 terakhir)
-$q_relawan_baru = mysqli_query($conn, "
+$q_relawan_baru = $conn->query("
     SELECT * FROM relawan
     ORDER BY tanggal_daftar DESC
     LIMIT 5
 ");
 
 // Kritik & saran terbaru (5 terakhir)
-$q_ks_baru = mysqli_query($conn, "
+$q_ks_baru = $conn->query("
     SELECT * FROM kritik_saran
     ORDER BY tanggal DESC
     LIMIT 5
 ");
 
 // Sebaran golongan darah relawan
-$q_goldar = mysqli_query($conn, "
+$q_goldar = $conn->query("
     SELECT goldar, COUNT(*) as total
     FROM relawan
     GROUP BY goldar
     ORDER BY total DESC
 ");
 $goldar_map = ['A' => 0, 'B' => 0, 'O' => 0, 'AB' => 0];
-while ($row = mysqli_fetch_assoc($q_goldar)) {
+while ($row = $q_goldar->fetch()) {
     if (isset($goldar_map[$row['goldar']])) {
         $goldar_map[$row['goldar']] = $row['total'];
     }
 }
 
 // Total event donor bulan ini
-$q_event_bulan = mysqli_query($conn, "
-    SELECT COUNT(*) as total FROM event_donor
+$total_event_bulan = $conn->query("
+    SELECT COUNT(*) FROM event_donor
     WHERE MONTH(tanggal) = MONTH(CURDATE())
     AND YEAR(tanggal) = YEAR(CURDATE())
-");
-$total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
+")->fetchColumn() ?? 0;
 
 ?>
 <!DOCTYPE html>
@@ -315,8 +308,8 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
                 </div>
                 <div class="card">
                     <div class="card-body event-list">
-                        <?php if (mysqli_num_rows($q_upcoming_donor) > 0):
-                            while ($row = mysqli_fetch_assoc($q_upcoming_donor)):
+                        <?php $rows_upcoming_donor = $q_upcoming_donor->fetchAll(); if (count($rows_upcoming_donor) > 0):
+                            foreach ($rows_upcoming_donor as $row):
                                 $tgl = strtotime($row['tanggal']); ?>
                         <div class="event-item">
                             <div class="event-date-box">
@@ -335,7 +328,7 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
                                 <?= substr($row['jam_mulai'], 0, 5) ?>
                             </div>
                         </div>
-                        <?php endwhile; else: ?>
+                        <?php endforeach; else: ?>
                         <div class="empty-state">
                             <i class="fas fa-calendar-times"></i>
                             <p>Tidak ada event donor mendatang</p>
@@ -353,8 +346,8 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
                 </div>
                 <div class="card">
                     <div class="card-body event-list">
-                        <?php if (mysqli_num_rows($q_upcoming_sosial) > 0):
-                            while ($row = mysqli_fetch_assoc($q_upcoming_sosial)):
+                        <?php $rows_upcoming_sosial = $q_upcoming_sosial->fetchAll(); if (count($rows_upcoming_sosial) > 0):
+                            foreach ($rows_upcoming_sosial as $row):
                                 $tgl = strtotime($row['tanggal']); ?>
                         <div class="event-item">
                             <div class="event-date-box" style="background:#1B8A4E;">
@@ -373,7 +366,7 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
                                 <?= substr($row['jam_mulai'], 0, 5) ?>
                             </div>
                         </div>
-                        <?php endwhile; else: ?>
+                        <?php endforeach; else: ?>
                         <div class="empty-state">
                             <i class="fas fa-bullhorn"></i>
                             <p>Tidak ada sosialisasi mendatang</p>
@@ -394,7 +387,7 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
                 </div>
                 <div class="card">
                     <div class="card-body">
-                        <?php if (mysqli_num_rows($q_relawan_baru) > 0): ?>
+                        <?php $rows_relawan_baru = $q_relawan_baru->fetchAll(); if (count($rows_relawan_baru) > 0): ?>
                         <table class="tbl">
                             <thead>
                                 <tr>
@@ -404,7 +397,7 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
                                 </tr>
                             </thead>
                             <tbody>
-                            <?php while ($row = mysqli_fetch_assoc($q_relawan_baru)): ?>
+                            <?php foreach ($rows_relawan_baru as $row): ?>
                                 <tr>
                                     <td>
                                         <div class="tbl-name">
@@ -418,7 +411,7 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
                                     <td><span class="badge badge-merah"><?= htmlspecialchars($row['goldar']) ?></span></td>
                                     <td style="font-size:12px;color:var(--teks-sedang);"><?= htmlspecialchars($row['kota']) ?></td>
                                 </tr>
-                            <?php endwhile; ?>
+                            <?php endforeach; ?>
                             </tbody>
                         </table>
                         <?php else: ?>
@@ -439,8 +432,8 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
                 </div>
                 <div class="card">
                     <div class="card-body">
-                        <?php if (mysqli_num_rows($q_ks_baru) > 0):
-                            while ($row = mysqli_fetch_assoc($q_ks_baru)):
+                        <?php $rows_ks_baru = $q_ks_baru->fetchAll(); if (count($rows_ks_baru) > 0):
+                            foreach ($rows_ks_baru as $row):
                                 $badge_map = ['kritik' => 'badge-merah', 'saran' => 'badge-hijau', 'pertanyaan' => 'badge-biru'];
                                 $badge = $badge_map[$row['kategori']] ?? 'badge-abu';
                         ?>
@@ -451,7 +444,7 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
                             </div>
                             <div class="ks-pesan"><?= htmlspecialchars($row['pesan']) ?></div>
                         </div>
-                        <?php endwhile; else: ?>
+                        <?php endforeach; else: ?>
                         <div class="empty-state">
                             <i class="fas fa-comment-slash"></i>
                             <p>Belum ada kritik & saran masuk</p>
