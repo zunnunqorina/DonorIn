@@ -6,6 +6,7 @@ unset($_SESSION['pendonor_id']);
 unset($_SESSION['pendonor_nama']);
 unset($_SESSION['pendonor_goldar']);
 
+$conn = null;
 header("Location: login_pendonor.php");
 exit;
 ?>

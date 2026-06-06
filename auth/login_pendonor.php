@@ -10,14 +10,14 @@ if (isset($_SESSION['pendonor_login']) && $_SESSION['pendonor_login'] === true) 
 $pesan_error = "";
 
 if (isset($_POST['login'])) {
-    $email    = mysqli_real_escape_string($conn, trim($_POST['email']));
+    $email    = trim($_POST['email']);
     $password = trim($_POST['password']);
 
-    $query = "SELECT * FROM pendonor WHERE email = '$email' AND password = MD5('$password') AND status_aktif = 'aktif'";
-    $hasil = mysqli_query($conn, $query);
+    $stmt = $conn->prepare("SELECT * FROM pendonor WHERE email = ? AND status_aktif = 'aktif'");
+    $stmt->execute([$email]);
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (mysqli_num_rows($hasil) == 1) {
-        $data = mysqli_fetch_assoc($hasil);
+    if ($data && password_verify($password, $data['password'])) {
         $_SESSION['pendonor_login'] = true;
         $_SESSION['pendonor_id']    = $data['id'];
         $_SESSION['pendonor_nama']  = $data['nama'];
@@ -28,7 +28,7 @@ if (isset($_POST['login'])) {
         $pesan_error = "❌ Email atau password salah, atau akun tidak aktif!";
     }
 }
-mysqli_close($conn);
+$conn = null;
 ?>
 <!DOCTYPE html>
 <html lang="id">

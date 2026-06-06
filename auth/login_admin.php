@@ -6,12 +6,14 @@ if (isset($_SESSION['admin_login']) && $_SESSION['admin_login'] === true) {
 }
 $pesan_error = "";
 if (isset($_POST['login'])) {
-    $username = mysqli_real_escape_string($conn, trim($_POST['username']));
-    $password = mysqli_real_escape_string($conn, trim($_POST['password']));
-    $query = "SELECT * FROM admin WHERE username = '$username' AND password = '$password'";
-    $hasil = mysqli_query($conn, $query);
-    if (mysqli_num_rows($hasil) == 1) {
-        $data = mysqli_fetch_assoc($hasil);
+    $username = trim($_POST['username']);
+    $password = trim($_POST['password']);
+
+    $stmt = $conn->prepare("SELECT * FROM admin WHERE username = ?");
+    $stmt->execute([$username]);
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($data && password_verify($password, $data['password'])) {
         $_SESSION['admin_login']    = true;
         $_SESSION['admin_username'] = $data['username'];
         header("Location: ../pages/admin/dashboard_admin.php");
