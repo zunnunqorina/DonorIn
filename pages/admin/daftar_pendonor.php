@@ -66,7 +66,7 @@ if (isset($_POST['daftar'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DonorIn — Daftar Pendonor</title>
-    <link rel="stylesheet" href="assets/styles.css">
+    <link rel="stylesheet" href="../../assets/styles.css">
 </head>
 <body style="background:#f4f6f9; padding: 40px 20px;">
 <div class="wadah" style="max-width:750px;">
@@ -154,7 +154,7 @@ if (isset($_POST['daftar'])) {
             </button>
         </form>
         <p style="text-align:center; margin-top:15px; color:#888;">
-            Sudah punya akun? <a href="login_pendonor.php" style="color:#8b0000; font-weight:bold;">Login di sini</a>
+            Sudah punya akun? <a href="../../auth/login_pendonor.php" style="color:#8b0000; font-weight:bold;">Login di sini</a>
         </p>
     </div>
 </div>

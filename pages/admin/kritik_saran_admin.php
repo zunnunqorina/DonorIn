@@ -1,7 +1,7 @@
 <?php
 include '../../config/koneksi.php';
 
-if (!isset($_SESSION['admin_id'])) {
+if (!isset($_SESSION['admin_login']) || $_SESSION['admin_login'] !== true) {
     header("Location: ../../auth/login_admin.php");
     exit();
 }
@@ -19,10 +19,10 @@ if (isset($_GET['hapus']) && is_numeric($_GET['hapus'])) {
 // ── TANDAI SUDAH DIBACA / BELUM ──
 if (isset($_GET['toggle']) && is_numeric($_GET['toggle'])) {
     $id_toggle = (int) $_GET['toggle'];
-    $q_status  = mysqli_query($conn, "SELECT sudah_dibaca FROM kritik_saran WHERE id = $id_toggle");
+    $q_status  = mysqli_query($conn, "SELECT sudah_baca FROM kritik_saran WHERE id = $id_toggle");
     if ($row_s = mysqli_fetch_assoc($q_status)) {
-        $baru = $row_s['sudah_dibaca'] ? 0 : 1;
-        mysqli_query($conn, "UPDATE kritik_saran SET sudah_dibaca = $baru WHERE id = $id_toggle");
+        $baru = $row_s['sudah_baca'] ? 0 : 1;
+        mysqli_query($conn, "UPDATE kritik_saran SET sudah_baca = $baru WHERE id = $id_toggle");
     }
     header("Location: kritik_saran_admin.php?pesan=update_sukses");
     exit();
@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['aksi']) && $_POST['ak
     $id_pesan = (int) $_POST['id_pesan'];
     $balasan  = mysqli_real_escape_string($conn, trim($_POST['balasan']));
     if ($balasan !== '') {
-        mysqli_query($conn, "UPDATE kritik_saran SET balasan = '$balasan', sudah_dibaca = 1, tgl_balas = NOW() WHERE id = $id_pesan");
+        mysqli_query($conn, "UPDATE kritik_saran SET balasan = '$balasan', sudah_baca = 1, tgl_balas = NOW() WHERE id = $id_pesan");
         header("Location: kritik_saran_admin.php?pesan=balas_sukses");
         exit();
     }
@@ -49,8 +49,8 @@ $offset      = ($page - 1) * $per_page;
 
 $where = "WHERE 1=1";
 if ($filter_kat !== '')  $where .= " AND kategori = '$filter_kat'";
-if ($filter_baca === 'belum') $where .= " AND sudah_dibaca = 0";
-if ($filter_baca === 'sudah') $where .= " AND sudah_dibaca = 1";
+if ($filter_baca === 'belum') $where .= " AND sudah_baca = 0";
+if ($filter_baca === 'sudah') $where .= " AND sudah_baca = 1";
 if ($search !== '')      $where .= " AND (nama LIKE '%$search%' OR email LIKE '%$search%' OR pesan LIKE '%$search%')";
 
 $q_total   = mysqli_query($conn, "SELECT COUNT(*) as total FROM kritik_saran $where");
@@ -61,7 +61,7 @@ $q_data = mysqli_query($conn, "SELECT * FROM kritik_saran $where ORDER BY tangga
 
 // Statistik
 $stat_total   = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as t FROM kritik_saran"))['t'] ?? 0;
-$stat_belum   = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as t FROM kritik_saran WHERE sudah_dibaca = 0"))['t'] ?? 0;
+$stat_belum   = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as t FROM kritik_saran WHERE sudah_baca = 0"))['t'] ?? 0;
 $stat_kritik  = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as t FROM kritik_saran WHERE kategori='kritik'"))['t'] ?? 0;
 $stat_saran   = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as t FROM kritik_saran WHERE kategori='saran'"))['t'] ?? 0;
 
@@ -73,156 +73,8 @@ $pesan = $_GET['pesan'] ?? '';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kritik & Saran — DonorIn Admin</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        :root {
-            --merah:        #C0001A;
-            --merah-gelap:  #8B0012;
-            --merah-muda:   #FFE5E9;
-            --merah-tipis:  #FFF5F6;
-            --putih:        #FFFFFF;
-            --abu-terang:   #F7F8FA;
-            --abu:          #E8EAED;
-            --abu-sedang:   #9DA3AE;
-            --teks-gelap:   #1A1A2E;
-            --teks-sedang:  #4A4A6A;
-            --sidebar-w:    260px;
-            --shadow-sm:    0 1px 3px rgba(192,0,26,.08);
-            --shadow-md:    0 4px 16px rgba(192,0,26,.10);
-            --radius:       14px;
-            --radius-sm:    8px;
-            --trans:        all .25s cubic-bezier(.4,0,.2,1);
-        }
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--abu-terang); color: var(--teks-gelap); min-height: 100vh; display: flex; }
-
-        /* ── SIDEBAR ── */
-        .sidebar { width: var(--sidebar-w); min-height: 100vh; background: linear-gradient(175deg,#8B0012 0%,#C0001A 55%,#A0001A 100%); position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 100; box-shadow: 4px 0 24px rgba(139,0,18,.35); }
-        .sidebar-brand { padding: 28px 24px 24px; border-bottom: 1px solid rgba(255,255,255,.12); display: flex; align-items: center; gap: 12px; }
-        .brand-icon { width: 42px; height: 42px; background: var(--putih); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
-        .brand-icon i { color: var(--merah); font-size: 20px; }
-        .brand-name { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 900; color: var(--putih); line-height: 1; }
-        .brand-sub  { font-size: 10px; color: rgba(255,255,255,.6); font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; margin-top: 3px; }
-        .sidebar-nav { padding: 20px 16px; flex: 1; overflow-y: auto; }
-        .nav-section { font-size: 10px; font-weight: 700; color: rgba(255,255,255,.4); letter-spacing: 1.5px; text-transform: uppercase; padding: 0 10px 8px; margin-top: 16px; }
-        .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; color: rgba(255,255,255,.75); text-decoration: none; font-size: 14px; font-weight: 500; transition: var(--trans); margin-bottom: 2px; }
-        .nav-item:hover, .nav-item.active { background: rgba(255,255,255,.15); color: var(--putih); }
-        .nav-item i { width: 18px; text-align: center; font-size: 15px; }
-        .sidebar-foot { padding: 16px; border-top: 1px solid rgba(255,255,255,.12); }
-        .user-card { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: rgba(255,255,255,.1); border-radius: 10px; margin-bottom: 10px; }
-        .user-avatar { width: 34px; height: 34px; background: rgba(255,255,255,.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: white; }
-        .user-info { flex: 1; }
-        .user-name { font-size: 13px; font-weight: 700; color: white; }
-        .user-role { font-size: 11px; color: rgba(255,255,255,.55); }
-        .btn-logout { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; border-radius: 10px; background: rgba(255,255,255,.1); color: rgba(255,255,255,.8); text-decoration: none; font-size: 13px; font-weight: 600; transition: var(--trans); border: 1px solid rgba(255,255,255,.15); }
-        .btn-logout:hover { background: rgba(255,255,255,.2); color: white; }
-
-        /* ── MAIN ── */
-        .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
-        .topbar { background: var(--putih); border-bottom: 1px solid var(--abu); padding: 0 32px; height: 64px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
-        .topbar-title { font-size: 18px; font-weight: 800; color: var(--teks-gelap); }
-        .topbar-sub { font-size: 13px; color: var(--abu-sedang); margin-top: 2px; }
-        .content { padding: 28px 32px; flex: 1; }
-
-        /* ── STAT CARDS ── */
-        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-        .stat-card { background: var(--putih); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 16px; border: 1px solid var(--abu); }
-        .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
-        .stat-icon.merah  { background: var(--merah-muda); color: var(--merah); }
-        .stat-icon.orange { background: #FFF3E0; color: #E65100; }
-        .stat-icon.hijau  { background: #E8F5E9; color: #1B5E20; }
-        .stat-icon.biru   { background: #E3F2FD; color: #0D47A1; }
-        .stat-val  { font-size: 26px; font-weight: 800; color: var(--teks-gelap); line-height: 1; }
-        .stat-lbl  { font-size: 12px; color: var(--abu-sedang); margin-top: 4px; }
-
-        /* ── TOOLBAR ── */
-        .toolbar { background: var(--putih); border-radius: var(--radius); padding: 16px 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--abu); margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-        .search-wrap { flex: 1; min-width: 200px; position: relative; }
-        .search-wrap i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--abu-sedang); font-size: 14px; }
-        .search-input { width: 100%; padding: 9px 12px 9px 36px; border: 1px solid var(--abu); border-radius: var(--radius-sm); font-size: 14px; font-family: inherit; outline: none; transition: var(--trans); }
-        .search-input:focus { border-color: var(--merah); box-shadow: 0 0 0 3px rgba(192,0,26,.08); }
-        .filter-select { padding: 9px 12px; border: 1px solid var(--abu); border-radius: var(--radius-sm); font-size: 14px; font-family: inherit; outline: none; background: white; cursor: pointer; }
-        .filter-select:focus { border-color: var(--merah); }
-        .btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; transition: var(--trans); font-family: inherit; }
-        .btn-primary { background: var(--merah); color: white; }
-        .btn-primary:hover { background: var(--merah-gelap); }
-        .btn-ghost { background: transparent; color: var(--teks-sedang); border: 1px solid var(--abu); }
-        .btn-ghost:hover { background: var(--abu-terang); }
-        .btn-sm { padding: 6px 12px; font-size: 12px; }
-        .btn-danger { background: #DC3545; color: white; }
-        .btn-danger:hover { background: #b02a37; }
-        .btn-success { background: #198754; color: white; }
-        .btn-success:hover { background: #146c43; }
-        .btn-info { background: #0dcaf0; color: #000; }
-        .btn-info:hover { background: #0aa2c0; }
-
-        /* ── TABEL ── */
-        .card { background: var(--putih); border-radius: var(--radius); box-shadow: var(--shadow-sm); border: 1px solid var(--abu); overflow: hidden; }
-        .tbl { width: 100%; border-collapse: collapse; }
-        .tbl thead th { background: var(--abu-terang); padding: 12px 16px; text-align: left; font-size: 11px; font-weight: 700; color: var(--abu-sedang); text-transform: uppercase; letter-spacing: .8px; border-bottom: 1px solid var(--abu); }
-        .tbl tbody td { padding: 14px 16px; border-bottom: 1px solid var(--abu); font-size: 13px; vertical-align: top; }
-        .tbl tbody tr:last-child td { border-bottom: none; }
-        .tbl tbody tr:hover { background: var(--merah-tipis); }
-        .tbl tbody tr.belum-baca { background: #FFFDE7; }
-        .tbl tbody tr.belum-baca:hover { background: #FFF9C4; }
-
-        /* ── BADGE ── */
-        .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
-        .badge-kritik     { background: #f8d7da; color: #721c24; }
-        .badge-saran      { background: #d4edda; color: #155724; }
-        .badge-pertanyaan { background: #cce5ff; color: #004085; }
-        .badge-belum { background: #FFF3CD; color: #856404; }
-        .badge-sudah { background: #D1E7DD; color: #0F5132; }
-
-        /* ── PESAN PENUH ── */
-        .pesan-cell { max-width: 280px; }
-        .pesan-teks { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: var(--teks-sedang); line-height: 1.5; }
-        .balasan-chip { margin-top: 6px; display: inline-flex; align-items: center; gap: 5px; background: #D1E7DD; color: #0F5132; padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-
-        /* ── AKSI ── */
-        .aksi-grup { display: flex; gap: 6px; flex-wrap: wrap; }
-
-        /* ── PAGINASI ── */
-        .paginasi { display: flex; gap: 6px; justify-content: center; padding: 20px; }
-        .paginasi a, .paginasi span { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; text-decoration: none; border: 1px solid var(--abu); color: var(--teks-sedang); transition: var(--trans); }
-        .paginasi a:hover { border-color: var(--merah); color: var(--merah); }
-        .paginasi .aktif { background: var(--merah); color: white; border-color: var(--merah); }
-
-        /* ── NOTIFIKASI ── */
-        .notif { position: fixed; top: 20px; right: 24px; z-index: 9999; padding: 14px 20px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; box-shadow: var(--shadow-md); display: flex; align-items: center; gap: 10px; animation: slideIn .3s ease; }
-        .notif-sukses { background: #D1E7DD; color: #0F5132; border: 1px solid #A3CFBB; }
-        @keyframes slideIn { from { opacity:0; transform:translateY(-12px); } to { opacity:1; transform:none; } }
-
-        /* ── MODAL ── */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
-        .modal-overlay.show { display: flex; }
-        .modal { background: var(--putih); border-radius: var(--radius); width: 100%; max-width: 560px; box-shadow: 0 20px 60px rgba(0,0,0,.25); overflow: hidden; }
-        .modal-head { padding: 20px 24px; border-bottom: 1px solid var(--abu); display: flex; align-items: center; justify-content: space-between; }
-        .modal-title { font-size: 16px; font-weight: 800; color: var(--teks-gelap); display: flex; align-items: center; gap: 8px; }
-        .modal-close { background: none; border: none; cursor: pointer; color: var(--abu-sedang); font-size: 18px; padding: 4px; border-radius: 6px; }
-        .modal-close:hover { background: var(--abu); color: var(--teks-gelap); }
-        .modal-body { padding: 24px; }
-        .modal-foot { padding: 16px 24px; border-top: 1px solid var(--abu); display: flex; justify-content: flex-end; gap: 10px; }
-        .form-group { margin-bottom: 16px; }
-        .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--teks-sedang); margin-bottom: 6px; }
-        .form-input, .form-textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--abu); border-radius: var(--radius-sm); font-size: 14px; font-family: inherit; outline: none; transition: var(--trans); }
-        .form-input:focus, .form-textarea:focus { border-color: var(--merah); box-shadow: 0 0 0 3px rgba(192,0,26,.08); }
-        .form-textarea { resize: vertical; min-height: 100px; }
-        .detail-box { background: var(--abu-terang); border-radius: var(--radius-sm); padding: 14px 16px; margin-bottom: 16px; border: 1px solid var(--abu); }
-        .detail-box .label { font-size: 11px; font-weight: 700; color: var(--abu-sedang); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 4px; }
-        .detail-box .val { font-size: 14px; color: var(--teks-gelap); line-height: 1.6; }
-
-        /* ── EMPTY ── */
-        .empty-state { text-align: center; padding: 60px 20px; color: var(--abu-sedang); }
-        .empty-state i { font-size: 48px; margin-bottom: 16px; display: block; opacity: .4; }
-        .empty-state p { font-size: 15px; font-weight: 600; }
-
-        @media (max-width: 900px) {
-            .stat-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-    </style>
 </head>
 <body>
 
@@ -345,7 +197,7 @@ $pesan = $_GET['pesan'] ?? '';
                     $no = $offset + 1;
                     while ($baris = mysqli_fetch_assoc($q_data)):
                         $tgl      = date('d M Y, H:i', strtotime($baris['tanggal']));
-                        $sudah    = (bool) $baris['sudah_dibaca'];
+                        $sudah    = (bool) $baris['sudah_baca'];
                         $rowClass = $sudah ? '' : 'belum-baca';
                         // Encode data untuk modal
                         $data_js  = htmlspecialchars(json_encode([

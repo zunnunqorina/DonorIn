@@ -67,10 +67,10 @@ mysqli_close($conn);
             </button>
         </form>
 
-        <a href="pages/donor/daftar_pendonor.php" class="link-auth link-auth-merah" style="margin-top:12px;">
+        <a href="../pages/admin/daftar_pendonor.php" class="link-auth link-auth-merah" style="margin-top:12px;">
             Belum punya akun? <strong>Daftar Sekarang</strong>
         </a>
-        <a href="index.php" class="link-auth" style="color:#888;">← Kembali ke Beranda</a>
+        <a href="../index.php" class="link-auth" style="color:#888;">← Kembali ke Beranda</a>
     </div>
 </div>
 </body>

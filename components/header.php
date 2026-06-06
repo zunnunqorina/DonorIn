@@ -11,11 +11,11 @@ $pasien_login   = isset($_SESSION['pasien_login'])   && $_SESSION['pasien_login'
         <nav class="navigasi-utama">
             <a href="index.php"
                class="<?php echo ($halaman_aktif == 'home') ? 'aktif' : ''; ?>">Home</a>
-            <a href="pages/donor/page2.php"
+            <a href="../pages/donor/page2.php"
                class="<?php echo ($halaman_aktif == 'donor') ? 'aktif' : ''; ?>">Butuh Donor</a>
-            <a href="pages/donor/page2.php#stok-darah">Stok Darah</a>
+            <a href="../pages/donor/page2.php#stok-darah">Stok Darah</a>
             <?php if ($pendonor_login): ?>
-                <a href="pages/donor/dashboard_pendonor.php"
+                <a href="../pages/donor/dashboard_pendonor.php"
                    class="<?php echo ($halaman_aktif == 'dashboard_pendonor') ? 'aktif' : ''; ?>">Dashboard</a>
                 <a href="pages/donor/cari_permintaan.php"
                    class="<?php echo ($halaman_aktif == 'cari_permintaan') ? 'aktif' : ''; ?>">Permintaan Darah</a>
@@ -27,22 +27,22 @@ $pasien_login   = isset($_SESSION['pasien_login'])   && $_SESSION['pasien_login'
                 <a href="cari_pendonor.php"
                    class="<?php echo ($halaman_aktif == 'cari_pendonor') ? 'aktif' : ''; ?>">Cari Pendonor</a>
             <?php else: ?>
-                <a href="pages/donor/page2.php#daftar-relawan">Daftar Relawan</a>
+                <a href="../pages/donor/page2.php#daftar-relawan">Daftar Relawan</a>
             <?php endif; ?>
-            <a href="kritik_saran.php"
+            <a href="../pages/donor/kritik_saran.php"
                class="<?php echo ($halaman_aktif == 'kritik') ? 'aktif' : ''; ?>">Kritik & Saran</a>
         </nav>
 
         <div style="display:flex; gap:8px; align-items:center;">
         <?php if ($admin_login): ?>
-            <a href="pages/admin/dashboard_admin.php" class="tombol-admin" style="text-decoration:none;">
+            <a href="../pages/admin/dashboard_admin.php" class="tombol-admin" style="text-decoration:none;">
                 👤 <?php echo htmlspecialchars($_SESSION['admin_username']); ?>
             </a>
         <?php elseif ($pendonor_login): ?>
-            <a href="pages/donor/dashboard_pendonor.php" class="tombol-admin tombol-pendonor" style="text-decoration:none;">
+            <a href="../pages/donor/dashboard_pendonor.php" class="tombol-admin tombol-pendonor" style="text-decoration:none;">
                 🩸 <?php echo htmlspecialchars($_SESSION['pendonor_nama']); ?>
             </a>
-            <a href="auth/logout_pendonor.php" class="tombol-admin" style="text-decoration:none; background:#8b0000; color:white; font-size:0.8rem; padding:6px 12px;">
+            <a href="../auth/logout_pendonor.php" class="tombol-admin" style="text-decoration:none; background:#8b0000; color:white; font-size:0.8rem; padding:6px 12px;">
                 Logout
             </a>
         <?php elseif ($pasien_login): ?>
