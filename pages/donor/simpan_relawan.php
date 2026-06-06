@@ -6,21 +6,21 @@ if (!isset($_POST['kirim_relawan'])) {
     exit;
 }
 
-$nama          = mysqli_real_escape_string($conn, trim($_POST['nama']));
-$email         = mysqli_real_escape_string($conn, trim($_POST['email']));
-$no_hp         = mysqli_real_escape_string($conn, trim($_POST['no_hp']));
-$tgl           = mysqli_real_escape_string($conn, $_POST['tgl']);
-$jenis_kelamin = mysqli_real_escape_string($conn, $_POST['jenis_kelamin']);
-$goldar        = mysqli_real_escape_string($conn, $_POST['goldar']);
+$nama          = trim($_POST['nama']);
+$email         = trim($_POST['email']);
+$no_hp         = trim($_POST['no_hp']);
+$tgl           = $_POST['tgl'];
+$jenis_kelamin = $_POST['jenis_kelamin'];
+$goldar        = $_POST['goldar'];
 $berat_badan   = (int) $_POST['berat_badan'];
-$kota          = mysqli_real_escape_string($conn, trim($_POST['kota']));
-$pekerjaan     = mysqli_real_escape_string($conn, trim($_POST['pekerjaan'] ?? ''));
-$alamat        = mysqli_real_escape_string($conn, trim($_POST['alamat'] ?? ''));
-$pernah_donor  = mysqli_real_escape_string($conn, $_POST['pernah_donor']);
+$kota          = trim($_POST['kota']);
+$pekerjaan     = trim($_POST['pekerjaan'] ?? '');
+$alamat        = trim($_POST['alamat'] ?? '');
+$pernah_donor  = $_POST['pernah_donor'];
 
 $terakhir_donor = (!empty($_POST['terakhir_donor']) && $pernah_donor === 'ya')
-                  ? "'" . mysqli_real_escape_string($conn, $_POST['terakhir_donor']) . "'"
-                  : "NULL";
+                  ? $_POST['terakhir_donor']
+                  : null;
 
 $lahir = new DateTime($tgl);
 $umur  = $lahir->diff(new DateTime())->y;
@@ -42,14 +42,12 @@ if ($berat_badan < 45) {
     exit;
 }
 
-$query = "INSERT INTO relawan
+$stmt = $conn->prepare("INSERT INTO relawan
             (nama, email, no_hp, tgl_lahir, umur, jenis_kelamin, goldar,
              berat_badan, alamat, kota, pekerjaan, pernah_donor, terakhir_donor)
-          VALUES
-            ('$nama','$email','$no_hp','$tgl',$umur,'$jenis_kelamin','$goldar',
-             $berat_badan,'$alamat','$kota','$pekerjaan','$pernah_donor',$terakhir_donor)";
-
-$hasil = mysqli_query($conn, $query);
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+$hasil = $stmt->execute([$nama, $email, $no_hp, $tgl, $umur, $jenis_kelamin, $goldar,
+                          $berat_badan, $alamat, $kota, $pekerjaan, $pernah_donor, $terakhir_donor]);
 
 if ($hasil) {
     echo "<script>
@@ -58,10 +56,10 @@ if ($hasil) {
     </script>";
 } else {
     echo "<script>
-        alert('❌ Gagal menyimpan data: " . mysqli_error($conn) . "');
+        alert('❌ Gagal menyimpan data. Silakan coba lagi.');
         history.back();
     </script>";
 }
 
-mysqli_close($conn);
+$conn = null;
 ?>

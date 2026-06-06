@@ -7,10 +7,10 @@ if (!isset($_POST['kirim'])) {
     exit;
 }
 
-$nama     = mysqli_real_escape_string($conn, trim($_POST['nama']));
-$email    = mysqli_real_escape_string($conn, trim($_POST['email']));
-$kategori = mysqli_real_escape_string($conn, $_POST['kategori']);
-$pesan    = mysqli_real_escape_string($conn, trim($_POST['pesan']));
+$nama     = trim($_POST['nama']);
+$email    = trim($_POST['email']);
+$kategori = $_POST['kategori'];
+$pesan    = trim($_POST['pesan']);
 
 if ($nama == '' || $email == '' || $kategori == '' || $pesan == '') {
     echo "<script>
@@ -20,9 +20,8 @@ if ($nama == '' || $email == '' || $kategori == '' || $pesan == '') {
     exit;
 }
 
-$query = "INSERT INTO kritik_saran (nama, email, kategori, pesan)
-          VALUES ('$nama', '$email', '$kategori', '$pesan')";
-$hasil = mysqli_query($conn, $query);
+$stmt = $conn->prepare("INSERT INTO kritik_saran (nama, email, kategori, pesan) VALUES (?, ?, ?, ?)");
+$hasil = $stmt->execute([$nama, $email, $kategori, $pesan]);
 
 if ($hasil) {
     echo "<script>
@@ -36,5 +35,5 @@ if ($hasil) {
     </script>";
 }
 
-mysqli_close($conn);
+$conn = null;
 ?>

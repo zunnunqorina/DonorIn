@@ -8,14 +8,16 @@ if (!isset($_SESSION['pendonor_login']) || $_SESSION['pendonor_login'] !== true)
 
 $pendonor_id = $_SESSION['pendonor_id'];
 
-$q = mysqli_query($conn,
+$q = $conn->prepare(
     "SELECT rd.*, pd.goldar, pd.nama_rs, pd.kota, pd.jumlah_kantong, pd.status AS status_pm, pd.tanggal AS tgl_pm,
             p.nama AS nama_pasien, p.no_hp AS hp_pasien
      FROM respon_donor rd
      JOIN permintaan_darah pd ON rd.permintaan_id = pd.id
      JOIN pasien p ON pd.pasien_id = p.id
-     WHERE rd.pendonor_id = $pendonor_id
+     WHERE rd.pendonor_id = ?
      ORDER BY rd.tanggal DESC");
+$q->execute([$pendonor_id]);
+$riwayat_rows = $q->fetchAll(PDO::FETCH_ASSOC);
 
 $halaman_aktif = 'dashboard_pendonor';
 ?>
@@ -35,12 +37,12 @@ $halaman_aktif = 'dashboard_pendonor';
     <h2 style="color:#8b0000; margin-bottom:5px;">📋 Riwayat Respon Saya</h2>
     <p style="color:#888; margin-bottom:25px;"><a href="dashboard_pendonor.php" style="color:#8b0000;">← Dashboard</a></p>
 
-    <?php if (mysqli_num_rows($q) == 0): ?>
+    <?php if (count($riwayat_rows) == 0): ?>
         <div class="blok-konten">
             <p class="kosong">Anda belum pernah merespon permintaan darah.</p>
         </div>
     <?php else: ?>
-        <?php while ($r = mysqli_fetch_assoc($q)):
+        <?php foreach ($riwayat_rows as $r):
             $tgl_respon = date('d M Y, H:i', strtotime($r['tanggal']));
             $warna_respon = $r['status'] == 'bersedia' ? '#27ae60' : '#e74c3c';
         ?>
@@ -68,11 +70,11 @@ $halaman_aktif = 'dashboard_pendonor';
                 </a>
             </div>
         </div>
-        <?php endwhile; ?>
+        <?php endforeach; ?>
     <?php endif; ?>
 </main>
 
 <?php include '../../components/footer.php'; ?>
-<?php mysqli_close($conn); ?>
+<?php $conn = null; ?>
 </body>
 </html>
