@@ -1,5 +1,5 @@
 <?php
-include 'koneksi.php';
+include '../../config/koneksi.php';
 $halaman_aktif = 'donor';
 ?>
 <!DOCTYPE html>
@@ -8,12 +8,12 @@ $halaman_aktif = 'donor';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DonorIn — Layanan</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="assets/styles.css">
     <script src="script.js" defer></script>
 </head>
 <body>
 
-<?php include 'header.php'; ?>
+<?php include '../../components/header.php'; ?>
 
 <main class="wadah konten-halaman">
 
@@ -148,7 +148,7 @@ $halaman_aktif = 'donor';
 
 </main>
 
-<?php include 'footer.php'; ?>
+<?php include '../../components/footer.php'; ?>
 <?php mysqli_close($conn); ?>
 
 <script>

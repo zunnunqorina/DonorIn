@@ -1,5 +1,5 @@
 <?php
-include 'koneksi.php';
+include '../config/koneksi.php';
 
 unset($_SESSION['pendonor_login']);
 unset($_SESSION['pendonor_id']);

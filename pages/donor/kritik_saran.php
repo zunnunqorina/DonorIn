@@ -1,6 +1,6 @@
 <?php
 
-include 'koneksi.php';
+include '../../config/koneksi.php';
 $halaman_aktif = 'kritik';
 
 $pesan_status = "";
@@ -32,12 +32,12 @@ if (isset($_POST['kirim'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DonorIn — Kritik & Saran</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="assets/styles.css">
     <script src="script.js" defer></script>
 </head>
 <body>
 
-<?php include 'header.php'; ?>
+<?php include '../../components/header.php'; ?>
 
 <main class="wadah" style="padding: 50px 20px;">
 
@@ -128,7 +128,7 @@ if (isset($_POST['kirim'])) {
             ?>
 
             <br>
-            <a href="tampil_kritik.php"
+            <a href="../admin/tampil_kritik.php"
                style="display:inline-block; background:white; color:#8b0000; border:2px solid #8b0000;
                       padding:10px 25px; border-radius:5px; font-weight:bold; text-decoration:none;
                       font-size:0.9rem;">
@@ -139,7 +139,7 @@ if (isset($_POST['kirim'])) {
     </div>
 </main>
 
-<?php include 'footer.php'; ?>
+<?php include '../../components/footer.php'; ?>
 <?php mysqli_close($conn); ?>
 </body>
 </html>

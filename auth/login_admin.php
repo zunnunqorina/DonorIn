@@ -1,7 +1,7 @@
 <?php
-include 'koneksi.php';
+include '../config/koneksi.php';
 if (isset($_SESSION['admin_login']) && $_SESSION['admin_login'] === true) {
-    header("Location: dashboard_admin.php");
+    header("Location: ../pages/admin/dashboard_admin.php");
     exit;
 }
 $pesan_error = "";
@@ -20,7 +20,7 @@ if (isset($_POST['login'])) {
         $_SESSION['admin_login']    = true;
         $_SESSION['admin_username'] = $data['username'];
 
-        header("Location: dashboard_admin.php");
+        header("Location: ../pages/admin/dashboard_admin.php");
         exit;
     } else {
         $pesan_error = "❌ Username atau password salah!";
@@ -36,7 +36,7 @@ if (isset($_POST['login'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DonorIn — Login Admin</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="assets/styles.css">
     <style>
         .halaman-login {
             min-height: 100vh;
@@ -118,7 +118,7 @@ if (isset($_POST['login'])) {
                 </button>
             </form>
 
-            <a href="index.php" class="link-kembali">← Kembali ke Beranda</a>
+            <a href="../index.php" class="link-kembali">← Kembali ke Beranda</a>
         </div>
     </div>
 </body>

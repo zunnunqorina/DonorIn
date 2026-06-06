@@ -1,8 +1,8 @@
 <?php
-include 'koneksi.php';
+include '../../config/koneksi.php';
 
 if (!isset($_SESSION['admin_login']) || $_SESSION['admin_login'] !== true) {
-    header("Location: login_admin.php");
+    header("Location: ../../auth/login_admin.php");
     exit;
 }
 
@@ -415,7 +415,7 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
 
         <div class="nav-section">
             <div class="nav-label">Pengguna</div>
-            <a href="admin/pasien.php" class="nav-item">
+            <a href="pasien.php" class="nav-item">
                 <i class="fas fa-user-injured"></i> Pasien
                 <span class="nav-badge"><?= $total_pasien ?></span>
             </a>
@@ -423,7 +423,7 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
                 <i class="fas fa-hand-holding-heart"></i> Pendonor
                 <span class="nav-badge"><?= $total_pendonor ?></span>
             </a>
-            <a href="admin/relawan.php" class="nav-item">
+            <a href="relawan.php" class="nav-item">
                 <i class="fas fa-people-carry-box"></i> Relawan
                 <span class="nav-badge"><?= $total_relawan ?></span>
             </a>
@@ -431,11 +431,11 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
 
         <div class="nav-section">
             <div class="nav-label">Event</div>
-            <a href="admin/event_donor.php" class="nav-item">
+            <a href="event_donor.php" class="nav-item">
                 <i class="fas fa-calendar-alt"></i> Event Donor Darah
                 <span class="nav-badge"><?= $total_event_donor ?></span>
             </a>
-            <a href="admin/event_sosialisasi.php" class="nav-item">
+            <a href="event_sosialisasi.php" class="nav-item">
                 <i class="fas fa-bullhorn"></i> Event Sosialisasi
                 <span class="nav-badge"><?= $total_event_sosial ?></span>
             </a>
@@ -443,7 +443,7 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
 
         <div class="nav-section">
             <div class="nav-label">Lainnya</div>
-            <a href="admin/kritik_saran.php" class="nav-item">
+            <a href="tampil_kritik.php" class="nav-item">
                 <i class="fas fa-comments"></i> Kritik & Saran
                 <span class="nav-badge"><?= $total_ks ?></span>
             </a>
@@ -458,7 +458,7 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
                 <div class="user-role">Administrator</div>
             </div>
         </div>
-        <a href="logout.php" class="btn-logout" onclick="return confirm('Yakin ingin keluar?')">
+        <a href="/Donorin New/DonorIn/auth/logout_admin.php" class="btn-logout" onclick="return confirm('Yakin ingin keluar?')">
             <i class="fas fa-sign-out-alt"></i> Keluar
         </a>
     </div>
@@ -478,7 +478,7 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
                 <i class="fas fa-calendar-day"></i>
                 <?= date('d M Y') ?>
             </div>
-            <a href="admin/kritik_saran.php" class="topbar-btn" title="Kritik & Saran">
+            <a href="tampil_kritik.php" class="topbar-btn" title="Kritik & Saran">
                 <i class="fas fa-bell"></i>
                 <?php if ($total_ks > 0): ?><span class="notif-dot"></span><?php endif; ?>
             </a>
@@ -587,7 +587,7 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
         <!-- ROW: GOLDAR RELAWAN -->
         <div class="section-header">
             <div class="section-title"><i class="fas fa-dna"></i> Sebaran Golongan Darah Relawan</div>
-            <a href="admin/relawan.php" class="btn-lihat"><i class="fas fa-arrow-right"></i> Lihat Relawan</a>
+            <a href="relawan.php" class="btn-lihat"><i class="fas fa-arrow-right"></i> Lihat Relawan</a>
         </div>
         <div class="card" style="margin-bottom:24px;">
             <div class="card-body">
@@ -608,7 +608,7 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
             <div>
                 <div class="section-header">
                     <div class="section-title"><i class="fas fa-calendar-alt"></i> Event Donor Mendatang</div>
-                    <a href="admin/event_donor.php" class="btn-lihat"><i class="fas fa-arrow-right"></i> Semua</a>
+                    <a href="event_donor.php" class="btn-lihat"><i class="fas fa-arrow-right"></i> Semua</a>
                 </div>
                 <div class="card">
                     <div class="card-body event-list">
@@ -646,7 +646,7 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
             <div>
                 <div class="section-header">
                     <div class="section-title"><i class="fas fa-bullhorn"></i> Sosialisasi Mendatang</div>
-                    <a href="admin/event_sosialisasi.php" class="btn-lihat"><i class="fas fa-arrow-right"></i> Semua</a>
+                    <a href="event_sosialisasi.php" class="btn-lihat"><i class="fas fa-arrow-right"></i> Semua</a>
                 </div>
                 <div class="card">
                     <div class="card-body event-list">
@@ -687,7 +687,7 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
             <div>
                 <div class="section-header">
                     <div class="section-title"><i class="fas fa-people-carry-box"></i> Relawan Terbaru</div>
-                    <a href="admin/relawan.php" class="btn-lihat"><i class="fas fa-arrow-right"></i> Semua</a>
+                    <a href="relawan.php" class="btn-lihat"><i class="fas fa-arrow-right"></i> Semua</a>
                 </div>
                 <div class="card">
                     <div class="card-body">
@@ -732,7 +732,7 @@ $total_event_bulan = mysqli_fetch_assoc($q_event_bulan)['total'] ?? 0;
             <div>
                 <div class="section-header">
                     <div class="section-title"><i class="fas fa-comments"></i> Kritik & Saran Terbaru</div>
-                    <a href="admin/kritik_saran.php" class="btn-lihat"><i class="fas fa-arrow-right"></i> Semua</a>
+                    <a href="tampil_kritik.php" class="btn-lihat"><i class="fas fa-arrow-right"></i> Semua</a>
                 </div>
                 <div class="card">
                     <div class="card-body">

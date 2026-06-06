@@ -1,6 +1,6 @@
 <?php
 
-include 'koneksi.php';
+include '../../config/koneksi.php';
 
 if (!isset($_POST['kirim'])) {
     header("Location: kritik_saran.php");

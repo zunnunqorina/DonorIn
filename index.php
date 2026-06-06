@@ -1,5 +1,5 @@
 <?php
-include 'koneksi.php';
+include 'config/koneksi.php';
 $halaman_aktif = 'home';
 ?>
 <!DOCTYPE html>
@@ -8,12 +8,12 @@ $halaman_aktif = 'home';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DonorIn</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="assets/styles.css">
     <script src="script.js" defer></script>
 </head>
 <body>
 
-<?php include 'header.php'; ?>
+<?php include 'components/header.php'; ?>
 
 <main>
 
@@ -26,8 +26,8 @@ $halaman_aktif = 'home';
                 menghubungkan pasien yang membutuhkan darah dengan relawan pendonor secara cepat.
             </p>
             <div class="tombol-hero">
-                <a href="page2.php" class="tombol-utama">PASIEN BUTUH DARAH</a>
-                <a href="page2.php#daftar-relawan" class="tombol-sekunder">DAFTAR SEBAGAI RELAWAN</a>
+                <a href="pages/donor/page2.php" class="tombol-utama">PASIEN BUTUH DARAH</a>
+                <a href="pages/donor/page2.php#daftar-relawan" class="tombol-sekunder">DAFTAR SEBAGAI RELAWAN</a>
             </div>
         </div>
     </section>
@@ -236,7 +236,7 @@ $halaman_aktif = 'home';
 
 </main>
 
-<?php include 'footer.php'; ?>
+<?php include 'components/footer.php'; ?>
 <?php mysqli_close($conn); ?>
 </body>
 </html>

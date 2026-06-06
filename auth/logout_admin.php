@@ -1,5 +1,5 @@
 <?php
-include 'koneksi.php';
+include '../config/koneksi.php';
 
 unset($_SESSION['admin_login']);
 unset($_SESSION['admin_username']);

@@ -1,9 +1,9 @@
 <?php
-include 'koneksi.php';
+include '../../config/koneksi.php';
 
 // Cek session pendonor
 if (!isset($_SESSION['pendonor_login']) || $_SESSION['pendonor_login'] !== true) {
-    header("Location: login_pendonor.php");
+    header("Location: ../../auth/login_pendonor.php");
     exit;
 }
 
@@ -41,7 +41,7 @@ $halaman_aktif = 'dashboard_pendonor';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DonorIn — Dashboard Pendonor</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="asssets/styles.css">
 </head>
 <body style="background:#f4f4f4;">
 
@@ -52,7 +52,7 @@ $halaman_aktif = 'dashboard_pendonor';
             Login sebagai: <strong style="color:white;"><?php echo htmlspecialchars($pendonor['nama']); ?></strong>
             &nbsp;|&nbsp; Golongan Darah: <strong style="color:#ffcccc;"><?php echo $pendonor['goldar']; ?></strong>
         </div>
-        <a href="logout_pendonor.php" style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.4); padding:8px 18px; border-radius:20px; font-weight:bold; text-decoration:none; font-size:0.9rem;">
+        <a href="auth/logout_pendonor.php" style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.4); padding:8px 18px; border-radius:20px; font-weight:bold; text-decoration:none; font-size:0.9rem;">
             🚪 Logout
         </a>
     </div>
@@ -67,7 +67,7 @@ $halaman_aktif = 'dashboard_pendonor';
             <div class="label-kartu"><?php echo $jml_permintaan_aktif; ?> Permintaan Aktif</div>
             <div class="sub-label">Golongan darah <?php echo $pendonor['goldar']; ?></div>
         </a>
-        <a href="riwayat_respon.php" class="kartu-dashboard hijau">
+        <a href="riwayat_responpendonor.php" class="kartu-dashboard hijau">
             <div class="ikon-besar">✅</div>
             <div class="label-kartu"><?php echo $jml_respon; ?> Respon Dikirim</div>
             <div class="sub-label">Total riwayat respon Anda</div>
@@ -77,7 +77,7 @@ $halaman_aktif = 'dashboard_pendonor';
             <div class="label-kartu"><?php echo $jml_notif_belum; ?> Notifikasi Baru</div>
             <div class="sub-label">Pengingat & informasi donor</div>
         </a>
-        <a href="profil_pendonor.php" class="kartu-dashboard biru">
+        <a href="profile_pendonor.php" class="kartu-dashboard biru">
             <div class="ikon-besar">👤</div>
             <div class="label-kartu">Profil Saya</div>
             <div class="sub-label">Lihat & perbarui data diri</div>
@@ -162,10 +162,10 @@ $halaman_aktif = 'dashboard_pendonor';
             <a href="cari_permintaan.php" class="tombol-utama" style="font-size:0.9rem; padding:10px 20px;">
                 🔍 Lihat Semua Permintaan
             </a>
-            <a href="profil_pendonor.php" class="tombol-sekunder" style="font-size:0.9rem; padding:10px 20px;">
+            <a href="profile_pendonor.php" class="tombol-sekunder" style="font-size:0.9rem; padding:10px 20px;">
                 ✏️ Perbarui Profil
             </a>
-            <a href="riwayat_respon.php" class="tombol-sekunder" style="font-size:0.9rem; padding:10px 20px;">
+            <a href="riwayat_responpendonor.php" class="tombol-sekunder" style="font-size:0.9rem; padding:10px 20px;">
                 📋 Riwayat Respon Saya
             </a>
             <a href="notifikasi_pendonor.php" class="tombol-sekunder" style="font-size:0.9rem; padding:10px 20px;">

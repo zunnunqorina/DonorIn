@@ -1,7 +1,7 @@
 <?php
-include 'koneksi.php';
+include '../../config/koneksi.php';
 if (!isset($_SESSION['admin_id'])) {
-    header("Location: login_admin.php");
+    header("Location: ../../auth/login_admin.php");
     exit();
 }
 

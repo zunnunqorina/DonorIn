@@ -1,5 +1,5 @@
 <?php
-include 'koneksi.php';
+include '../../config/koneksi.php';
 $halaman_aktif = 'kritik';
 ?>
 <!DOCTYPE html>
@@ -8,7 +8,7 @@ $halaman_aktif = 'kritik';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DonorIn — Data Kritik & Saran</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="assets/styles.css">
     <style>
         .badge-kategori {
             display: inline-block;
@@ -48,13 +48,13 @@ $halaman_aktif = 'kritik';
 </head>
 <body>
 
-<?php include 'header.php'; ?>
+<?php include '../../components/header.php'; ?>
 
 <main class="wadah konten-halaman">
     <section class="blok-konten">
         <h2>📋 Data Kritik & Saran Masuk</h2>
 
-        <a href="kritik_saran.php" class="tombol-kembali">← Kirim Pesan Baru</a>
+        <a href="tampil_kritik.php" class="tombol-kembali">← Kirim Pesan Baru</a>
 
         <?php
         $query  = "SELECT * FROM kritik_saran ORDER BY tanggal DESC";
@@ -109,7 +109,7 @@ $halaman_aktif = 'kritik';
     </section>
 </main>
 
-<?php include 'footer.php'; ?>
+<?php include '../../components/footer.php'; ?>
 <?php mysqli_close($conn); ?>
 </body>
 </html>

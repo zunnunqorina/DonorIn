@@ -1,8 +1,8 @@
 <?php
-include 'koneksi.php';
+include '../../config/koneksi.php';
 
 if (!isset($_SESSION['pendonor_login']) || $_SESSION['pendonor_login'] !== true) {
-    header("Location: login_pendonor.php");
+    header("Location: ../../auth/login_pendonor.php");
     exit;
 }
 
@@ -31,11 +31,11 @@ $halaman_aktif = 'cari_permintaan';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DonorIn — Permintaan Darah</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body style="background:#f4f4f4;">
 
-<?php include 'header.php'; ?>
+<?php include '../../components/header.php'; ?>
 
 <main class="wadah" style="padding:40px 20px;">
     <h2 style="color:#8b0000; margin-bottom:5px;">🩸 Permintaan Darah Aktif</h2>
@@ -130,7 +130,7 @@ $halaman_aktif = 'cari_permintaan';
     <?php endif; ?>
 </main>
 
-<?php include 'footer.php'; ?>
+<?php include '../../components/footer.php'; ?>
 <?php mysqli_close($conn); ?>
 </body>
 </html>

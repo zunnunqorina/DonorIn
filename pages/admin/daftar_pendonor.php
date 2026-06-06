@@ -1,8 +1,8 @@
 <?php
-include 'koneksi.php';
+include '../../config/koneksi.php';
 
 if (isset($_SESSION['pendonor_login']) && $_SESSION['pendonor_login'] === true) {
-    header("Location: dashboard_pendonor.php");
+    header("Location: ../donor/dashboard_pendonor.php");
     exit;
 }
 
@@ -66,7 +66,7 @@ if (isset($_POST['daftar'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DonorIn — Daftar Pendonor</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body style="background:#f4f6f9; padding: 40px 20px;">
 <div class="wadah" style="max-width:750px;">

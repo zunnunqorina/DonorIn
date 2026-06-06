@@ -1,5 +1,5 @@
 <?php
-include 'koneksi.php';
+include 'config/koneksi.php';
 
 if (!isset($_POST['kirim_relawan'])) {
     header("Location: page2.php");
