@@ -9,10 +9,13 @@ if (!isset($_SESSION['pendonor_login']) || $_SESSION['pendonor_login'] !== true)
 $pendonor_id = $_SESSION['pendonor_id'];
 
 // Tandai semua sudah dibaca
-mysqli_query($conn, "UPDATE notifikasi SET sudah_baca=1 WHERE tujuan_tipe='pendonor' AND tujuan_id=$pendonor_id");
+$upd = $conn->prepare("UPDATE notifikasi SET sudah_baca=1 WHERE tujuan_tipe='pendonor' AND tujuan_id=?");
+$upd->execute([$pendonor_id]);
 
-$q_notif = mysqli_query($conn,
-    "SELECT * FROM notifikasi WHERE tujuan_tipe='pendonor' AND tujuan_id=$pendonor_id ORDER BY tanggal DESC");
+$q_notif = $conn->prepare(
+    "SELECT * FROM notifikasi WHERE tujuan_tipe='pendonor' AND tujuan_id=? ORDER BY tanggal DESC");
+$q_notif->execute([$pendonor_id]);
+$notif_rows = $q_notif->fetchAll(PDO::FETCH_ASSOC);
 
 $halaman_aktif = 'dashboard_pendonor';
 ?>
@@ -33,14 +36,14 @@ $halaman_aktif = 'dashboard_pendonor';
     <p style="color:#888; margin-bottom:25px;"><a href="dashboard_pendonor.php" style="color:#8b0000;">← Dashboard</a></p>
 
     <?php
-    $jml = mysqli_num_rows($q_notif);
+    $jml = count($notif_rows);
     if ($jml == 0):
     ?>
         <div class="blok-konten">
             <p class="kosong">Belum ada notifikasi.</p>
         </div>
     <?php else:
-        while ($notif = mysqli_fetch_assoc($q_notif)):
+        foreach ($notif_rows as $notif):
             $tgl_notif = date('d M Y, H:i', strtotime($notif['tanggal']));
     ?>
         <div class="kartu-notif sudah-baca" style="margin-bottom:12px;">
@@ -51,10 +54,10 @@ $halaman_aktif = 'dashboard_pendonor';
                 <div class="waktu-notif"><?php echo $tgl_notif; ?></div>
             </div>
         </div>
-    <?php endwhile; endif; ?>
+    <?php endforeach; endif; ?>
 </main>
 
 <?php include '../../components/footer.php'; ?>
-<?php mysqli_close($conn); ?>
+<?php $conn = null; ?>
 </body>
 </html>

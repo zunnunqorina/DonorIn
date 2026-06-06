@@ -149,7 +149,7 @@ $halaman_aktif = 'donor';
 </main>
 
 <?php include '../../components/footer.php'; ?>
-<?php mysqli_close($conn); ?>
+<?php $conn = null; ?>
 
 <script>
 // Tampilkan/sembunyikan field tanggal donor terakhir

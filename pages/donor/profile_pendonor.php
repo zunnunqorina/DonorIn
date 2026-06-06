@@ -11,30 +11,30 @@ $pesan_status = "";
 
 // Proses update profil
 if (isset($_POST['update'])) {
-    $nama          = mysqli_real_escape_string($conn, trim($_POST['nama']));
-    $no_hp         = mysqli_real_escape_string($conn, trim($_POST['no_hp']));
+    $nama          = trim($_POST['nama']);
+    $no_hp         = trim($_POST['no_hp']);
     $berat_badan   = (int) $_POST['berat_badan'];
-    $kota          = mysqli_real_escape_string($conn, trim($_POST['kota']));
-    $pekerjaan     = mysqli_real_escape_string($conn, trim($_POST['pekerjaan'] ?? ''));
-    $alamat        = mysqli_real_escape_string($conn, trim($_POST['alamat'] ?? ''));
-    $pernah_donor  = mysqli_real_escape_string($conn, $_POST['pernah_donor']);
+    $kota          = trim($_POST['kota']);
+    $pekerjaan     = trim($_POST['pekerjaan'] ?? '');
+    $alamat        = trim($_POST['alamat'] ?? '');
+    $pernah_donor  = $_POST['pernah_donor'];
     $terakhir_donor = (!empty($_POST['terakhir_donor']) && $pernah_donor === 'ya')
-                      ? "'" . mysqli_real_escape_string($conn, $_POST['terakhir_donor']) . "'"
-                      : "NULL";
+                      ? $_POST['terakhir_donor']
+                      : null;
 
     if ($berat_badan < 45) {
         $pesan_status = "<div class='pesan-error'>❌ Berat badan minimal 45 kg.</div>";
     } else {
-        $query = "UPDATE pendonor SET
-                    nama='$nama', no_hp='$no_hp', berat_badan=$berat_badan,
-                    kota='$kota', pekerjaan='$pekerjaan', alamat='$alamat',
-                    pernah_donor='$pernah_donor', terakhir_donor=$terakhir_donor
-                  WHERE id = $pendonor_id";
-        if (mysqli_query($conn, $query)) {
+        $stmt = $conn->prepare("UPDATE pendonor SET
+                    nama=?, no_hp=?, berat_badan=?,
+                    kota=?, pekerjaan=?, alamat=?,
+                    pernah_donor=?, terakhir_donor=?
+                  WHERE id = ?");
+        if ($stmt->execute([$nama, $no_hp, $berat_badan, $kota, $pekerjaan, $alamat, $pernah_donor, $terakhir_donor, $pendonor_id])) {
             $_SESSION['pendonor_nama'] = $nama;
             $pesan_status = "<div class='pesan-sukses'>✅ Profil berhasil diperbarui!</div>";
         } else {
-            $pesan_status = "<div class='pesan-error'>❌ Gagal memperbarui: " . mysqli_error($conn) . "</div>";
+            $pesan_status = "<div class='pesan-error'>❌ Gagal memperbarui data.</div>";
         }
     }
 }
@@ -44,20 +44,27 @@ if (isset($_POST['ganti_password'])) {
     $password_lama = trim($_POST['password_lama']);
     $password_baru = trim($_POST['password_baru']);
 
-    $cek = mysqli_query($conn, "SELECT id FROM pendonor WHERE id=$pendonor_id AND password=MD5('$password_lama')");
-    if (mysqli_num_rows($cek) == 0) {
+    // Ambil hash password saat ini
+    $cek = $conn->prepare("SELECT password FROM pendonor WHERE id = ?");
+    $cek->execute([$pendonor_id]);
+    $row = $cek->fetch(PDO::FETCH_ASSOC);
+
+    if (!$row || !password_verify($password_lama, $row['password'])) {
         $pesan_status = "<div class='pesan-error'>❌ Password lama salah!</div>";
     } elseif (strlen($password_baru) < 6) {
         $pesan_status = "<div class='pesan-error'>❌ Password baru minimal 6 karakter.</div>";
     } else {
-        mysqli_query($conn, "UPDATE pendonor SET password=MD5('$password_baru') WHERE id=$pendonor_id");
+        $hash_baru = password_hash($password_baru, PASSWORD_DEFAULT);
+        $upd = $conn->prepare("UPDATE pendonor SET password=? WHERE id=?");
+        $upd->execute([$hash_baru, $pendonor_id]);
         $pesan_status = "<div class='pesan-sukses'>✅ Password berhasil diubah!</div>";
     }
 }
 
 // Ambil data terkini
-$q = mysqli_query($conn, "SELECT * FROM pendonor WHERE id = $pendonor_id");
-$pendonor = mysqli_fetch_assoc($q);
+$q = $conn->prepare("SELECT * FROM pendonor WHERE id = ?");
+$q->execute([$pendonor_id]);
+$pendonor = $q->fetch(PDO::FETCH_ASSOC);
 $halaman_aktif = 'dashboard_pendonor';
 ?>
 <!DOCTYPE html>
@@ -201,7 +208,7 @@ $halaman_aktif = 'dashboard_pendonor';
 </main>
 
 <?php include '../../components/footer.php'; ?>
-<?php mysqli_close($conn); ?>
+<?php $conn = null; ?>
 <script>
 document.getElementById('pd_edit').addEventListener('change', function() {
     document.getElementById('grup_td_edit').style.display = (this.value === 'ya') ? 'block' : 'none';

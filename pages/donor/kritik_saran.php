@@ -6,17 +6,16 @@ $halaman_aktif = 'kritik';
 $pesan_status = "";
 
 if (isset($_POST['kirim'])) {
-    $nama     = mysqli_real_escape_string($conn, trim($_POST['nama']));
-    $email    = mysqli_real_escape_string($conn, trim($_POST['email']));
-    $kategori = mysqli_real_escape_string($conn, $_POST['kategori']);
-    $pesan    = mysqli_real_escape_string($conn, trim($_POST['pesan']));
+    $nama     = trim($_POST['nama']);
+    $email    = trim($_POST['email']);
+    $kategori = $_POST['kategori'];
+    $pesan    = trim($_POST['pesan']);
 
     if ($nama == '' || $email == '' || $kategori == '' || $pesan == '') {
         $pesan_status = '<div class="pesan-error">❌ Semua kolom harus diisi!</div>';
     } else {
-        $query = "INSERT INTO kritik_saran (nama, email, kategori, pesan)
-                  VALUES ('$nama', '$email', '$kategori', '$pesan')";
-        $hasil = mysqli_query($conn, $query);
+        $stmt = $conn->prepare("INSERT INTO kritik_saran (nama, email, kategori, pesan) VALUES (?, ?, ?, ?)");
+        $hasil = $stmt->execute([$nama, $email, $kategori, $pesan]);
 
         if ($hasil) {
             $pesan_status = '<div class="pesan-sukses">✅ Terima kasih! Pesan Anda berhasil dikirim.</div>';
@@ -103,14 +102,14 @@ if (isset($_POST['kirim'])) {
             <h2 class="judul-seksi">Pesan Masuk</h2>
 
             <?php
-            $query_tampil = "SELECT * FROM kritik_saran ORDER BY tanggal DESC";
-            $hasil_tampil = mysqli_query($conn, $query_tampil);
-            $jumlah       = mysqli_num_rows($hasil_tampil);
+            $stmt_tampil = $conn->query("SELECT * FROM kritik_saran ORDER BY tanggal DESC");
+            $data_tampil = $stmt_tampil->fetchAll(PDO::FETCH_ASSOC);
+            $jumlah      = count($data_tampil);
 
             if ($jumlah == 0) {
                 echo '<p class="kosong">Belum ada pesan masuk.</p>';
             } else {
-                while ($baris = mysqli_fetch_assoc($hasil_tampil)) {
+                foreach ($data_tampil as $baris) {
                     $badge_class = 'badge-' . $baris['kategori'];
                     $tanggal_fmt = date('d M Y, H:i', strtotime($baris['tanggal']));
                     echo "
@@ -140,6 +139,6 @@ if (isset($_POST['kirim'])) {
 </main>
 
 <?php include '../../components/footer.php'; ?>
-<?php mysqli_close($conn); ?>
+<?php $conn = null; ?>
 </body>
 </html>
