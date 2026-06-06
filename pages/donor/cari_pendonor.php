@@ -2,29 +2,32 @@
 include '../../config/koneksi.php';
 
 
-$filter_goldar = isset($_GET['goldar']) ? mysqli_real_escape_string($conn, $_GET['goldar']) : '';
-$filter_kota   = isset($_GET['kota'])   ? mysqli_real_escape_string($conn, trim($_GET['kota'])) : '';
-$filter_gender = isset($_GET['gender']) ? mysqli_real_escape_string($conn, $_GET['gender']) : '';
+$filter_goldar = isset($_GET['goldar']) ? trim($_GET['goldar']) : '';
+$filter_kota   = isset($_GET['kota'])   ? trim($_GET['kota'])   : '';
+$filter_gender = isset($_GET['gender']) ? trim($_GET['gender']) : '';
 
-$where = "WHERE status_aktif = 'aktif'";
-if ($filter_goldar) $where .= " AND goldar = '$filter_goldar'";
-if ($filter_kota)   $where .= " AND kota LIKE '%$filter_kota%'";
-if ($filter_gender) $where .= " AND jenis_kelamin = '$filter_gender'";
+$where  = "WHERE status_aktif = 'aktif'";
+$params = [];
+if ($filter_goldar) { $where .= " AND goldar = ?";              $params[] = $filter_goldar; }
+if ($filter_kota)   { $where .= " AND kota LIKE ?";             $params[] = "%$filter_kota%"; }
+if ($filter_gender) { $where .= " AND jenis_kelamin = ?";       $params[] = $filter_gender; }
 
-
-$q_stat = mysqli_query($conn, "SELECT goldar, COUNT(*) as total FROM pendonor WHERE status_aktif='aktif' GROUP BY goldar");
+// Statistik per golongan darah
+$q_stat      = $conn->query("SELECT goldar, COUNT(*) as total FROM pendonor WHERE status_aktif='aktif' GROUP BY goldar");
 $stat_goldar = ['A'=>0,'B'=>0,'O'=>0,'AB'=>0];
-while ($s = mysqli_fetch_assoc($q_stat)) {
+foreach ($q_stat->fetchAll(PDO::FETCH_ASSOC) as $s) {
     if (isset($stat_goldar[$s['goldar']])) $stat_goldar[$s['goldar']] = $s['total'];
 }
 
-$q_pendonor = mysqli_query($conn,
+$q_pendonor = $conn->prepare(
     "SELECT id, nama, goldar, kota, jenis_kelamin, umur, pekerjaan, pernah_donor, terakhir_donor, no_hp, status_aktif
      FROM pendonor
      $where
      ORDER BY terakhir_donor ASC, nama ASC");
+$q_pendonor->execute($params);
+$pendonor_rows = $q_pendonor->fetchAll(PDO::FETCH_ASSOC);
 
-$jumlah = mysqli_num_rows($q_pendonor);
+$jumlah        = count($pendonor_rows);
 $halaman_aktif = '';
 ?>
 <!DOCTYPE html>
@@ -297,7 +300,7 @@ $halaman_aktif = '';
         </div>
     <?php else: ?>
     <div class="grid-pendonor">
-        <?php while ($pd = mysqli_fetch_assoc($q_pendonor)):
+        <?php foreach ($pendonor_rows as $pd):
             $inisial = strtoupper(substr($pd['nama'], 0, 1));
             $gender_label = $pd['jenis_kelamin'] === 'L' ? '👨 Laki-laki' : '👩 Perempuan';
 
@@ -364,13 +367,13 @@ $halaman_aktif = '';
                 </a>
             </div>
         </div>
-        <?php endwhile; ?>
+        <?php endforeach; ?>
     </div>
     <?php endif; ?>
 
 </main>
 
 <?php include '../../components/footer.php'; ?>
-<?php mysqli_close($conn); ?>
+<?php $conn = null; ?>
 </body>
 </html>

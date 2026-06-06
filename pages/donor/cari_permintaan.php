@@ -10,18 +10,21 @@ $pendonor_id   = $_SESSION['pendonor_id'];
 $pendonor_goldar = $_SESSION['pendonor_goldar'];
 
 // Filter
-$filter_goldar = isset($_GET['goldar']) ? mysqli_real_escape_string($conn, $_GET['goldar']) : '';
-$filter_kota   = isset($_GET['kota'])   ? mysqli_real_escape_string($conn, trim($_GET['kota']))   : '';
+$filter_goldar = isset($_GET['goldar']) ? trim($_GET['goldar']) : '';
+$filter_kota   = isset($_GET['kota'])   ? trim($_GET['kota'])   : '';
 
-$where = "WHERE pd.status IN ('menunggu','diproses')";
-if ($filter_goldar) $where .= " AND pd.goldar='$filter_goldar'";
-if ($filter_kota)   $where .= " AND pd.kota LIKE '%$filter_kota%'";
+$where  = "WHERE pd.status IN ('menunggu','diproses')";
+$params = [];
+if ($filter_goldar) { $where .= " AND pd.goldar = ?";      $params[] = $filter_goldar; }
+if ($filter_kota)   { $where .= " AND pd.kota LIKE ?";     $params[] = "%$filter_kota%"; }
 
-$q_permintaan = mysqli_query($conn,
+$q_permintaan = $conn->prepare(
     "SELECT pd.*, p.nama AS nama_pasien, p.no_hp AS hp_pasien
      FROM permintaan_darah pd
      JOIN pasien p ON pd.pasien_id = p.id
      $where ORDER BY pd.tanggal DESC");
+$q_permintaan->execute($params);
+$permintaan_rows = $q_permintaan->fetchAll(PDO::FETCH_ASSOC);
 
 $halaman_aktif = 'cari_permintaan';
 ?>
@@ -77,7 +80,7 @@ $halaman_aktif = 'cari_permintaan';
     </div>
 
     <?php
-    $jumlah = mysqli_num_rows($q_permintaan);
+    $jumlah = count($permintaan_rows);
     if ($jumlah == 0):
     ?>
         <div class="blok-konten">
@@ -85,12 +88,13 @@ $halaman_aktif = 'cari_permintaan';
         </div>
     <?php else: ?>
         <p style="color:#666; margin-bottom:15px;">Menampilkan <strong><?php echo $jumlah; ?></strong> permintaan aktif</p>
-        <?php while ($pm = mysqli_fetch_assoc($q_permintaan)):
+        <?php foreach ($permintaan_rows as $pm):
             $tgl_pm = date('d M Y, H:i', strtotime($pm['tanggal']));
             $status_class = 'status-' . $pm['status'];
             // Cek apakah sudah merespon
-            $sudah_respon = mysqli_num_rows(mysqli_query($conn,
-                "SELECT id FROM respon_donor WHERE permintaan_id={$pm['id']} AND pendonor_id=$pendonor_id"));
+            $cek_respon = $conn->prepare("SELECT id FROM respon_donor WHERE permintaan_id = ? AND pendonor_id = ?");
+            $cek_respon->execute([$pm['id'], $pendonor_id]);
+            $sudah_respon = $cek_respon->rowCount();
             $cocok = ($pm['goldar'] == $pendonor_goldar);
         ?>
         <div class="kartu-permintaan" style="<?php echo $cocok ? 'border-left-color:#27ae60;' : ''; ?>">
@@ -126,11 +130,11 @@ $halaman_aktif = 'cari_permintaan';
                 </a>
             </div>
         </div>
-        <?php endwhile; ?>
+        <?php endforeach; ?>
     <?php endif; ?>
 </main>
 
 <?php include '../../components/footer.php'; ?>
-<?php mysqli_close($conn); ?>
+<?php $conn = null; ?>
 </body>
 </html>

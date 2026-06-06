@@ -10,28 +10,38 @@ if (!isset($_SESSION['pendonor_login']) || $_SESSION['pendonor_login'] !== true)
 $pendonor_id = $_SESSION['pendonor_id'];
 
 // Ambil data pendonor terkini
-$q_pendonor = mysqli_query($conn, "SELECT * FROM pendonor WHERE id = $pendonor_id");
-$pendonor   = mysqli_fetch_assoc($q_pendonor);
+$q_pendonor = $conn->prepare("SELECT * FROM pendonor WHERE id = ?");
+$q_pendonor->execute([$pendonor_id]);
+$pendonor   = $q_pendonor->fetch(PDO::FETCH_ASSOC);
 
 // Hitung statistik
-$jml_permintaan_aktif = mysqli_num_rows(mysqli_query($conn,
-    "SELECT id FROM permintaan_darah WHERE status IN ('menunggu','diproses') AND goldar = '{$pendonor['goldar']}'"));
-$jml_respon = mysqli_num_rows(mysqli_query($conn,
-    "SELECT id FROM respon_donor WHERE pendonor_id = $pendonor_id"));
-$jml_notif_belum = mysqli_num_rows(mysqli_query($conn,
-    "SELECT id FROM notifikasi WHERE tujuan_tipe='pendonor' AND tujuan_id=$pendonor_id AND sudah_baca=0"));
+$st1 = $conn->prepare("SELECT COUNT(*) FROM permintaan_darah WHERE status IN ('menunggu','diproses') AND goldar = ?");
+$st1->execute([$pendonor['goldar']]);
+$jml_permintaan_aktif = $st1->fetchColumn();
+
+$st2 = $conn->prepare("SELECT COUNT(*) FROM respon_donor WHERE pendonor_id = ?");
+$st2->execute([$pendonor_id]);
+$jml_respon = $st2->fetchColumn();
+
+$st3 = $conn->prepare("SELECT COUNT(*) FROM notifikasi WHERE tujuan_tipe='pendonor' AND tujuan_id=? AND sudah_baca=0");
+$st3->execute([$pendonor_id]);
+$jml_notif_belum = $st3->fetchColumn();
 
 // Permintaan darah terbaru sesuai goldar pendonor
-$q_permintaan = mysqli_query($conn,
+$q_permintaan = $conn->prepare(
     "SELECT pd.*, p.nama AS nama_pasien, p.no_hp AS hp_pasien
      FROM permintaan_darah pd
      JOIN pasien p ON pd.pasien_id = p.id
-     WHERE pd.goldar = '{$pendonor['goldar']}' AND pd.status IN ('menunggu','diproses')
+     WHERE pd.goldar = ? AND pd.status IN ('menunggu','diproses')
      ORDER BY pd.tanggal DESC LIMIT 5");
+$q_permintaan->execute([$pendonor['goldar']]);
+$permintaan_rows = $q_permintaan->fetchAll(PDO::FETCH_ASSOC);
 
 // Notifikasi terbaru
-$q_notif = mysqli_query($conn,
-    "SELECT * FROM notifikasi WHERE tujuan_tipe='pendonor' AND tujuan_id=$pendonor_id ORDER BY tanggal DESC LIMIT 5");
+$q_notif = $conn->prepare(
+    "SELECT * FROM notifikasi WHERE tujuan_tipe='pendonor' AND tujuan_id=? ORDER BY tanggal DESC LIMIT 5");
+$q_notif->execute([$pendonor_id]);
+$notif_rows = $q_notif->fetchAll(PDO::FETCH_ASSOC);
 
 $halaman_aktif = 'dashboard_pendonor';
 ?>
@@ -91,10 +101,10 @@ $halaman_aktif = 'dashboard_pendonor';
             <h3 style="color:#8b0000; border-bottom:2px solid #8b0000; padding-bottom:8px; margin-bottom:15px;">
                 🩸 Permintaan Darah Golongan <?php echo $pendonor['goldar']; ?>
             </h3>
-            <?php if (mysqli_num_rows($q_permintaan) == 0): ?>
+            <?php if (count($permintaan_rows) == 0): ?>
                 <p class="kosong">Tidak ada permintaan aktif untuk golongan darah Anda saat ini.</p>
             <?php else: ?>
-                <?php while ($pm = mysqli_fetch_assoc($q_permintaan)):
+                <?php foreach ($permintaan_rows as $pm):
                     $tgl_pm = date('d M Y, H:i', strtotime($pm['tanggal']));
                     $status_class = 'status-' . $pm['status'];
                 ?>
@@ -121,7 +131,7 @@ $halaman_aktif = 'dashboard_pendonor';
                         </a>
                     </div>
                 </div>
-                <?php endwhile; ?>
+                <?php endforeach; ?>
                 <a href="cari_permintaan.php" style="color:#8b0000; font-weight:bold; font-size:0.9rem;">Lihat semua permintaan →</a>
             <?php endif; ?>
         </div>
@@ -131,10 +141,10 @@ $halaman_aktif = 'dashboard_pendonor';
             <h3 style="color:#8b0000; border-bottom:2px solid #8b0000; padding-bottom:8px; margin-bottom:15px;">
                 🔔 Notifikasi Terbaru
             </h3>
-            <?php if (mysqli_num_rows($q_notif) == 0): ?>
+            <?php if (count($notif_rows) == 0): ?>
                 <p class="kosong">Belum ada notifikasi.</p>
             <?php else: ?>
-                <?php while ($notif = mysqli_fetch_assoc($q_notif)):
+                <?php foreach ($notif_rows as $notif):
                     $kelas_notif = $notif['sudah_baca'] ? 'sudah-baca' : 'belum-baca';
                     $tgl_notif = date('d M Y', strtotime($notif['tanggal']));
                 ?>
@@ -146,7 +156,7 @@ $halaman_aktif = 'dashboard_pendonor';
                         <div class="waktu-notif"><?php echo $tgl_notif; ?></div>
                     </div>
                 </div>
-                <?php endwhile; ?>
+                <?php endforeach; ?>
                 <a href="notifikasi_pendonor.php" style="color:#8b0000; font-weight:bold; font-size:0.9rem;">Lihat semua →</a>
             <?php endif; ?>
         </div>
@@ -185,6 +195,6 @@ $halaman_aktif = 'dashboard_pendonor';
     </div>
 </footer>
 
-<?php mysqli_close($conn); ?>
+<?php $conn = null; ?>
 </body>
 </html>

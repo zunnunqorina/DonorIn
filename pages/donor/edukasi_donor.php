@@ -119,6 +119,6 @@ $halaman_aktif = 'dashboard_pendonor';
 </main>
 
 <?php include '../../components/footer.php'; ?>
-<?php mysqli_close($conn); ?>
+<?php $conn = null; ?>
 </body>
 </html>
