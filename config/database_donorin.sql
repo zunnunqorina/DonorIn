@@ -12,12 +12,15 @@ INSERT INTO admin (username, password) VALUES
 ('karin', MD5('karincantik'));
 
 CREATE TABLE IF NOT EXISTS kritik_saran (
-    id       INT AUTO_INCREMENT PRIMARY KEY,
-    nama     VARCHAR(100) NOT NULL,
-    email    VARCHAR(100) NOT NULL,
-    kategori ENUM('kritik','saran','pertanyaan') NOT NULL,
-    pesan    TEXT         NOT NULL,
-    tanggal  DATETIME     DEFAULT CURRENT_TIMESTAMP
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    nama         VARCHAR(100) NOT NULL,
+    email        VARCHAR(100) NOT NULL,
+    kategori     ENUM('kritik','saran','pertanyaan') NOT NULL,
+    pesan        TEXT         NOT NULL,
+    tanggal      DATETIME     DEFAULT CURRENT_TIMESTAMP,
+    sudah_baca   TINYINT(1)   DEFAULT 0,
+    balasan      TEXT         NULL,
+    tgl_balas    DATETIME     NULL
 );
 
 
