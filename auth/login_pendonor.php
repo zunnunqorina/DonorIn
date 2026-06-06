@@ -42,9 +42,9 @@ mysqli_close($conn);
 <div class="halaman-auth">
     <div class="kotak-auth">
         <div class="tab-auth">
-            <a href="auth/login_pendonor.php" class="aktif-tab">🩸 Pendonor</a>
+            <a href="login_pendonor.php" class="aktif-tab">🩸 Pendonor</a>
             <a href="login_pasien.php">🏥 Pasien</a>
-            <a href="auth/login_admin.php">🔐 Admin</a>
+            <a href="login_admin.php">🔐 Admin</a>
         </div>
         <h2 style="color:#8b0000; text-align:center;">Login Pendonor</h2>
         <p style="text-align:center;">Masuk sebagai pendonor darah aktif</p>
