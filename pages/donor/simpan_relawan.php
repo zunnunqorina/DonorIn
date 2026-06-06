@@ -1,5 +1,5 @@
 <?php
-include 'config/koneksi.php';
+include '../../config/koneksi.php';
 
 if (!isset($_POST['kirim_relawan'])) {
     header("Location: page2.php");
@@ -42,12 +42,8 @@ if ($berat_badan < 45) {
     exit;
 }
 
-$stmt = $conn->prepare("INSERT INTO relawan
-            (nama, email, no_hp, tgl_lahir, umur, jenis_kelamin, goldar,
-             berat_badan, alamat, kota, pekerjaan, pernah_donor, terakhir_donor)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-$hasil = $stmt->execute([$nama, $email, $no_hp, $tgl, $umur, $jenis_kelamin, $goldar,
-                          $berat_badan, $alamat, $kota, $pekerjaan, $pernah_donor, $terakhir_donor]);
+$stmt = $conn->prepare("INSERT INTO relawan (nama, email, tgl_lahir, goldar) VALUES (?, ?, ?, ?)");
+$hasil = $stmt->execute([$nama, $email, $tgl, $goldar]);
 
 if ($hasil) {
     echo "<script>

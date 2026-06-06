@@ -1,5 +1,5 @@
 <?php
-include '../../confige/koneksi.php';
+include '../../config/koneksi.php';
 
 if (!isset($_SESSION['pendonor_login']) || $_SESSION['pendonor_login'] !== true) {
     header("Location: ../../auth/login_pendonor.php");
@@ -139,7 +139,7 @@ $halaman_aktif = 'dashboard_pendonor';
                 <h3 style="color:#8b0000; border-bottom:2px solid #8b0000; padding-bottom:8px; margin-bottom:20px;">
                     ✏️ Perbarui Data Profil
                 </h3>
-                <form method="POST" action="profil_pendonor.php">
+                <form method="POST" action="profile_pendonor.php">
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:0 15px;">
                         <div class="grup-form">
                             <label>Nama Lengkap *</label>
@@ -188,7 +188,7 @@ $halaman_aktif = 'dashboard_pendonor';
                 <h3 style="color:#555; border-bottom:2px solid #eee; padding-bottom:8px; margin-bottom:20px;">
                     🔑 Ganti Password
                 </h3>
-                <form method="POST" action="profil_pendonor.php">
+                <form method="POST" action="profile_pendonor.php">
                     <div class="grup-form">
                         <label>Password Lama</label>
                         <input type="password" name="password_lama" placeholder="Password saat ini" required>

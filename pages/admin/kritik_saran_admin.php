@@ -67,7 +67,8 @@ $total_pg = ceil($total / $per_page);
 $params_data   = array_merge($params, [$per_page, $offset]);
 $stmt_data     = $conn->prepare("SELECT * FROM kritik_saran $where ORDER BY tanggal DESC LIMIT ? OFFSET ?");
 $stmt_data->execute($params_data);
-$q_data = $stmt_data;
+$q_data     = $stmt_data->fetchAll(PDO::FETCH_ASSOC);
+$q_data_count = count($q_data);
 
 // Statistik
 $stat_total  = $conn->query("SELECT COUNT(*) FROM kritik_saran")->fetchColumn() ?? 0;
@@ -183,7 +184,7 @@ $pesan = $_GET['pesan'] ?? '';
 
         <!-- TABEL DATA -->
         <div class="card">
-            <?php if (mysqli_num_rows($q_data) === 0): ?>
+            <?php if ($q_data_count === 0): ?>
                 <div class="empty-state">
                     <i class="fas fa-comment-slash"></i>
                     <p>Tidak ada pesan yang ditemukan.</p>
@@ -205,7 +206,7 @@ $pesan = $_GET['pesan'] ?? '';
                     <tbody>
                     <?php
                     $no = $offset + 1;
-                    while ($baris = mysqli_fetch_assoc($q_data)):
+                    foreach ($q_data as $baris):
                         $tgl      = date('d M Y, H:i', strtotime($baris['tanggal']));
                         $sudah    = (bool) $baris['sudah_baca'];
                         $rowClass = $sudah ? '' : 'belum-baca';
@@ -257,7 +258,7 @@ $pesan = $_GET['pesan'] ?? '';
                                 </div>
                             </td>
                         </tr>
-                    <?php endwhile; ?>
+                    <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>

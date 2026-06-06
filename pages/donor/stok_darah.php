@@ -1,7 +1,7 @@
 <?php
 include '../../config/koneksi.php';
 
-$stmt    = $pdo->query("SELECT * FROM stok_darah ORDER BY FIELD(goldar,'A','B','O','AB')");
+$stmt    = $conn->query("SELECT * FROM stok_darah ORDER BY FIELD(goldar,'A','B','O','AB')");
 $stok    = [];
 
 foreach ($stmt->fetchAll() as $s) { $stok[$s['goldar']] = $s; }
@@ -12,7 +12,7 @@ foreach (['A','B','O','AB'] as $g) {
     }
 }
 
-$row = $pdo->query("SELECT updated_at FROM stok_darah ORDER BY updated_at DESC LIMIT 1")->fetch();
+$row = $conn->query("SELECT updated_at FROM stok_darah ORDER BY updated_at DESC LIMIT 1")->fetch();
 $last_update = $row ? date('d M Y, H:i', strtotime($row['updated_at'])) : 'Belum diperbarui';
 
 
@@ -137,6 +137,6 @@ function statusStok($jumlah) {
 </main>
 
 <?php include '../../components/footer.php'; ?>
-<?php mysqli_close($conn); ?>
+<?php $conn = null; ?>
 </body>
 </html>

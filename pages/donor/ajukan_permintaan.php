@@ -23,48 +23,66 @@ if (isset($_POST['ajukan'])) {
     } elseif ($jumlah_kantong < 1 || $jumlah_kantong > 20) {
         $pesan_status = '<div class="pesan-error">❌ Jumlah kantong harus antara 1–20.</div>';
     } else {
-        // Simpan ke tabel pasien dulu (atau cek apakah sudah ada)
-        $cek_pasien = mysqli_query($conn, "SELECT id FROM pasien WHERE no_hp='$no_hp'");
-        if (mysqli_num_rows($cek_pasien) > 0) {
-            $pasien_id = mysqli_fetch_assoc($cek_pasien)['id'];
-            // Update nama jika berubah
-            mysqli_query($conn, "UPDATE pasien SET nama='$nama_pasien', email='$email' WHERE id=$pasien_id");
+        // Cek apakah pasien sudah ada berdasarkan no_hp
+        $cek_pasien = $conn->prepare("SELECT id FROM pasien WHERE no_hp = ?");
+        $cek_pasien->execute([$no_hp]);
+        $pasien_existing = $cek_pasien->fetch(PDO::FETCH_ASSOC);
+
+        if ($pasien_existing) {
+            $pasien_id = $pasien_existing['id'];
+            // Update nama dan email jika berubah
+            $upd = $conn->prepare("UPDATE pasien SET nama = ?, email = ? WHERE id = ?");
+            $upd->execute([$nama_pasien, $email, $pasien_id]);
         } else {
-            mysqli_query($conn, "INSERT INTO pasien (nama, no_hp, email) VALUES ('$nama_pasien','$no_hp','$email')");
-            $pasien_id = mysqli_insert_id($conn);
+            // Insert pasien baru — password placeholder untuk pengajuan anonim
+            $placeholder_pass = password_hash(uniqid('', true), PASSWORD_DEFAULT);
+            $ins = $conn->prepare(
+                "INSERT INTO pasien (nama, email, password, no_hp, goldar_dibutuhkan, kota) VALUES (?, ?, ?, ?, ?, ?)"
+            );
+            $ins->execute([$nama_pasien, $email ?: 'noemail@donorin.id', $placeholder_pass, $no_hp, $goldar, $kota]);
+            $pasien_id = (int)$conn->lastInsertId();
         }
 
-        // Simpan permintaan darah
-        $q_insert = mysqli_query($conn,
-            "INSERT INTO permintaan_darah (pasien_id, goldar, jumlah_kantong, nama_rs, kota, alamat_rs, keterangan, kebutuhan, status, tanggal)
-             VALUES ($pasien_id, '$goldar', $jumlah_kantong, '$nama_rs', '$kota', '$alamat_rs', '$keterangan', '$kebutuhan', 'menunggu', NOW())"
+        // Simpan permintaan darah (tanpa kolom 'kebutuhan' yg tidak ada di DB)
+        $q_insert = $conn->prepare(
+            "INSERT INTO permintaan_darah (pasien_id, goldar, jumlah_kantong, nama_rs, kota, alamat_rs, keterangan, status, tanggal)
+             VALUES (?, ?, ?, ?, ?, ?, ?, 'menunggu', NOW())"
         );
+        $q_insert->execute([$pasien_id, $goldar, $jumlah_kantong, $nama_rs, $kota, $alamat_rs, $keterangan]);
 
-        if ($q_insert) {
-            $id_permintaan = mysqli_insert_id($conn);
+        if ($q_insert->rowCount() > 0) {
+            $id_permintaan = (int)$conn->lastInsertId();
 
             // Notifikasi ke pendonor yang goldarnya cocok
-            $q_pendonor_cocok = mysqli_query($conn, "SELECT id FROM pendonor WHERE goldar='$goldar' AND status_aktif='aktif'");
-            while ($pd = mysqli_fetch_assoc($q_pendonor_cocok)) {
-                mysqli_query($conn,
-                    "INSERT INTO notifikasi (tujuan_tipe, tujuan_id, judul, pesan)
-                     VALUES ('pendonor', {$pd['id']}, 'Ada Permintaan Darah Golongan $goldar!',
-                     'Pasien membutuhkan $jumlah_kantong kantong darah golongan $goldar di $nama_rs, $kota. Segera cek di halaman permintaan.')"
+            $q_pendonor_cocok = $conn->prepare("SELECT id FROM pendonor WHERE goldar = ? AND status_aktif = 'aktif'");
+            $q_pendonor_cocok->execute([$goldar]);
+            foreach ($q_pendonor_cocok->fetchAll(PDO::FETCH_ASSOC) as $pd) {
+                $notif = $conn->prepare(
+                    "INSERT INTO notifikasi (tujuan_tipe, tujuan_id, judul, pesan) VALUES ('pendonor', ?, ?, ?)"
                 );
+                $notif->execute([
+                    $pd['id'],
+                    "Ada Permintaan Darah Golongan $goldar!",
+                    "Pasien membutuhkan $jumlah_kantong kantong darah golongan $goldar di $nama_rs, $kota. Segera cek di halaman permintaan."
+                ]);
             }
 
             $sukses = true;
             $pesan_status = '<div class="pesan-sukses">✅ Permintaan darah berhasil diajukan! ID Permintaan: <strong>#' . $id_permintaan . '</strong>. Pendonor yang cocok akan mendapat notifikasi.</div>';
         } else {
-            $pesan_status = '<div class="pesan-error">❌ Gagal menyimpan permintaan: ' . mysqli_error($conn) . '</div>';
+            $pesan_status = '<div class="pesan-error">❌ Gagal menyimpan permintaan. Silakan coba lagi.</div>';
         }
     }
 }
 
 // Ambil stok darah untuk info referensi
-$q_stok = mysqli_query($conn, "SELECT goldar, jumlah_kantong FROM stok_darah");
+$q_stok = $conn->query("SELECT goldar, jumlah_kantong FROM stok_darah");
 $info_stok = [];
-if ($q_stok) while ($s = mysqli_fetch_assoc($q_stok)) $info_stok[$s['goldar']] = $s['jumlah_kantong'];
+if ($q_stok) {
+    foreach ($q_stok->fetchAll(PDO::FETCH_ASSOC) as $s) {
+        $info_stok[$s['goldar']] = $s['jumlah_kantong'];
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -340,7 +358,7 @@ if ($q_stok) while ($s = mysqli_fetch_assoc($q_stok)) $info_stok[$s['goldar']] =
 </main>
 
 <?php include '../../components/footer.php'; ?>
-<?php mysqli_close($conn); ?>
+<?php $conn = null; ?>
 
 <script>
 // Tampilkan info stok saat pilih goldar
