@@ -440,7 +440,16 @@ CREATE TABLE `users` (
 --
 -- Indexes for dumped tables
 --
+CREATE TABLE IF NOT EXISTS stok_darah (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    goldar ENUM('A','B','O','AB') NOT NULL UNIQUE,
+    jumlah_kantong INT DEFAULT 0,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by VARCHAR(100) DEFAULT 'Admin'
+);
 
+-- Isi data awal
+INSERT INTO stok_darah (goldar, jumlah_kantong) VALUES ('A',0),('B',0),('O',0),('AB',0);
 --
 -- Indeks untuk tabel `cache`
 --
