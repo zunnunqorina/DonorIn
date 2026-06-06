@@ -11,34 +11,38 @@ $pm_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if (!$pm_id) { header("Location: cari_permintaan.php"); exit; }
 
 // Ambil detail permintaan
-$q = mysqli_query($conn, "SELECT pd.*, p.nama AS nama_pasien, p.no_hp AS hp_pasien, p.email AS email_pasien
-     FROM permintaan_darah pd JOIN pasien p ON pd.pasien_id=p.id WHERE pd.id=$pm_id");
-if (mysqli_num_rows($q) == 0) { header("Location: cari_permintaan.php"); exit; }
-$pm = mysqli_fetch_assoc($q);
+$q = $conn->prepare("SELECT pd.*, p.nama AS nama_pasien, p.no_hp AS hp_pasien, p.email AS email_pasien
+     FROM permintaan_darah pd JOIN pasien p ON pd.pasien_id=p.id WHERE pd.id=?");
+$q->execute([$pm_id]);
+if ($q->rowCount() == 0) { header("Location: cari_permintaan.php"); exit; }
+$pm = $q->fetch(PDO::FETCH_ASSOC);
 
 $pesan_status = "";
 
 if (isset($_POST['kirim_respon'])) {
-    $status_respon = mysqli_real_escape_string($conn, $_POST['status_respon']);
-    $pesan_respon  = mysqli_real_escape_string($conn, trim($_POST['pesan'] ?? ''));
+    $status_respon = $_POST['status_respon'];
+    $pesan_respon  = trim($_POST['pesan'] ?? '');
 
     // Cek sudah respon belum
-    $cek = mysqli_query($conn, "SELECT id FROM respon_donor WHERE permintaan_id=$pm_id AND pendonor_id=$pendonor_id");
-    if (mysqli_num_rows($cek) > 0) {
+    $cek = $conn->prepare("SELECT id FROM respon_donor WHERE permintaan_id=? AND pendonor_id=?");
+    $cek->execute([$pm_id, $pendonor_id]);
+    if ($cek->rowCount() > 0) {
         $pesan_status = "<div class='pesan-error'>❌ Anda sudah merespon permintaan ini sebelumnya.</div>";
     } else {
-        $insert = mysqli_query($conn,
-            "INSERT INTO respon_donor (permintaan_id, pendonor_id, pesan, status) VALUES ($pm_id, $pendonor_id, '$pesan_respon', '$status_respon')");
-        if ($insert) {
+        $insert = $conn->prepare("INSERT INTO respon_donor (permintaan_id, pendonor_id, pesan, status) VALUES (?, ?, ?, ?)");
+        $insert->execute([$pm_id, $pendonor_id, $pesan_respon, $status_respon]);
+        if ($insert->rowCount() > 0) {
             // Update status permintaan jika bersedia
             if ($status_respon == 'bersedia') {
-                mysqli_query($conn, "UPDATE permintaan_darah SET status='diproses' WHERE id=$pm_id");
+                $upd = $conn->prepare("UPDATE permintaan_darah SET status='diproses' WHERE id=?");
+                $upd->execute([$pm_id]);
             }
             // Kirim notifikasi ke pasien
-            $nama_pendonor = htmlspecialchars($_SESSION['pendonor_nama']);
+            $nama_pendonor   = htmlspecialchars($_SESSION['pendonor_nama']);
             $goldar_pendonor = $_SESSION['pendonor_goldar'];
-            $pesan_notif = "Pendonor $nama_pendonor (Gol. $goldar_pendonor) menyatakan bersedia mendonorkan darah untuk permintaan Anda di {$pm['nama_rs']}. Segera hubungi mereka.";
-            mysqli_query($conn, "INSERT INTO notifikasi (tujuan_tipe, tujuan_id, judul, pesan) VALUES ('pasien', {$pm['pasien_id']}, 'Ada Pendonor Bersedia!', '$pesan_notif')");
+            $pesan_notif     = "Pendonor $nama_pendonor (Gol. $goldar_pendonor) menyatakan bersedia mendonorkan darah untuk permintaan Anda di {$pm['nama_rs']}. Segera hubungi mereka.";
+            $notif = $conn->prepare("INSERT INTO notifikasi (tujuan_tipe, tujuan_id, judul, pesan) VALUES ('pasien', ?, 'Ada Pendonor Bersedia!', ?)");
+            $notif->execute([$pm['pasien_id'], $pesan_notif]);
 
             $pesan_status = "<div class='pesan-sukses'>✅ Respon Anda berhasil dikirim! Pasien akan mendapat notifikasi.</div>";
         } else {

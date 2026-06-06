@@ -9,32 +9,34 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
 
 if (isset($_GET['hapus']) && is_numeric($_GET['hapus'])) {
     $id_hapus = (int) $_GET['hapus'];
-    mysqli_query($conn, "DELETE FROM user WHERE id = $id_hapus AND role = 'pendonor'");
+    $stmt = $conn->prepare("DELETE FROM user WHERE id = ? AND role = 'pendonor'");
+    $stmt->execute([$id_hapus]);
     header("Location: pendonor_admin.php?pesan=hapus_sukses");
     exit();
 }
 
 $error_tambah = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['aksi']) && $_POST['aksi'] === 'tambah') {
-    $nama   = trim(mysqli_real_escape_string($conn, $_POST['nama']));
-    $email  = trim(mysqli_real_escape_string($conn, $_POST['email']));
-    $no_hp  = trim(mysqli_real_escape_string($conn, $_POST['no_hp']));
-    $goldar = mysqli_real_escape_string($conn, $_POST['goldar']);
-    $kota   = trim(mysqli_real_escape_string($conn, $_POST['kota']));
+    $nama   = trim($_POST['nama']);
+    $email  = trim($_POST['email']);
+    $no_hp  = trim($_POST['no_hp']);
+    $goldar = $_POST['goldar'];
+    $kota   = trim($_POST['kota']);
     $pass   = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
     // Cek email duplikat
-    $cek = mysqli_query($conn, "SELECT id FROM user WHERE email = '$email'");
-    if (mysqli_num_rows($cek) > 0) {
+    $cek = $conn->prepare("SELECT id FROM user WHERE email = ?");
+    $cek->execute([$email]);
+    if ($cek->rowCount() > 0) {
         $error_tambah = 'Email sudah terdaftar!';
     } else {
-        $q = "INSERT INTO user (nama, email, password, role, no_hp, goldar, kota)
-              VALUES ('$nama','$email','$pass','pendonor','$no_hp','$goldar','$kota')";
-        if (mysqli_query($conn, $q)) {
+        $stmt = $conn->prepare("INSERT INTO user (nama, email, password, role, no_hp, goldar, kota)
+              VALUES (?, ?, ?, 'pendonor', ?, ?, ?)");
+        if ($stmt->execute([$nama, $email, $pass, $no_hp, $goldar, $kota])) {
             header("Location: pendonor_admin.php?pesan=tambah_sukses");
             exit();
         } else {
-            $error_tambah = 'Gagal menambahkan pendonor: ' . mysqli_error($conn);
+            $error_tambah = 'Gagal menambahkan pendonor.';
         }
     }
 }
@@ -42,78 +44,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['aksi']) && $_POST['ak
 $error_edit = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['aksi']) && $_POST['aksi'] === 'edit') {
     $id_edit = (int) $_POST['id_edit'];
-    $nama    = trim(mysqli_real_escape_string($conn, $_POST['nama']));
-    $email   = trim(mysqli_real_escape_string($conn, $_POST['email']));
-    $no_hp   = trim(mysqli_real_escape_string($conn, $_POST['no_hp']));
-    $goldar  = mysqli_real_escape_string($conn, $_POST['goldar']);
-    $kota    = trim(mysqli_real_escape_string($conn, $_POST['kota']));
+    $nama    = trim($_POST['nama']);
+    $email   = trim($_POST['email']);
+    $no_hp   = trim($_POST['no_hp']);
+    $goldar  = $_POST['goldar'];
+    $kota    = trim($_POST['kota']);
 
     // Cek email duplikat (selain diri sendiri)
-    $cek = mysqli_query($conn, "SELECT id FROM user WHERE email = '$email' AND id != $id_edit");
-    if (mysqli_num_rows($cek) > 0) {
+    $cek = $conn->prepare("SELECT id FROM user WHERE email = ? AND id != ?");
+    $cek->execute([$email, $id_edit]);
+    if ($cek->rowCount() > 0) {
         $error_edit = 'Email sudah digunakan akun lain!';
     } else {
-        $set_pass = '';
         if (!empty($_POST['password'])) {
             $pass_baru = password_hash($_POST['password'], PASSWORD_DEFAULT);
-            $set_pass  = ", password = '$pass_baru'";
+            $stmt = $conn->prepare("UPDATE user SET nama=?, email=?, no_hp=?, goldar=?, kota=?, password=? WHERE id=? AND role='pendonor'");
+            $params = [$nama, $email, $no_hp, $goldar, $kota, $pass_baru, $id_edit];
+        } else {
+            $stmt = $conn->prepare("UPDATE user SET nama=?, email=?, no_hp=?, goldar=?, kota=? WHERE id=? AND role='pendonor'");
+            $params = [$nama, $email, $no_hp, $goldar, $kota, $id_edit];
         }
-        $q = "UPDATE user SET
-                nama   = '$nama',
-                email  = '$email',
-                no_hp  = '$no_hp',
-                goldar = '$goldar',
-                kota   = '$kota'
-                $set_pass
-              WHERE id = $id_edit AND role = 'pendonor'";
-        if (mysqli_query($conn, $q)) {
+        if ($stmt->execute($params)) {
             header("Location: pendonor_admin.php?pesan=edit_sukses");
             exit();
         } else {
-            $error_edit = 'Gagal memperbarui data: ' . mysqli_error($conn);
+            $error_edit = 'Gagal memperbarui data.';
         }
     }
 }
 
-$search    = isset($_GET['search']) ? trim(mysqli_real_escape_string($conn, $_GET['search'])) : '';
-$filter_gd = isset($_GET['goldar'])  ? mysqli_real_escape_string($conn, $_GET['goldar'])      : '';
-$page      = isset($_GET['page'])    ? max(1, (int) $_GET['page'])                            : 1;
+$search    = isset($_GET['search']) ? trim($_GET['search']) : '';
+$filter_gd = isset($_GET['goldar'])  ? $_GET['goldar']      : '';
+$page      = isset($_GET['page'])    ? max(1, (int) $_GET['page']) : 1;
 $per_page  = 10;
 $offset    = ($page - 1) * $per_page;
 
-$where = "WHERE role = 'pendonor'";
-if ($search !== '')    $where .= " AND (nama LIKE '%$search%' OR email LIKE '%$search%' OR no_hp LIKE '%$search%' OR kota LIKE '%$search%')";
-if ($filter_gd !== '') $where .= " AND goldar = '$filter_gd'";
+$where  = "WHERE role = 'pendonor'";
+$params = [];
+if ($search !== '') {
+    $where   .= " AND (nama LIKE ? OR email LIKE ? OR no_hp LIKE ? OR kota LIKE ?)";
+    $like     = "%$search%";
+    $params   = array_merge($params, [$like, $like, $like, $like]);
+}
+if ($filter_gd !== '') {
+    $where  .= " AND goldar = ?";
+    $params[] = $filter_gd;
+}
 
 // Total untuk paginasi
-$q_total  = mysqli_query($conn, "SELECT COUNT(*) as total FROM user $where");
-$total    = mysqli_fetch_assoc($q_total)['total'];
+$q_total = $conn->prepare("SELECT COUNT(*) as total FROM user $where");
+$q_total->execute($params);
+$total    = $q_total->fetch(PDO::FETCH_ASSOC)['total'];
 $total_pg = ceil($total / $per_page);
 
 // Data pendonor
-$q_pendonor = mysqli_query($conn, "
-    SELECT * FROM user $where
-    ORDER BY tanggal_daftar DESC
-    LIMIT $per_page OFFSET $offset
-");
+$params_limit   = array_merge($params, [$per_page, $offset]);
+$q_pendonor     = $conn->prepare("SELECT * FROM user $where ORDER BY tanggal_daftar DESC LIMIT ? OFFSET ?");
+$q_pendonor->execute($params_limit);
+$pendonor_rows  = $q_pendonor->fetchAll(PDO::FETCH_ASSOC);
 
 // Statistik ringkas
-$q_stat_total  = mysqli_query($conn, "SELECT COUNT(*) as t FROM user WHERE role='pendonor'");
-$stat_total    = mysqli_fetch_assoc($q_stat_total)['t'] ?? 0;
+$stat_total = $conn->query("SELECT COUNT(*) as t FROM user WHERE role='pendonor'")->fetch(PDO::FETCH_ASSOC)['t'] ?? 0;
+$stat_bulan = $conn->query("SELECT COUNT(*) as t FROM user WHERE role='pendonor' AND MONTH(tanggal_daftar)=MONTH(CURDATE()) AND YEAR(tanggal_daftar)=YEAR(CURDATE())")->fetch(PDO::FETCH_ASSOC)['t'] ?? 0;
 
-$q_stat_bulan  = mysqli_query($conn, "SELECT COUNT(*) as t FROM user WHERE role='pendonor' AND MONTH(tanggal_daftar)=MONTH(CURDATE()) AND YEAR(tanggal_daftar)=YEAR(CURDATE())");
-$stat_bulan    = mysqli_fetch_assoc($q_stat_bulan)['t'] ?? 0;
-
-$q_goldar_stat = mysqli_query($conn, "SELECT goldar, COUNT(*) as total FROM user WHERE role='pendonor' AND goldar IS NOT NULL GROUP BY goldar ORDER BY total DESC");
-$goldar_stat   = [];
-while ($r = mysqli_fetch_assoc($q_goldar_stat)) $goldar_stat[$r['goldar']] = $r['total'];
+$goldar_stat = [];
+foreach ($conn->query("SELECT goldar, COUNT(*) as total FROM user WHERE role='pendonor' AND goldar IS NOT NULL GROUP BY goldar ORDER BY total DESC")->fetchAll(PDO::FETCH_ASSOC) as $r) {
+    $goldar_stat[$r['goldar']] = $r['total'];
+}
 
 // Data untuk form edit (jika ada)
 $edit_data = null;
 if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
-    $id_e     = (int) $_GET['edit'];
-    $q_edit   = mysqli_query($conn, "SELECT * FROM user WHERE id = $id_e AND role = 'pendonor'");
-    $edit_data = mysqli_fetch_assoc($q_edit);
+    $id_e      = (int) $_GET['edit'];
+    $q_edit    = $conn->prepare("SELECT * FROM user WHERE id = ? AND role = 'pendonor'");
+    $q_edit->execute([$id_e]);
+    $edit_data = $q_edit->fetch(PDO::FETCH_ASSOC);
 }
 
 // Pesan notifikasi
@@ -284,9 +289,9 @@ $pesan = $_GET['pesan'] ?? '';
                         </tr>
                     </thead>
                     <tbody>
-                    <?php if (mysqli_num_rows($q_pendonor) > 0):
+                    <?php if (count($pendonor_rows) > 0):
                         $no = $offset + 1;
-                        while ($row = mysqli_fetch_assoc($q_pendonor)):
+                        foreach ($pendonor_rows as $row):
                             $gd     = $row['goldar'] ?? '-';
                             $gd_cls = in_array($gd, ['A','B','O','AB']) ? "gd-$gd" : 'badge-abu';
                     ?>
@@ -328,7 +333,7 @@ $pesan = $_GET['pesan'] ?? '';
                                 </div>
                             </td>
                         </tr>
-                    <?php endwhile; else: ?>
+                    <?php endforeach; else: ?>
                         <tr>
                             <td colspan="7">
                                 <div class="empty-state">

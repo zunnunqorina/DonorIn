@@ -57,9 +57,9 @@ $halaman_aktif = 'kritik';
         <a href="tampil_kritik.php" class="tombol-kembali">← Kirim Pesan Baru</a>
 
         <?php
-        $query  = "SELECT * FROM kritik_saran ORDER BY tanggal DESC";
-        $hasil  = mysqli_query($conn, $query);
-        $jumlah = mysqli_num_rows($hasil);
+        $stmt   = $conn->query("SELECT * FROM kritik_saran ORDER BY tanggal DESC");
+        $data   = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $jumlah = count($data);
         ?>
 
         <div class="info-total">
@@ -84,7 +84,7 @@ $halaman_aktif = 'kritik';
                     <tbody>
                     <?php
                     $no = 1;
-                    while ($baris = mysqli_fetch_assoc($hasil)):
+                    foreach ($data as $baris):
                         $badge = 'badge-' . $baris['kategori'];
                         $tgl   = date('d/m/Y H:i', strtotime($baris['tanggal']));
                     ?>
@@ -100,7 +100,7 @@ $halaman_aktif = 'kritik';
                             <td><?php echo htmlspecialchars($baris['pesan']); ?></td>
                             <td style="white-space:nowrap;"><?php echo $tgl; ?></td>
                         </tr>
-                    <?php endwhile; ?>
+                    <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
@@ -110,6 +110,6 @@ $halaman_aktif = 'kritik';
 </main>
 
 <?php include '../../components/footer.php'; ?>
-<?php mysqli_close($conn); ?>
+<?php $conn = null; ?>
 </body>
 </html>

@@ -9,21 +9,21 @@ if (isset($_SESSION['pendonor_login']) && $_SESSION['pendonor_login'] === true) 
 $pesan_status = "";
 
 if (isset($_POST['daftar'])) {
-    $nama          = mysqli_real_escape_string($conn, trim($_POST['nama']));
-    $email         = mysqli_real_escape_string($conn, trim($_POST['email']));
-    $password      = mysqli_real_escape_string($conn, trim($_POST['password']));
-    $no_hp         = mysqli_real_escape_string($conn, trim($_POST['no_hp']));
-    $tgl_lahir     = mysqli_real_escape_string($conn, $_POST['tgl_lahir']);
-    $jenis_kelamin = mysqli_real_escape_string($conn, $_POST['jenis_kelamin']);
-    $goldar        = mysqli_real_escape_string($conn, $_POST['goldar']);
+    $nama          = trim($_POST['nama']);
+    $email         = trim($_POST['email']);
+    $password      = trim($_POST['password']);
+    $no_hp         = trim($_POST['no_hp']);
+    $tgl_lahir     = $_POST['tgl_lahir'];
+    $jenis_kelamin = $_POST['jenis_kelamin'];
+    $goldar        = $_POST['goldar'];
     $berat_badan   = (int) $_POST['berat_badan'];
-    $kota          = mysqli_real_escape_string($conn, trim($_POST['kota']));
-    $pekerjaan     = mysqli_real_escape_string($conn, trim($_POST['pekerjaan'] ?? ''));
-    $alamat        = mysqli_real_escape_string($conn, trim($_POST['alamat'] ?? ''));
-    $pernah_donor  = mysqli_real_escape_string($conn, $_POST['pernah_donor']);
+    $kota          = trim($_POST['kota']);
+    $pekerjaan     = trim($_POST['pekerjaan'] ?? '');
+    $alamat        = trim($_POST['alamat'] ?? '');
+    $pernah_donor  = $_POST['pernah_donor'];
     $terakhir_donor = (!empty($_POST['terakhir_donor']) && $pernah_donor === 'ya')
-                      ? "'" . mysqli_real_escape_string($conn, $_POST['terakhir_donor']) . "'"
-                      : "NULL";
+                      ? $_POST['terakhir_donor']
+                      : null;
 
     // Hitung umur
     $lahir = new DateTime($tgl_lahir);
@@ -36,25 +36,28 @@ if (isset($_POST['daftar'])) {
         $pesan_status = "<div class='pesan-error'>❌ Usia harus antara 17–65 tahun. Usia Anda: $umur tahun.</div>";
     } elseif ($berat_badan < 45) {
         $pesan_status = "<div class='pesan-error'>❌ Berat badan minimal 45 kg. Berat Anda: {$berat_badan} kg.</div>";
-    } elseif (strlen($_POST['password']) < 6) {
+    } elseif (strlen($password) < 6) {
         $pesan_status = '<div class="pesan-error">❌ Password minimal 6 karakter.</div>';
     } else {
         // Cek email sudah terdaftar
-        $cek = mysqli_query($conn, "SELECT id FROM pendonor WHERE email='$email'");
-        if (mysqli_num_rows($cek) > 0) {
+        $cek = $conn->prepare("SELECT id FROM pendonor WHERE email = ?");
+        $cek->execute([$email]);
+        if ($cek->rowCount() > 0) {
             $pesan_status = '<div class="pesan-error">❌ Email sudah terdaftar. Silakan login.</div>';
         } else {
-            $query = "INSERT INTO pendonor (nama, email, password, no_hp, tgl_lahir, umur, jenis_kelamin, goldar, berat_badan, kota, pekerjaan, alamat, pernah_donor, terakhir_donor)
-                      VALUES ('$nama','$email',MD5('$password'),'$no_hp','$tgl_lahir',$umur,'$jenis_kelamin','$goldar',$berat_badan,'$kota','$pekerjaan','$alamat','$pernah_donor',$terakhir_donor)";
-            $hasil = mysqli_query($conn, $query);
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            $stmt = $conn->prepare("INSERT INTO pendonor (nama, email, password, no_hp, tgl_lahir, umur, jenis_kelamin, goldar, berat_badan, kota, pekerjaan, alamat, pernah_donor, terakhir_donor)
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $hasil = $stmt->execute([$nama, $email, $hashed_password, $no_hp, $tgl_lahir, $umur, $jenis_kelamin, $goldar, $berat_badan, $kota, $pekerjaan, $alamat, $pernah_donor, $terakhir_donor]);
 
             if ($hasil) {
-                $new_id = mysqli_insert_id($conn);
+                $new_id = $conn->lastInsertId();
                 // Buat notifikasi selamat datang
-                mysqli_query($conn, "INSERT INTO notifikasi (tujuan_tipe, tujuan_id, judul, pesan) VALUES ('pendonor', $new_id, 'Selamat Datang di DonorIn!', 'Akun pendonor Anda telah berhasil dibuat. Anda sekarang bisa melihat permintaan darah dan merespons kebutuhan pasien.')");
+                $notif = $conn->prepare("INSERT INTO notifikasi (tujuan_tipe, tujuan_id, judul, pesan) VALUES ('pendonor', ?, 'Selamat Datang di DonorIn!', 'Akun pendonor Anda telah berhasil dibuat. Anda sekarang bisa melihat permintaan darah dan merespons kebutuhan pasien.')");
+                $notif->execute([$new_id]);
                 $pesan_status = '<div class="pesan-sukses">✅ Pendaftaran berhasil! Silakan <a href="login_pendonor.php" style="color:#155724;font-weight:bold;">login sekarang</a>.</div>';
             } else {
-                $pesan_status = '<div class="pesan-error">❌ Gagal menyimpan: ' . mysqli_error($conn) . '</div>';
+                $pesan_status = '<div class="pesan-error">❌ Gagal menyimpan data. Silakan coba lagi.</div>';
             }
         }
     }
