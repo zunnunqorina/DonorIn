@@ -8,7 +8,7 @@ $halaman_aktif = 'kritik';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DonorIn — Data Kritik & Saran</title>
-    <link rel="stylesheet" href="assets/styles.css">
+    <link rel="stylesheet" href="../../assets/styles.css">
     <style>
         .badge-kategori {
             display: inline-block;

@@ -151,9 +151,9 @@ $pesan = $_GET['pesan'] ?? '';
         </div>
         <div class="nav-section">
             <div class="nav-label">Pengguna</div>
-            <a href="pasien.php" class="nav-item"><i class="fas fa-user-injured"></i> Pasien</a>
+            <a href="pasien_admin.php" class="nav-item"><i class="fas fa-user-injured"></i> Pasien</a>
             <a href="pendonor_admin.php" class="nav-item active"><i class="fas fa-hand-holding-heart"></i> Pendonor</a>
-            <a href="relawan.php" class="nav-item"><i class="fas fa-people-carry-box"></i> Relawan</a>
+            <a href="relawan_admin.php" class="nav-item"><i class="fas fa-people-carry-box"></i> Relawan PMI</a>
         </div>
         <div class="nav-section">
             <div class="nav-label">Event</div>
