@@ -65,8 +65,12 @@ $total    = $stmt_total->fetchColumn() ?? 0;
 $total_pg = ceil($total / $per_page);
 
 $params_data   = array_merge($params, [$per_page, $offset]);
-$stmt_data     = $conn->prepare("SELECT * FROM kritik_saran $where ORDER BY tanggal DESC LIMIT ? OFFSET ?");
-$stmt_data->execute($params_data);
+// $stmt_data     = $conn->prepare("SELECT * FROM kritik_saran $where ORDER BY tanggal DESC LIMIT ? OFFSET ?");
+// $stmt_data->execute($params_data);
+$stmt_data = $conn->prepare("SELECT * FROM kritik_saran $where ORDER BY tanggal DESC LIMIT :limit OFFSET :offset");
+$stmt_data->bindValue(':limit',  $per_page, PDO::PARAM_INT);
+$stmt_data->bindValue(':offset', $offset,   PDO::PARAM_INT);
+$stmt_data->execute();
 $q_data     = $stmt_data->fetchAll(PDO::FETCH_ASSOC);
 $q_data_count = count($q_data);
 

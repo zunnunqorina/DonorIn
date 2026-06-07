@@ -111,7 +111,7 @@ $total_event_bulan = $conn->query("
 
         <div class="nav-section">
             <div class="nav-label">Pengguna</div>
-            <a href="pasien.php" class="nav-item">
+            <a href="pasien_admin.php" class="nav-item">
                 <i class="fas fa-user-injured"></i> Pasien
                 <span class="nav-badge"><?= $total_pasien ?></span>
             </a>
@@ -119,8 +119,8 @@ $total_event_bulan = $conn->query("
                 <i class="fas fa-hand-holding-heart"></i> Pendonor
                 <span class="nav-badge"><?= $total_pendonor ?></span>
             </a>
-            <a href="relawan.php" class="nav-item">
-                <i class="fas fa-people-carry-box"></i> Relawan
+            <a href="relawan_admin.php" class="nav-item">
+                <i class="fas fa-people-carry-box"></i> Relawan PMI
                 <span class="nav-badge"><?= $total_relawan ?></span>
             </a>
         </div>
@@ -283,7 +283,7 @@ $total_event_bulan = $conn->query("
         <!-- ROW: GOLDAR RELAWAN -->
         <div class="section-header">
             <div class="section-title"><i class="fas fa-dna"></i> Sebaran Golongan Darah Relawan</div>
-            <a href="relawan.php" class="btn-lihat"><i class="fas fa-arrow-right"></i> Lihat Relawan</a>
+            <a href="pendonor_admin.php" class="btn-lihat"><i class="fas fa-arrow-right"></i> Lihat Relawan</a>
         </div>
         <div class="card" style="margin-bottom:24px;">
             <div class="card-body">
@@ -382,8 +382,8 @@ $total_event_bulan = $conn->query("
             <!-- Relawan Terbaru -->
             <div>
                 <div class="section-header">
-                    <div class="section-title"><i class="fas fa-people-carry-box"></i> Relawan Terbaru</div>
-                    <a href="relawan.php" class="btn-lihat"><i class="fas fa-arrow-right"></i> Semua</a>
+                    <div class="section-title"><i class="fas fa-people-carry-box"></i> Relawan PMI Terbaru</div>
+                    <a href="relawan_admin.php" class="btn-lihat"><i class="fas fa-arrow-right"></i> Semua</a>
                 </div>
                 <div class="card">
                     <div class="card-body">

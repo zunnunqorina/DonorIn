@@ -1,6 +1,6 @@
 <?php
 include '../../config/koneksi.php';
-if (!isset($_SESSION['admin_id'])) {
+if (!isset($_SESSION['admin_login']) || $_SESSION['admin_login'] !== true) {
     header("Location: ../../auth/login_admin.php");
     exit();
 }
@@ -98,10 +98,10 @@ $total    = $q_total->fetch(PDO::FETCH_ASSOC)['total'];
 $total_pg = ceil($total / $per_page);
 
 // Data pendonor
-$params_limit   = array_merge($params, [$per_page, $offset]);
-$q_pendonor     = $conn->prepare("SELECT * FROM user $where ORDER BY tanggal_daftar DESC LIMIT ? OFFSET ?");
-$q_pendonor->execute($params_limit);
-$pendonor_rows  = $q_pendonor->fetchAll(PDO::FETCH_ASSOC);
+// Data pendonor
+$q_pendonor = $conn->prepare("SELECT * FROM user $where ORDER BY tanggal_daftar DESC LIMIT {$per_page} OFFSET {$offset}");
+$q_pendonor->execute($params);
+$pendonor_rows = $q_pendonor->fetchAll(PDO::FETCH_ASSOC);
 
 // Statistik ringkas
 $stat_total = $conn->query("SELECT COUNT(*) as t FROM user WHERE role='pendonor'")->fetch(PDO::FETCH_ASSOC)['t'] ?? 0;
@@ -130,8 +130,8 @@ $pesan = $_GET['pesan'] ?? '';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manajemen Pendonor — DonorIn</title>
-    <link rel="stylesheet" href="../../assets/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="../../assets/admin.css">
 </head>
 <body>
 
