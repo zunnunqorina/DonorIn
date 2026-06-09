@@ -23,34 +23,30 @@ if (isset($_GET['hapus']) && is_numeric($_GET['hapus'])) {
 // ============================================================
 $error_tambah = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['aksi'] ?? '') === 'tambah') {
-    $nama           = trim($_POST['nama']);
-    $email          = trim($_POST['email']);
-    $no_hp          = trim($_POST['no_hp']);
-    $tgl_lahir      = $_POST['tgl_lahir'];
-    $jenis_kelamin  = $_POST['jenis_kelamin'];
-    $goldar         = $_POST['goldar'];
-    $berat_badan    = (int) $_POST['berat_badan'];
-    $kota           = trim($_POST['kota']);
-    $pekerjaan      = trim($_POST['pekerjaan'] ?? '');
-    $alamat         = trim($_POST['alamat'] ?? '');
+    $nama      = trim($_POST['nama']);
+    $email     = trim($_POST['email']);
+    $tgl_lahir = $_POST['tgl_lahir'];
+    $goldar    = $_POST['goldar'];
 
-    // Hitung umur dari tgl_lahir
-    $umur = (int) date_diff(date_create($tgl_lahir), date_create('today'))->y;
-
-    // Cek email duplikat
-    $cek = $conn->prepare("SELECT id FROM relawan WHERE email = ?");
-    $cek->execute([$email]);
-    if ($cek->rowCount() > 0) {
-        $error_tambah = 'Email sudah terdaftar!';
+    // Validasi server-side
+    if (empty($nama) || empty($email) || empty($tgl_lahir) || empty($goldar)) {
+        $error_tambah = 'Mohon lengkapi semua field yang wajib diisi!';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error_tambah = 'Format email tidak valid!';
     } else {
-        $stmt = $conn->prepare("INSERT INTO relawan 
-            (nama, email, no_hp, tgl_lahir, umur, jenis_kelamin, goldar, berat_badan, kota, pekerjaan, alamat)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
-        if ($stmt->execute([$nama, $email, $no_hp, $tgl_lahir, $umur, $jenis_kelamin, $goldar, $berat_badan, $kota, $pekerjaan, $alamat])) {
-            header("Location: relawan_admin.php?pesan=tambah_sukses");
-            exit();
+        // Cek email duplikat
+        $cek = $conn->prepare("SELECT id FROM relawan WHERE email = ?");
+        $cek->execute([$email]);
+        if ($cek->rowCount() > 0) {
+            $error_tambah = 'Email sudah terdaftar!';
         } else {
-            $error_tambah = 'Gagal menambahkan relawan!';
+            $stmt = $conn->prepare("INSERT INTO relawan (nama, email, tgl_lahir, goldar) VALUES (?,?,?,?)");
+            if ($stmt->execute([$nama, $email, $tgl_lahir, $goldar])) {
+                header("Location: relawan_admin.php?pesan=tambah_sukses");
+                exit();
+            } else {
+                $error_tambah = 'Gagal menambahkan relawan!';
+            }
         }
     }
 }
@@ -60,33 +56,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['aksi'] ?? '') === 'tambah'
 // ============================================================
 $error_edit = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['aksi'] ?? '') === 'edit') {
-    $id_edit        = (int) $_POST['id_edit'];
-    $nama           = trim($_POST['nama']);
-    $email          = trim($_POST['email']);
-    $no_hp          = trim($_POST['no_hp']);
-    $tgl_lahir      = $_POST['tgl_lahir'];
-    $jenis_kelamin  = $_POST['jenis_kelamin'];
-    $goldar         = $_POST['goldar'];
-    $berat_badan    = (int) $_POST['berat_badan'];
-    $kota           = trim($_POST['kota']);
-    $pekerjaan      = trim($_POST['pekerjaan'] ?? '');
-    $alamat         = trim($_POST['alamat'] ?? '');
-    $umur           = (int) date_diff(date_create($tgl_lahir), date_create('today'))->y;
+    $id_edit   = (int) $_POST['id_edit'];
+    $nama      = trim($_POST['nama']);
+    $email     = trim($_POST['email']);
+    $tgl_lahir = $_POST['tgl_lahir'];
+    $goldar    = $_POST['goldar'];
 
-    $cek = $conn->prepare("SELECT id FROM relawan WHERE email = ? AND id != ?");
-    $cek->execute([$email, $id_edit]);
-    if ($cek->rowCount() > 0) {
-        $error_edit = 'Email sudah digunakan relawan lain!';
+    if (empty($nama) || empty($email) || empty($tgl_lahir) || empty($goldar)) {
+        $error_edit = 'Mohon lengkapi semua field yang wajib diisi!';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error_edit = 'Format email tidak valid!';
     } else {
-        $stmt = $conn->prepare("UPDATE relawan SET
-            nama=?, email=?, no_hp=?, tgl_lahir=?, umur=?, jenis_kelamin=?,
-            goldar=?, berat_badan=?, kota=?, pekerjaan=?, alamat=?
-            WHERE id=?");
-        if ($stmt->execute([$nama, $email, $no_hp, $tgl_lahir, $umur, $jenis_kelamin, $goldar, $berat_badan, $kota, $pekerjaan, $alamat, $id_edit])) {
-            header("Location: relawan_admin.php?pesan=edit_sukses");
-            exit();
+        $cek = $conn->prepare("SELECT id FROM relawan WHERE email = ? AND id != ?");
+        $cek->execute([$email, $id_edit]);
+        if ($cek->rowCount() > 0) {
+            $error_edit = 'Email sudah digunakan relawan lain!';
         } else {
-            $error_edit = 'Gagal memperbarui data!';
+            $stmt = $conn->prepare("UPDATE relawan SET nama=?, email=?, tgl_lahir=?, goldar=? WHERE id=?");
+            if ($stmt->execute([$nama, $email, $tgl_lahir, $goldar, $id_edit])) {
+                header("Location: relawan_admin.php?pesan=edit_sukses");
+                exit();
+            } else {
+                $error_edit = 'Gagal memperbarui data!';
+            }
         }
     }
 }
