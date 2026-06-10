@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['aksi'] ?? '') === 'tambah'
     $no_hp = trim($_POST['no_hp']);
     $goldar= $_POST['goldar'];
     $kota  = trim($_POST['kota']);
-    $pass  = trim($_POST['password']);
+    $pass  = password_hash(trim($_POST['password']), PASSWORD_DEFAULT);
 
     $cek = $conn->prepare("SELECT id FROM user WHERE email = ?");
     $cek->execute([$email]);
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['aksi'] ?? '') === 'edit') 
     } else {
         if (!empty($_POST['password'])) {
             $stmt = $conn->prepare("UPDATE user SET nama=?,email=?,no_hp=?,goldar=?,kota=?,password=? WHERE id=? AND role='pasien'");
-            $ok = $stmt->execute([$nama, $email, $no_hp, $goldar, $kota, $_POST['password'], $id_edit]);
+            $ok = $stmt->execute([$nama, $email, $no_hp, $goldar, $kota, password_hash($_POST['password'], PASSWORD_DEFAULT), $id_edit]);
         } else {
             $stmt = $conn->prepare("UPDATE user SET nama=?,email=?,no_hp=?,goldar=?,kota=? WHERE id=? AND role='pasien'");
             $ok = $stmt->execute([$nama, $email, $no_hp, $goldar, $kota, $id_edit]);

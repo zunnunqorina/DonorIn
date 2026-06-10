@@ -51,7 +51,7 @@ $halaman_aktif = 'dashboard_pendonor';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DonorIn — Dashboard Pendonor</title>
-    <link rel="stylesheet" href="../../asssets/styles.css">
+    <link rel="stylesheet" href="../../assets/styles.css">
 </head>
 <body style="background:#f4f4f4;">
 
@@ -62,7 +62,7 @@ $halaman_aktif = 'dashboard_pendonor';
             Login sebagai: <strong style="color:white;"><?php echo htmlspecialchars($pendonor['nama']); ?></strong>
             &nbsp;|&nbsp; Golongan Darah: <strong style="color:#ffcccc;"><?php echo $pendonor['goldar']; ?></strong>
         </div>
-        <a href="auth/logout_pendonor.php" style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.4); padding:8px 18px; border-radius:20px; font-weight:bold; text-decoration:none; font-size:0.9rem;">
+        <a href="../../auth/logout_pendonor.php" style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.4); padding:8px 18px; border-radius:20px; font-weight:bold; text-decoration:none; font-size:0.9rem;">
             🚪 Logout
         </a>
     </div>

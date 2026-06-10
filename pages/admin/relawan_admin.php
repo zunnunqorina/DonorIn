@@ -85,7 +85,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['aksi'] ?? '') === 'edit') 
 
 $search    = trim($_GET['search'] ?? '');
 $filter_gd = $_GET['goldar'] ?? '';
-$filter_jk = $_GET['jk'] ?? '';
 $page      = max(1, (int) ($_GET['page'] ?? 1));
 $per_page  = 10;
 $offset    = ($page - 1) * $per_page;
@@ -93,12 +92,11 @@ $offset    = ($page - 1) * $per_page;
 $where  = "WHERE 1=1";
 $params = [];
 if ($search !== '') {
-    $where   .= " AND (nama LIKE ? OR email LIKE ? OR no_hp LIKE ? OR kota LIKE ?)";
+    $where   .= " AND (nama LIKE ? OR email LIKE ?)";
     $s        = "%$search%";
-    $params   = [$s, $s, $s, $s];
+    $params   = [$s, $s];
 }
 if ($filter_gd !== '') { $where .= " AND goldar = ?"; $params[] = $filter_gd; }
-if ($filter_jk !== '') { $where .= " AND jenis_kelamin = ?"; $params[] = $filter_jk; }
 
 $q_total = $conn->prepare("SELECT COUNT(*) FROM relawan $where");
 $q_total->execute($params);
@@ -253,13 +251,8 @@ $pesan = $_GET['pesan'] ?? '';
                             <option value="<?= $g ?>" <?= $filter_gd===$g?'selected':'' ?>><?= $g ?></option>
                             <?php endforeach; ?>
                         </select>
-                        <select name="jk" class="select-filter" onchange="this.form.submit()">
-                            <option value="">Semua JK</option>
-                            <option value="L" <?= $filter_jk==='L'?'selected':'' ?>>Laki-laki</option>
-                            <option value="P" <?= $filter_jk==='P'?'selected':'' ?>>Perempuan</option>
-                        </select>
                         <button type="submit" class="btn btn-outline btn-sm"><i class="fas fa-filter"></i> Filter</button>
-                        <?php if ($search||$filter_gd||$filter_jk): ?>
+                        <?php if ($search||$filter_gd): ?>
                         <a href="relawan_admin.php" class="btn btn-ghost btn-sm"><i class="fas fa-times"></i> Reset</a>
                         <?php endif; ?>
                     </form>
@@ -275,12 +268,7 @@ $pesan = $_GET['pesan'] ?? '';
                         <tr>
                             <th style="width:36px;">#</th>
                             <th>Nama Relawan</th>
-                            <th>JK</th>
                             <th>Gol. Darah</th>
-                            <th>No. HP</th>
-                            <th>Kota</th>
-                            <th>Umur</th>
-                            <th>Pernah Donor</th>
                             <th>Tgl. Daftar</th>
                             <th style="text-align:center;">Aksi</th>
                         </tr>
@@ -303,21 +291,12 @@ $pesan = $_GET['pesan'] ?? '';
                                 </div>
                             </td>
                             <td>
-                                <span class="jk-badge jk-<?= $row['jenis_kelamin'] ?>">
-                                    <?= $row['jenis_kelamin'] === 'L' ? '♂ L' : '♀ P' ?>
-                                </span>
-                            </td>
-                            <td>
                                 <?php if (in_array($gd, ['A','B','O','AB'])): ?>
                                 <span class="gd-badge gd-<?= $gd ?>"><?= $gd ?></span>
                                 <?php else: ?>
                                 <span class="badge badge-abu">—</span>
                                 <?php endif; ?>
                             </td>
-                            <td style="font-size:13px;"><?= htmlspecialchars($row['no_hp']) ?></td>
-                            <td style="font-size:13px;color:var(--teks-sedang);"><?= htmlspecialchars($row['kota']) ?></td>
-                            <td style="font-size:13px;text-align:center;"><?= $row['umur'] ?> th</td>
-                            
                             <td style="font-size:12px;color:var(--abu-sedang);">
                                 <?= $row['tanggal_daftar'] ? date('d M Y', strtotime($row['tanggal_daftar'])) : '—' ?>
                             </td>
@@ -333,10 +312,10 @@ $pesan = $_GET['pesan'] ?? '';
                             </td>
                         </tr>
                     <?php endwhile; else: ?>
-                        <tr><td colspan="10">
+                        <tr><td colspan="5">
                             <div class="empty-state">
                                 <i class="fas fa-people-carry-box"></i>
-                                <p><?= ($search||$filter_gd||$filter_jk) ? 'Tidak ada relawan yang cocok dengan filter.' : 'Belum ada relawan terdaftar.' ?></p>
+                                <p><?= ($search||$filter_gd) ? 'Tidak ada relawan yang cocok dengan filter.' : 'Belum ada relawan terdaftar.' ?></p>
                             </div>
                         </td></tr>
                     <?php endif; ?>
@@ -385,20 +364,8 @@ $pesan = $_GET['pesan'] ?? '';
                         <input type="email" name="email" class="form-input" placeholder="email@contoh.com" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">No. HP <span class="req">*</span></label>
-                        <input type="text" name="no_hp" class="form-input" placeholder="08xxxxxxxxxx" required>
-                    </div>
-                    <div class="form-group">
                         <label class="form-label">Tanggal Lahir <span class="req">*</span></label>
                         <input type="date" name="tgl_lahir" class="form-input" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Jenis Kelamin <span class="req">*</span></label>
-                        <select name="jenis_kelamin" class="form-select" required>
-                            <option value="">-- Pilih --</option>
-                            <option value="L">Laki-laki</option>
-                            <option value="P">Perempuan</option>
-                        </select>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Golongan Darah <span class="req">*</span></label>
@@ -408,22 +375,6 @@ $pesan = $_GET['pesan'] ?? '';
                             <option value="<?= $g ?>"><?= $g ?></option>
                             <?php endforeach; ?>
                         </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Berat Badan (kg) <span class="req">*</span></label>
-                        <input type="number" name="berat_badan" class="form-input" placeholder="Min. 45 kg" min="30" max="200" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Kota <span class="req">*</span></label>
-                        <input type="text" name="kota" class="form-input" placeholder="Contoh: Mataram" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Pekerjaan</label>
-                        <input type="text" name="pekerjaan" class="form-input" placeholder="Mahasiswa / Karyawan">
-                    </div>
-                    <div class="form-group full">
-                        <label class="form-label">Alamat Lengkap</label>
-                        <textarea name="alamat" class="form-input" rows="2" placeholder="Jl. ... No. ..." style="resize:vertical;"></textarea>
                     </div>
                 </div>
             </div>
@@ -456,20 +407,8 @@ $pesan = $_GET['pesan'] ?? '';
                         <input type="email" name="email" id="edit_email" class="form-input" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">No. HP <span class="req">*</span></label>
-                        <input type="text" name="no_hp" id="edit_no_hp" class="form-input" required>
-                    </div>
-                    <div class="form-group">
                         <label class="form-label">Tanggal Lahir <span class="req">*</span></label>
                         <input type="date" name="tgl_lahir" id="edit_tgl_lahir" class="form-input" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Jenis Kelamin <span class="req">*</span></label>
-                        <select name="jenis_kelamin" id="edit_jk" class="form-select" required>
-                            <option value="">-- Pilih --</option>
-                            <option value="L">Laki-laki</option>
-                            <option value="P">Perempuan</option>
-                        </select>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Golongan Darah <span class="req">*</span></label>
@@ -479,22 +418,6 @@ $pesan = $_GET['pesan'] ?? '';
                             <option value="<?= $g ?>"><?= $g ?></option>
                             <?php endforeach; ?>
                         </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Berat Badan (kg) <span class="req">*</span></label>
-                        <input type="number" name="berat_badan" id="edit_bb" class="form-input" min="30" max="200" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Kota <span class="req">*</span></label>
-                        <input type="text" name="kota" id="edit_kota" class="form-input" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Pekerjaan</label>
-                        <input type="text" name="pekerjaan" id="edit_pekerjaan" class="form-input">
-                    </div>
-                    <div class="form-group full">
-                        <label class="form-label">Alamat Lengkap</label>
-                        <textarea name="alamat" id="edit_alamat" class="form-input" rows="2" style="resize:vertical;"></textarea>
                     </div>
                 </div>
             </div>
@@ -534,24 +457,12 @@ document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.show').forEach(function(el){ tutupModal(el.id); });
 });
 
-function toggleTerakhir(mode) {
-    var grup = document.getElementById('grup_terakhir_' + mode);
-    if (sel && grup) grup.style.display = sel.value === 'ya' ? 'block' : 'none';
-}
-
 function bukaModalEdit(data) {
-    document.getElementById('edit_id').value           = data.id;
-    document.getElementById('edit_nama').value         = data.nama;
-    document.getElementById('edit_email').value        = data.email;
-    document.getElementById('edit_no_hp').value        = data.no_hp         || '';
-    document.getElementById('edit_tgl_lahir').value    = data.tgl_lahir     || '';
-    document.getElementById('edit_jk').value           = data.jenis_kelamin || '';
-    document.getElementById('edit_goldar').value       = data.goldar        || '';
-    document.getElementById('edit_bb').value           = data.berat_badan   || '';
-    document.getElementById('edit_kota').value         = data.kota          || '';
-    document.getElementById('edit_pekerjaan').value    = data.pekerjaan     || '';
-    document.getElementById('edit_alamat').value       = data.alamat        || '';
-
+    document.getElementById('edit_id').value        = data.id;
+    document.getElementById('edit_nama').value      = data.nama;
+    document.getElementById('edit_email').value     = data.email;
+    document.getElementById('edit_tgl_lahir').value = data.tgl_lahir || '';
+    document.getElementById('edit_goldar').value    = data.goldar    || '';
     bukaModal('modalEdit');
 }
 

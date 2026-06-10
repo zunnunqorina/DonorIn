@@ -226,9 +226,9 @@ $halaman_aktif = 'home';
             <h2>"Setetes Darah Anda <span style="color:#ffcccc">Berarti Hidupku</span>"</h2>
             <p>Bergabunglah dengan ribuan relawan DonorIn dan jadilah pahlawan bagi mereka yang membutuhkan.</p>
             <div class="tombol-hero" style="margin-top:30px;">
-                <a href="page2.php#daftar-relawan" class="tombol-utama"
+                <a href="pages/donor/page2.php#daftar-relawan" class="tombol-utama"
                    style="background:white; color:#8b0000;">DAFTAR SEKARANG</a>
-                <a href="page2.php" class="tombol-sekunder"
+                <a href="pages/donor/page2.php" class="tombol-sekunder"
                    style="border-color:white; color:white; background:transparent;">CEK STOK DARAH</a>
             </div>
         </div>
