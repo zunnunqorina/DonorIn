@@ -162,7 +162,7 @@ $pesan = $_GET['pesan'] ?? '';
         </div>
         <div class="nav-section">
             <div class="nav-label">Lainnya</div>
-            <a href="kritik_saran.php" class="nav-item"><i class="fas fa-comments"></i> Kritik & Saran</a>
+            <a href="kritik_saran_admin.php" class="nav-item"><i class="fas fa-comments"></i> Kritik & Saran</a>
         </div>
     </nav>
     <div class="sidebar-footer">

@@ -108,7 +108,7 @@ $pesan = $_GET['pesan'] ?? '';
         <a href="pendonor_admin.php" class="nav-item"><i class="fas fa-users"></i> Manajemen Pendonor</a>
         <a href="kritik_saran_admin.php" class="nav-item active"><i class="fas fa-comments"></i> Kritik & Saran</a>
         <div class="nav-section">Lainnya</div>
-        <a href="respon_permintaan.php" class="nav-item"><i class="fas fa-hand-holding-heart"></i> Permintaan Darah</a>
+        <a href="permintaan_darah_admin.php" class="nav-item"><i class="fas fa-hand-holding-heart"></i> Permintaan Darah</a>
         <a href="tampil_kritik.php" class="nav-item"><i class="fas fa-eye"></i> Halaman Publik</a>
     </nav>
     <div class="sidebar-foot">

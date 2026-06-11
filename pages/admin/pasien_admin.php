@@ -143,8 +143,8 @@ $pesan = $_GET['pesan'] ?? '';
         </div>
         <div class="nav-section">
             <div class="nav-label">Event</div>
-            <a href="event_donor_admin.php" class="nav-item"><i class="fas fa-calendar-alt"></i> Event Donor</a>
-            <a href="event_sosialisasi_admin.php" class="nav-item"><i class="fas fa-bullhorn"></i> Event Sosialisasi</a>
+            <a href="event_donor.php" class="nav-item"><i class="fas fa-calendar-alt"></i> Event Donor</a>
+            <a href="event_sosialisasi.php" class="nav-item"><i class="fas fa-bullhorn"></i> Event Sosialisasi</a>
         </div>
         <div class="nav-section">
             <div class="nav-label">Lainnya</div>
