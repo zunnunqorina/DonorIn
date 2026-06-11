@@ -1,242 +1,326 @@
 <?php
 include 'config/koneksi.php';
-$halaman_aktif = 'home';
+include 'components/header.php';
+
+// Data event
+$ev_donor = $conn->query(
+    "SELECT * FROM event_donor
+     WHERE status = 'aktif' AND tanggal >= CURDATE()
+     ORDER BY tanggal ASC LIMIT 3"
+)->fetchAll(PDO::FETCH_ASSOC);
+
+$ev_sosial = $conn->query(
+    "SELECT * FROM event_sosialisasi
+     WHERE status = 'aktif' AND tanggal >= CURDATE()
+     ORDER BY tanggal ASC LIMIT 3"
+)->fetchAll(PDO::FETCH_ASSOC);
+
+// Statistik hero
+$jml_pendonor   = $conn->query("SELECT COUNT(*) FROM pendonor WHERE status_aktif='aktif'")->fetchColumn() ?? 0;
+$jml_terselesai = $conn->query("SELECT COUNT(*) FROM permintaan_darah WHERE status='selesai'")->fetchColumn() ?? 0;
+$jml_event      = $conn->query("SELECT COUNT(*) FROM event_donor WHERE status='aktif' AND tanggal >= CURDATE()")->fetchColumn() ?? 0;
 ?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DonorIn</title>
-    <link rel="stylesheet" href="assets/styles.css">
-    <script src="script.js" defer></script>
-</head>
-<body>
 
-<?php include 'components/header.php'; ?>
-
-<main>
-
-    <section class="bagian-hero">
-        <div class="wadah text-tengah">
-            <div class="badge">AYO DONOR DARAH</div>
-            <h1 class="judul-hero">Karena Setiap Tetes <br><span>Sangat Berarti</span></h1>
-            <p class="deskripsi-hero">
-                Selamat datang di <strong>DonorIn</strong>. Aplikasi ini membantu
-                menghubungkan pasien yang membutuhkan darah dengan relawan pendonor secara cepat.
+<!-- ══ HERO ══ -->
+<section style="
+    background: linear-gradient(135deg, #7a0000 0%, #8B0000 40%, #a50010 70%, #8B0000 100%);
+    padding: 80px 24px 100px; position: relative; overflow: hidden;">
+    <div style="content:'';position:absolute;inset:0;background:url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\");"></div>
+    <div style="max-width:1160px;margin:0 auto;position:relative;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;">
+        <div>
+            <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:5px 14px;font-size:0.78rem;font-weight:600;color:rgba(255,255,255,0.9);margin-bottom:20px;">
+                <i class="fas fa-tint" style="font-size:10px;"></i> Sistem Informasi Donor Darah
+            </div>
+            <h1 style="font-size:2.8rem;font-weight:900;color:white;line-height:1.15;letter-spacing:-1px;margin-bottom:18px;">
+                Karena Setiap<br>Tetes Darah<br><span style="color:#FFCCCC;">Sangat Berarti</span>
+            </h1>
+            <p style="font-size:1rem;color:rgba(255,255,255,0.78);line-height:1.7;margin-bottom:32px;max-width:480px;">
+                DonorIn menghubungkan pendonor dengan pasien yang membutuhkan darah secara cepat dan mudah.
+                Bersama kita selamatkan lebih banyak nyawa.
             </p>
-            <div class="tombol-hero">
-                <a href="pages/donor/page2.php" class="tombol-utama">PASIEN BUTUH DARAH</a>
-                <a href="pages/donor/page2.php#daftar-relawan" class="tombol-sekunder">DAFTAR SEBAGAI RELAWAN</a>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                <a href="pages/donor/ajukan_permintaan.php"
+                   style="padding:13px 28px;background:white;color:#8B0000;border-radius:10px;font-size:0.9rem;font-weight:700;text-decoration:none;box-shadow:0 4px 16px rgba(0,0,0,0.15);transition:all .2s;">
+                    <i class="fas fa-clipboard-list" style="margin-right:7px;"></i>Butuh Darah
+                </a>
+                <a href="pages/donor/cari_pendonor.php"
+                   style="padding:13px 28px;background:rgba(255,255,255,0.12);color:white;border:1.5px solid rgba(255,255,255,0.3);border-radius:10px;font-size:0.9rem;font-weight:600;text-decoration:none;transition:all .2s;">
+                    <i class="fas fa-search" style="margin-right:7px;"></i>Cari Pendonor
+                </a>
+            </div>
+            <div style="display:flex;gap:28px;margin-top:40px;padding-top:32px;border-top:1px solid rgba(255,255,255,0.15);">
+                <div>
+                    <div style="font-size:1.8rem;font-weight:900;color:white;line-height:1;"><?= number_format($jml_pendonor) ?>+</div>
+                    <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-top:4px;font-weight:500;">Pendonor Aktif</div>
+                </div>
+                <div>
+                    <div style="font-size:1.8rem;font-weight:900;color:white;line-height:1;"><?= number_format($jml_terselesai) ?>+</div>
+                    <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-top:4px;font-weight:500;">Permintaan Terpenuhi</div>
+                </div>
+                <div>
+                    <div style="font-size:1.8rem;font-weight:900;color:white;line-height:1;"><?= $jml_event ?></div>
+                    <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-top:4px;font-weight:500;">Event Mendatang</div>
+                </div>
             </div>
         </div>
-    </section>
+        <!-- Visual cards -->
+        <div style="display:flex;flex-direction:column;gap:14px;">
+            <div style="background:rgba(255,255,255,0.1);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.15);border-radius:14px;padding:18px 20px;color:white;">
+                <div style="font-size:0.78rem;font-weight:600;opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Stok Darah PMI</div>
+                <div style="font-size:1.5rem;font-weight:800;">🩸 Cek Ketersediaan</div>
+                <div style="font-size:0.8rem;opacity:.7;margin-top:3px;">Update real-time dari PMI</div>
+            </div>
+            <div style="display:flex;gap:10px;">
+                <div style="flex:1;background:rgba(255,255,255,0.1);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.15);border-radius:14px;padding:18px 20px;color:white;">
+                    <div style="font-size:0.78rem;font-weight:600;opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Donor Berikutnya</div>
+                    <?php if (!empty($ev_donor)): ?>
+                    <div style="font-size:1rem;font-weight:800;"><?= htmlspecialchars($ev_donor[0]['judul']) ?></div>
+                    <div style="font-size:0.8rem;opacity:.7;margin-top:3px;"><?= date('d M Y', strtotime($ev_donor[0]['tanggal'])) ?></div>
+                    <?php else: ?>
+                    <div style="font-size:0.9rem;font-weight:800;">Belum ada event</div>
+                    <?php endif; ?>
+                </div>
+                <div style="flex:1;background:rgba(255,255,255,0.1);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.15);border-radius:14px;padding:18px 20px;color:white;">
+                    <div style="font-size:0.78rem;font-weight:600;opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Akun Saya</div>
+                    <div style="font-size:0.95rem;font-weight:800;">
+                        <?php if ($pendonor_login): ?>Dashboard →<?php else: ?>Login / Daftar<?php endif; ?>
+                    </div>
+                    <div style="font-size:0.8rem;opacity:.7;margin-top:3px;">Portal pendonor</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-    <section class="bagian-apa-itu">
-        <div class="wadah">
-            <div class="apa-itu-layout">
-                <div class="apa-itu-teks">
-                    <span class="label-seksi">APA ITU DONOR DARAH?</span>
-                    <h2>Memahami Donor Darah <br>Lebih Dalam</h2>
-                    <p>Donor Darah adalah proses pemberian darah secara sukarela oleh seseorang kepada pasien
-                       yang membutuhkan darah, dengan tujuan untuk penyembuhan penyakit dan pemulihan kesehatan.</p>
+<!-- ══ LAYANAN ══ -->
+<section class="section" id="layanan">
+    <div class="wadah">
+        <div class="section-head">
+            <span class="section-label">Layanan Kami</span>
+            <h2 class="section-judul">Semua yang Anda Butuhkan<br>Ada di DonorIn</h2>
+            <p class="section-sub">Dari mencari pendonor, mengecek stok darah, hingga mengikuti event — semuanya dalam satu platform.</p>
+        </div>
+        <div class="grid-layanan">
+            <a href="pages/donor/cari_pendonor.php" class="kartu-layanan">
+                <div class="layanan-ikon" style="background:#FFF3F3;color:#8B0000;"><i class="fas fa-search"></i></div>
+                <div class="layanan-judul">Cari Pendonor</div>
+                <div class="layanan-desc">Temukan pendonor aktif berdasarkan golongan darah dan kota terdekat.</div>
+                <div class="layanan-link">Cari sekarang <i class="fas fa-arrow-right" style="font-size:10px;"></i></div>
+            </a>
+            <a href="pages/donor/ajukan_permintaan.php" class="kartu-layanan">
+                <div class="layanan-ikon" style="background:#EFF6FF;color:#1D4ED8;"><i class="fas fa-clipboard-list"></i></div>
+                <div class="layanan-judul">Ajukan Permintaan</div>
+                <div class="layanan-desc">Ajukan kebutuhan darah secara online. Pendonor cocok akan mendapat notifikasi.</div>
+                <div class="layanan-link">Ajukan <i class="fas fa-arrow-right" style="font-size:10px;"></i></div>
+            </a>
+            <a href="pages/donor/stok_darah.php" class="kartu-layanan">
+                <div class="layanan-ikon" style="background:#F0FFF6;color:#1B8A4E;"><i class="fas fa-tint"></i></div>
+                <div class="layanan-judul">Cek Stok Darah</div>
+                <div class="layanan-desc">Pantau ketersediaan stok darah PMI secara real-time per golongan darah.</div>
+                <div class="layanan-link">Lihat stok <i class="fas fa-arrow-right" style="font-size:10px;"></i></div>
+            </a>
+            <a href="pages/donor/daftar_pendonor.php" class="kartu-layanan">
+                <div class="layanan-ikon" style="background:#FFF8E6;color:#D4900A;"><i class="fas fa-user-plus"></i></div>
+                <div class="layanan-judul">Daftar Pendonor</div>
+                <div class="layanan-desc">Bergabung sebagai pendonor aktif dan bantu mereka yang membutuhkan darah.</div>
+                <div class="layanan-link">Daftar <i class="fas fa-arrow-right" style="font-size:10px;"></i></div>
+            </a>
+            <a href="pages/donor/edukasi_donor.php" class="kartu-layanan">
+                <div class="layanan-ikon" style="background:#F5F3FF;color:#7C3AED;"><i class="fas fa-book-open"></i></div>
+                <div class="layanan-judul">Edukasi Donor</div>
+                <div class="layanan-desc">Pelajari cara persiapan donor, jadwal ideal, dan kompatibilitas golongan darah.</div>
+                <div class="layanan-link">Baca panduan <i class="fas fa-arrow-right" style="font-size:10px;"></i></div>
+            </a>
+            <a href="pages/donor/kritik_saran.php" class="kartu-layanan">
+                <div class="layanan-ikon" style="background:#FFF0F9;color:#BE185D;"><i class="fas fa-comments"></i></div>
+                <div class="layanan-judul">Kritik & Saran</div>
+                <div class="layanan-desc">Sampaikan masukan Anda untuk membantu kami meningkatkan layanan DonorIn.</div>
+                <div class="layanan-link">Kirim pesan <i class="fas fa-arrow-right" style="font-size:10px;"></i></div>
+            </a>
+        </div>
+    </div>
+</section>
 
-                    <div class="dua-jenis">
-                        <div class="jenis-item">
-                            <div class="jenis-ikon">❤️</div>
-                            <div>
-                                <strong>Donor Darah Sukarela</strong>
-                                <p>Seseorang yang mendonorkan darahnya untuk keluarga, teman, atau orang yang
-                                   tidak dikenal tanpa pamrih.</p>
+<!-- ══ EVENT ══ -->
+<section class="section section-bg" id="event">
+    <div class="wadah">
+        <div class="section-head" style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;">
+            <div>
+                <span class="section-label">Jadwal Kegiatan</span>
+                <h2 class="section-judul" style="margin-bottom:0;">Event Mendatang</h2>
+            </div>
+            <div class="tab-event">
+                <button class="aktif" onclick="gantiTab('donor', this)">
+                    <i class="fas fa-tint" style="font-size:11px;color:#8B0000;margin-right:5px;"></i>Donor Darah
+                </button>
+                <button onclick="gantiTab('sosial', this)">
+                    <i class="fas fa-bullhorn" style="font-size:11px;color:#1B8A4E;margin-right:5px;"></i>Sosialisasi
+                </button>
+            </div>
+        </div>
+
+        <!-- Panel Event Donor -->
+        <div id="panel-donor" class="panel-event aktif">
+            <?php if (empty($ev_donor)): ?>
+            <div class="kosong-event">
+                <i class="fas fa-calendar-times"></i>
+                <p>Belum ada event donor darah mendatang.</p>
+            </div>
+            <?php else: ?>
+            <div class="grid-event">
+                <?php foreach ($ev_donor as $ev): $ts = strtotime($ev['tanggal']); ?>
+                <div class="kartu-event">
+                    <div class="event-top">
+                        <div class="event-tgl">
+                            <div class="event-tgl-hari"><?= date('d', $ts) ?></div>
+                            <div class="event-tgl-bln"><?= date('M', $ts) ?></div>
+                            <div class="event-tgl-thn"><?= date('Y', $ts) ?></div>
+                        </div>
+                        <div class="event-body">
+                            <div class="event-tipe">🩸 Donor Darah</div>
+                            <div class="event-judul"><?= htmlspecialchars($ev['judul']) ?></div>
+                            <div class="event-meta">
+                                <span><i class="fas fa-map-marker-alt"></i><?= htmlspecialchars($ev['lokasi']) ?>, <?= htmlspecialchars($ev['kota']) ?></span>
+                                <span><i class="fas fa-clock"></i><?= substr($ev['jam_mulai'],0,5) ?> – <?= substr($ev['jam_selesai'],0,5) ?> WITA</span>
+                                <?php if (!empty($ev['penyelenggara'])): ?>
+                                <span><i class="fas fa-building"></i><?= htmlspecialchars($ev['penyelenggara']) ?></span>
+                                <?php endif; ?>
                             </div>
                         </div>
-                        <div class="jenis-item">
-                            <div class="jenis-ikon">🤝</div>
-                            <div>
-                                <strong>Donor Darah Pengganti</strong>
-                                <p>Orang yang mendonorkan darahnya untuk orang yang dikenal, seperti anggota
-                                   keluarga yang membutuhkan.</p>
+                    </div>
+                    <div class="event-bot">
+                        <div class="event-kuota"><i class="fas fa-users" style="font-size:11px;"></i> Kuota: <?= $ev['kuota'] > 0 ? $ev['kuota'].' orang' : 'Tidak terbatas' ?></div>
+                        <span class="event-badge merah">Terbuka</span>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
+        </div>
+
+        <!-- Panel Event Sosialisasi -->
+        <div id="panel-sosial" class="panel-event">
+            <?php if (empty($ev_sosial)): ?>
+            <div class="kosong-event">
+                <i class="fas fa-bullhorn"></i>
+                <p>Belum ada event sosialisasi mendatang.</p>
+            </div>
+            <?php else: ?>
+            <div class="grid-event">
+                <?php foreach ($ev_sosial as $ev): $ts = strtotime($ev['tanggal']); ?>
+                <div class="kartu-event">
+                    <div class="event-top">
+                        <div class="event-tgl hijau">
+                            <div class="event-tgl-hari"><?= date('d', $ts) ?></div>
+                            <div class="event-tgl-bln"><?= date('M', $ts) ?></div>
+                            <div class="event-tgl-thn"><?= date('Y', $ts) ?></div>
+                        </div>
+                        <div class="event-body">
+                            <div class="event-tipe hijau">📢 Sosialisasi</div>
+                            <div class="event-judul"><?= htmlspecialchars($ev['judul']) ?></div>
+                            <div class="event-meta">
+                                <span><i class="fas fa-map-marker-alt"></i><?= htmlspecialchars($ev['lokasi']) ?>, <?= htmlspecialchars($ev['kota']) ?></span>
+                                <span><i class="fas fa-clock"></i><?= substr($ev['jam_mulai'],0,5) ?> – <?= substr($ev['jam_selesai'],0,5) ?> WITA</span>
+                                <?php if (!empty($ev['pembicara'])): ?>
+                                <span><i class="fas fa-user-tie"></i><?= htmlspecialchars($ev['pembicara']) ?></span>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
-
-                    <div class="syarat-ringkas">
-                        <h4>⚠️ Siapa yang TIDAK boleh donor?</h4>
-                        <ul>
-                            <li>Penderita penyakit Jantung, Liver, Ginjal, dan Paru-paru</li>
-                            <li>Pecandu Alkohol, Obat-obatan terlarang</li>
-                            <li>Tekanan darah di luar rentang 100–160 / 60–100</li>
-                            <li>Berat badan di bawah 45 kg</li>
-                        </ul>
+                    <div class="event-bot">
+                        <div class="event-kuota"><i class="fas fa-users" style="font-size:11px;"></i> Target: <?= $ev['target_peserta'] > 0 ? $ev['target_peserta'].' orang' : 'Semua kalangan' ?></div>
+                        <span class="event-badge">Terbuka</span>
                     </div>
                 </div>
+                <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</section>
 
-                <div class="apa-itu-gambar">
-                    <img src="https://images.unsplash.com/photo-1615461066841-6116e61058f4?w=500&q=80"
-                         alt="Donor Darah" loading="lazy">
-                    <div class="kartu-stat">
-                        <div class="stat-item">
-                            <span class="stat-angka">17</span>
-                            <span class="stat-label">Usia Minimal (Tahun)</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-angka">60</span>
-                            <span class="stat-label">Usia Maksimal (Tahun)</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-angka">45kg</span>
-                            <span class="stat-label">Berat Badan Minimal</span>
-                        </div>
-                    </div>
-                </div>
+<!-- ══ MANFAAT ══ -->
+<section class="section" id="manfaat">
+    <div class="wadah">
+        <div class="section-head tengah">
+            <span class="section-label">Manfaat</span>
+            <h2 class="section-judul">Setetes Darah, Sejuta Manfaat</h2>
+            <p class="section-sub">Donor darah bukan hanya menyelamatkan orang lain — tubuh Anda pun mendapat banyak keuntungan.</p>
+        </div>
+        <div class="grid-manfaat">
+            <div class="kartu-manfaat"><div class="manfaat-ikon">🩺</div><div class="manfaat-judul">Deteksi Kesehatan Dini</div><div class="manfaat-desc">Sebelum donor, kesehatan Anda diperiksa gratis — kadar HB, tekanan darah, hingga golongan darah.</div></div>
+            <div class="kartu-manfaat"><div class="manfaat-ikon">🔄</div><div class="manfaat-judul">Regenerasi Sel Darah</div><div class="manfaat-desc">Donor merangsang tubuh memproduksi sel darah merah baru yang lebih segar dan sehat.</div></div>
+            <div class="kartu-manfaat"><div class="manfaat-ikon">💪</div><div class="manfaat-judul">Organ Lebih Sehat</div><div class="manfaat-desc">Suplai oksigen meningkat ke seluruh organ — hati, ginjal, dan paru-paru bekerja optimal.</div></div>
+            <div class="kartu-manfaat"><div class="manfaat-ikon">⚖️</div><div class="manfaat-judul">Jaga Kadar Zat Besi</div><div class="manfaat-desc">Donor rutin menjaga keseimbangan zat besi dan mengurangi risiko penyakit jantung.</div></div>
+            <div class="kartu-manfaat"><div class="manfaat-ikon">🌍</div><div class="manfaat-judul">Kepedulian Sosial</div><div class="manfaat-desc">Anda berkontribusi nyata pada sesama — satu kantong darah bisa menyelamatkan 3 nyawa.</div></div>
+            <div class="kartu-manfaat"><div class="manfaat-ikon">🏆</div><div class="manfaat-judul">Amal Tanpa Batas</div><div class="manfaat-desc">Menyelamatkan nyawa manusia tanpa biaya — sebuah kebaikan yang terus mengalir.</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ SYARAT ══ -->
+<section class="section section-bg" id="syarat">
+    <div class="wadah">
+        <div class="section-head tengah">
+            <span class="section-label">Syarat & Ketentuan</span>
+            <h2 class="section-judul">Sebelum Anda Donor Darah</h2>
+            <p class="section-sub">Pastikan Anda memenuhi syarat berikut agar proses donor aman dan lancar.</p>
+        </div>
+        <div class="grid-syarat">
+            <div class="kartu-syarat">
+                <div class="syarat-head hijau"><i class="fas fa-check-circle"></i> Syarat Pendonor</div>
+                <ul class="syarat-body">
+                    <li>Usia 17–60 tahun (maks. 65 bagi donor rutin)</li>
+                    <li>Berat badan minimal 45 kg</li>
+                    <li>Hemoglobin (HB) lebih dari 12,5 gr/dL</li>
+                    <li>Tekanan darah 100–160 / 60–100 mmHg</li>
+                    <li>Tidak sedang haid, hamil, atau menyusui</li>
+                    <li>Jarak donor minimal 2,5–3 bulan (5x/tahun)</li>
+                </ul>
+            </div>
+            <div class="kartu-syarat">
+                <div class="syarat-head merah"><i class="fas fa-times-circle"></i> Tidak Boleh Donor Jika:</div>
+                <ul class="syarat-body">
+                    <li>Minum alkohol 1 jam sebelum donor</li>
+                    <li>Olahraga berat 1 hari sebelumnya</li>
+                    <li>Dalam 12 bulan setelah transfusi darah</li>
+                    <li>3 tahun setelah sembuh dari malaria</li>
+                    <li>6 bulan setelah lepas dari obat-obatan</li>
+                    <li>Menderita Hepatitis B/C, HIV, atau Syphilis</li>
+                </ul>
+            </div>
+            <div class="kartu-syarat">
+                <div class="syarat-head biru"><i class="fas fa-info-circle"></i> Proses Donor</div>
+                <ul class="syarat-body">
+                    <li>Pemeriksaan golongan darah & tekanan darah</li>
+                    <li>Uji kecocokan dengan darah pasien</li>
+                    <li>Proses berlangsung 7–15 menit</li>
+                    <li>Volume darah 250cc atau 350cc</li>
+                    <li>Istirahat sejenak setelah selesai</li>
+                    <li>Konsumsi makanan bergizi setelah donor</li>
+                </ul>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <section class="bagian-manfaat">
-        <div class="wadah">
-            <div class="blok-teks text-tengah">
-                <span class="label-seksi-putih">MANFAAT DONOR DARAH</span>
-                <h2 style="color:white; margin-top:10px;">Setetes Darah Anda, <br>Sejuta Manfaat</h2>
-                <p style="color:rgba(255,255,255,0.8); max-width:600px; margin:0 auto 40px;">
-                    Selain menyelamatkan nyawa orang lain, donor darah secara rutin memberikan
-                    banyak manfaat bagi tubuh Anda sendiri.
-                </p>
-            </div>
-            <div class="grid-manfaat">
-                <div class="manfaat-kartu">
-                    <div class="manfaat-ikon">🩺</div>
-                    <h3>Deteksi Kesehatan Dini</h3>
-                    <p>Sebelum donor, kondisi kesehatan Anda diperiksa terlebih dahulu termasuk
-                       kadar HB, tekanan darah, dan golongan darah — sehingga Anda mengetahui
-                       kondisi kesehatan secara gratis.</p>
-                </div>
-                <div class="manfaat-kartu">
-                    <div class="manfaat-ikon">🔄</div>
-                    <h3>Produksi Sel Darah Baru</h3>
-                    <p>Secara normal sel darah merah hanya bertahan 60–100 hari. Donor darah
-                       merangsang tubuh memproduksi sel darah merah baru yang lebih segar dan sehat.</p>
-                </div>
-                <div class="manfaat-kartu">
-                    <div class="manfaat-ikon">💪</div>
-                    <h3>Meningkatkan Organ Tubuh</h3>
-                    <p>Meningkatnya suplai oksigen ke seluruh organ membuat hati, usus, ginjal,
-                       dan paru-paru bekerja lebih optimal dan bersih dari racun.</p>
-                </div>
-                <div class="manfaat-kartu">
-                    <div class="manfaat-ikon">🌍</div>
-                    <h3>Kepedulian Sosial</h3>
-                    <p>Dengan mendonorkan darah, Anda meningkatkan rasa kepedulian sosial
-                       terhadap sesama dan memberikan harapan hidup bagi mereka yang membutuhkan.</p>
-                </div>
-                <div class="manfaat-kartu">
-                    <div class="manfaat-ikon">⚖️</div>
-                    <h3>Jaga Kadar Zat Besi</h3>
-                    <p>Donor darah rutin membantu menjaga keseimbangan kadar zat besi dalam
-                       tubuh sehingga mengurangi risiko penyakit kardiovaskular.</p>
-                </div>
-                <div class="manfaat-kartu">
-                    <div class="manfaat-ikon">🏆</div>
-                    <h3>Amal Jariah Besar</h3>
-                    <p>Donor darah adalah salah satu bentuk amal jariah yang tidak ternilai
-                       harganya — menyelamatkan nyawa manusia tanpa biaya sepeser pun.</p>
-                </div>
-            </div>
+<!-- ══ CTA ══ -->
+<section class="cta-section">
+    <div class="cta-inner">
+        <h2 class="cta-judul">"Setetes Darah Anda<br>Berarti Hidupku"</h2>
+        <p class="cta-sub">Bergabunglah dengan ribuan pendonor aktif DonorIn. Satu langkah kecil Anda bisa menyelamatkan nyawa seseorang hari ini.</p>
+        <div class="cta-btns">
+            <a href="pages/donor/daftar_pendonor.php" class="cta-btn-putih">
+                <i class="fas fa-user-plus" style="margin-right:7px;"></i>Daftar Sekarang
+            </a>
+            <a href="pages/donor/stok_darah.php" class="cta-btn-transparan">
+                <i class="fas fa-tint" style="margin-right:7px;"></i>Cek Stok Darah
+            </a>
         </div>
-    </section>
+    </div>
+</section>
 
-    <section class="bagian-syarat">
-        <div class="wadah">
-            <div class="blok-teks text-tengah">
-                <span class="label-seksi">SYARAT & KETENTUAN</span>
-                <h2>Sebelum Anda Donor Darah</h2>
-                <p>Pastikan Anda memenuhi syarat-syarat berikut agar proses donor berjalan aman dan lancar.</p>
-            </div>
-            <div class="syarat-grid">
-                <div class="syarat-kartu syarat-boleh">
-                    <h3>✅ Syarat Pendonor</h3>
-                    <ul>
-                        <li>Usia 17–60 tahun (maksimal 65 tahun bagi donor rutin)</li>
-                        <li>Berat badan minimal 45 kg</li>
-                        <li>Hemoglobin (HB) lebih dari 12,5 gr/dL</li>
-                        <li>Tekanan darah: 100–160 (sistolik) / 60–100 (diastolik)</li>
-                        <li>Tidak sedang haid, hamil, atau menyusui</li>
-                        <li>Jarak penyumbangan minimal 2,5–3 bulan (5x/tahun)</li>
-                    </ul>
-                </div>
-                <div class="syarat-kartu syarat-jangan">
-                    <h3>❌ Tidak Boleh Donor Jika:</h3>
-                    <ul>
-                        <li>Jangan minum alkohol 1 jam sebelum donor</li>
-                        <li>Jangan olahraga berat 1 hari sebelum donor</li>
-                        <li>Tidak boleh donor sampai 12 bulan setelah transfusi</li>
-                        <li>3 tahun setelah bebas penyakit malaria</li>
-                        <li>6 bulan setelah sembuh dari obat-obatan</li>
-                        <li>Menderita Hepatitis B/C, HIV, atau Syphilis</li>
-                    </ul>
-                </div>
-                <div class="syarat-kartu syarat-proses">
-                    <h3>ℹ️ Proses Donor</h3>
-                    <ul>
-                        <li>Pemeriksaan golongan darah & tekanan darah</li>
-                        <li>Uji slang cocok serasi dengan darah pasien</li>
-                        <li>Proses donor berlangsung 7–15 menit</li>
-                        <li>Volume darah: 250cc atau 350cc (max 10.5cc/kg BB)</li>
-                        <li>Istirahat sejenak setelah donor</li>
-                        <li>Tekan bekas tusukan beberapa saat setelah selesai</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="bagian-galeri">
-        <div class="wadah">
-            <div class="blok-teks text-tengah">
-                <h2>Kegiatan Donor Darah</h2>
-                <p>Ribuan relawan telah berpartisipasi dalam kegiatan donor darah</p>
-            </div>
-            <div class="grid-galeri">
-                <div class="galeri-item galeri-besar">
-                    <img src="https://asset-2.tstatic.net/medan/foto/bank/images/Suasana-Kegiatan-Donor-Darah-Amal-I-PMVB-Tahun-2024-di-Vihara-Borobudur.jpg"
-                         alt="Kegiatan Donor Darah" loading="lazy">
-                    <div class="galeri-overlay"><p>Relawan mendonorkan darahnya dengan penuh semangat</p></div>
-                </div>
-                <div class="galeri-item">
-                    <img src="https://cloud.jpnn.com/photo/jatim/news/normal/2023/06/08/kegiatan-donor-darah-yang-dilakukan-pt-karabha-digdaya-foto-sjgr.jpg"
-                         alt="Pemeriksaan Darah" loading="lazy">
-                    <div class="galeri-overlay"><p>Pemeriksaan darah sebelum donor</p></div>
-                </div>
-                <div class="galeri-item">
-                    <img src="https://th.bing.com/th/id/OIP.QAMwcHdT18Fz9fm8tgrBXwHaE7?w=257&h=180&c=7&r=0&o=7&dpr=1.2&pid=1.7&rm=3"
-                         alt="Kantong Darah" loading="lazy">
-                    <div class="galeri-overlay"><p>Darah yang berhasil terkumpul</p></div>
-                </div>
-                <div class="galeri-item">
-                    <img src="https://uns.ac.id/id/wp-content/uploads/dwp-uns-gandeng-pmi-kota-surakarta-selenggarakan-kegiatan-donor-darah-3-1024x682.jpeg"
-                         alt="Tim Medis" loading="lazy">
-                    <div class="galeri-overlay"><p>Tim medis profesional siap melayani</p></div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="bagian-cta">
-        <div class="wadah text-tengah">
-            <h2>"Setetes Darah Anda <span style="color:#ffcccc">Berarti Hidupku</span>"</h2>
-            <p>Bergabunglah dengan ribuan relawan DonorIn dan jadilah pahlawan bagi mereka yang membutuhkan.</p>
-            <div class="tombol-hero" style="margin-top:30px;">
-                <a href="pages/donor/page2.php#daftar-relawan" class="tombol-utama"
-                   style="background:white; color:#8b0000;">DAFTAR SEKARANG</a>
-                <a href="pages/donor/page2.php" class="tombol-sekunder"
-                   style="border-color:white; color:white; background:transparent;">CEK STOK DARAH</a>
-            </div>
-        </div>
-    </section>
-
-</main>
-
-<?php include 'components/footer.php'; ?>
-<?php $conn = null; ?>
-</body>
-</html>
+<?php
+$conn = null;
+include 'components/footer.php';
+?>
