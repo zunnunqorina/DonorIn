@@ -2,7 +2,7 @@
 include '../../config/koneksi.php';
 
 if (isset($_SESSION['pendonor_login']) && $_SESSION['pendonor_login'] === true) {
-    header("Location: ../donor/dashboard_pendonor.php");
+    header("Location: ../admin/dashboard_pendonor.php");
     exit;
 }
 

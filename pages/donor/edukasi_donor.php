@@ -1,12 +1,6 @@
 <?php
 include '../../config/koneksi.php';
 
-if (!isset($_SESSION['pendonor_login']) || $_SESSION['pendonor_login'] !== true) {
-    header("Location: ../../auth/login_pendonor.php");
-    exit;
-}
-
-$halaman_aktif = 'dashboard_pendonor';
 ?>
 <!DOCTYPE html>
 <html lang="id">

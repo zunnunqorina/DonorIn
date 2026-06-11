@@ -119,7 +119,7 @@ $jml_event      = $conn->query("SELECT COUNT(*) FROM event_donor WHERE status='a
                 <div class="layanan-desc">Pantau ketersediaan stok darah PMI secara real-time per golongan darah.</div>
                 <div class="layanan-link">Lihat stok <i class="fas fa-arrow-right" style="font-size:10px;"></i></div>
             </a>
-            <a href="pages/donor/daftar_pendonor.php" class="kartu-layanan">
+            <a href="pages/admin/daftar_pendonor.php" class="kartu-layanan">
                 <div class="layanan-ikon" style="background:#FFF8E6;color:#D4900A;"><i class="fas fa-user-plus"></i></div>
                 <div class="layanan-judul">Daftar Pendonor</div>
                 <div class="layanan-desc">Bergabung sebagai pendonor aktif dan bantu mereka yang membutuhkan darah.</div>
@@ -310,7 +310,7 @@ $jml_event      = $conn->query("SELECT COUNT(*) FROM event_donor WHERE status='a
         <h2 class="cta-judul">"Setetes Darah Anda<br>Berarti Hidupku"</h2>
         <p class="cta-sub">Bergabunglah dengan ribuan pendonor aktif DonorIn. Satu langkah kecil Anda bisa menyelamatkan nyawa seseorang hari ini.</p>
         <div class="cta-btns">
-            <a href="pages/donor/daftar_pendonor.php" class="cta-btn-putih">
+            <a href="pages/admin/daftar_pendonor.php" class="cta-btn-putih">
                 <i class="fas fa-user-plus" style="margin-right:7px;"></i>Daftar Sekarang
             </a>
             <a href="pages/donor/stok_darah.php" class="cta-btn-transparan">

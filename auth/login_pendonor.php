@@ -3,7 +3,7 @@ include '../config/koneksi.php';
 
 // Jika sudah login, redirect
 if (isset($_SESSION['pendonor_login']) && $_SESSION['pendonor_login'] === true) {
-    header("Location: ../../pages/donor/dashboard_pendonor.php");
+    header("Location: ../pages/donor/dashboard_pendonor.php");
     exit;
 }
 

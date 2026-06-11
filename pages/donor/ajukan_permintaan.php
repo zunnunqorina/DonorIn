@@ -76,7 +76,7 @@ if (isset($_POST['ajukan'])) {
 }
 
 // Ambil stok darah untuk info referensi
-$q_stok = $conn->query("SELECT goldar, jumlah_kantong FROM stok_darah");
+$q_stok = $conn->query("SELECT goldar, jumlah FROM stok_darah");
 $info_stok = [];
 if ($q_stok) {
     foreach ($q_stok->fetchAll(PDO::FETCH_ASSOC) as $s) {
