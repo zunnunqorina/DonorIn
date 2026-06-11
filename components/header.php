@@ -11,7 +11,7 @@ $halaman_aktif = $halaman_aktif ?? '';
 
 // Deteksi prefix path
 $depth = substr_count($_SERVER['PHP_SELF'], '/') - 1;
-$prefix = str_repeat('../', max(0, $depth - 1));
+$prefix = str_repeat('../', max(0, $depth - 2));
 ?>
 <!DOCTYPE html>
 <html lang="id">
