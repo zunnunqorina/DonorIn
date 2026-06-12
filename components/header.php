@@ -201,7 +201,7 @@ $prefix = str_repeat('../', max(0, $depth - 2));
             </a>
         <?php else: ?>
             <a href="<?= $prefix ?>auth/login_pendonor.php" class="btn-outline-red">Masuk</a>
-            <a href="<?= $prefix ?>pages/donor/daftar_pendonor.php" class="btn-solid-red">Daftar Pendonor</a>
+            <a href="<?= $prefix ?>pages/admin/daftar_pendonor.php" class="btn-solid-red">Daftar Pendonor</a>
         <?php endif; ?>
     </div>
 </nav>
