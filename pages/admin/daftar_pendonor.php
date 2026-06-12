@@ -157,7 +157,7 @@ if (isset($_POST['daftar'])) {
             </button>
         </form>
         <p style="text-align:center; margin-top:15px; color:#888;">
-            Sudah punya akun? <a href="../../auth/login_pendonor.php" style="color:#8b0000; font-weight:bold;">Login di sini</a>
+            Sudah punya akun? <a href="../../login.php" style="color:#8b0000; font-weight:bold;">Login di sini</a>
         </p>
     </div>
 </div>

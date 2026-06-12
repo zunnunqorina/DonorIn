@@ -200,7 +200,7 @@ $prefix = str_repeat('../', max(0, $depth - 2));
                 <i class="fas fa-user-circle"></i> Dashboard
             </a>
         <?php else: ?>
-            <a href="<?= $prefix ?>auth/login_pendonor.php" class="btn-outline-red">Masuk</a>
+            <a href="<?= $prefix ?>login.php" class="btn-outline-red">Masuk</a>
             <a href="<?= $prefix ?>pages/admin/daftar_pendonor.php" class="btn-solid-red">Daftar Pendonor</a>
         <?php endif; ?>
     </div>

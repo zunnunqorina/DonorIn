@@ -53,7 +53,7 @@ if (isset($_POST['login'])) {
     }
 
     // Tidak ada yang cocok
-    $pesan_error = "❌ Username/email atau password salah!";
+    $pesan_error = "Username/email atau password salah!";
 }
 ?>
 <!DOCTYPE html>
@@ -87,7 +87,6 @@ if (isset($_POST['login'])) {
             overflow: hidden;
         }
 
-        /* Lingkaran dekoratif di background */
         .panel-kiri::before {
             content: '';
             position: absolute;
@@ -298,7 +297,6 @@ if (isset($_POST['login'])) {
         }
         .link-kembali:hover { color: #8b0000; }
 
-        /* Info role hint */
         .role-hint {
             background: #f8f9fa;
             border-radius: 9px;
@@ -322,7 +320,6 @@ if (isset($_POST['login'])) {
         .badge-pendonor { background: #d4edda; color: #155724; }
         .badge-pmi      { background: #cce5ff; color: #004085; }
 
-        /* Responsive */
         @media (max-width: 768px) {
             .panel-kiri  { display: none; }
             .panel-kanan { width: 100%; padding: 40px 24px; }
@@ -339,7 +336,7 @@ if (isset($_POST['login'])) {
         <ul class="fitur-list">
             <li>
                 <div class="fitur-ikon">🩸</div>
-                <span><strong>Pendonor</strong> — Lihat permintaan darah & respon kebutuhan pasien</span>
+                <span><strong>Pendonor</strong> — Lihat permintaan darah &amp; respon kebutuhan pasien</span>
             </li>
             <li>
                 <div class="fitur-ikon">🏛️</div>
@@ -360,7 +357,7 @@ if (isset($_POST['login'])) {
             <p class="sub">Masuk ke akun Anda untuk melanjutkan ke DonorIn.</p>
 
             <?php if ($pesan_error): ?>
-                <div class="pesan-error"><?php echo $pesan_error; ?></div>
+                <div class="pesan-error">❌ <?php echo htmlspecialchars($pesan_error); ?></div>
             <?php endif; ?>
 
             <form method="POST" action="login.php">
@@ -394,20 +391,11 @@ if (isset($_POST['login'])) {
 
             <div class="divider">atau</div>
 
-            <a href="pages/donor/daftar_pendonor.php" class="tombol-daftar">
+            <a href="pages/admin/daftar_pendonor.php" class="tombol-daftar">
                 🩸 Daftar Sebagai Pendonor
             </a>
 
             <a href="index.php" class="link-kembali">← Kembali ke Beranda</a>
-
-            <!-- Info role -->
-            <div class="role-hint">
-                💡 <strong>Login otomatis diarahkan sesuai role:</strong><br>
-                <span class="role-badge badge-admin">Admin</span> → Dashboard Admin &nbsp;
-                <span class="role-badge badge-pendonor">Pendonor</span> → Dashboard Pendonor &nbsp;
-                <span class="role-badge badge-pmi">PMI</span> → Dashboard PMI
-            </div>
-
         </div>
     </div>
 

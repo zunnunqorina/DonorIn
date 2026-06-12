@@ -7,6 +7,6 @@ unset($_SESSION['admin_username']);
 $conn = null;
 session_destroy();
 
-header("Location: login_admin.php");
+header("Location: ../login.php");
 exit;
 ?>
