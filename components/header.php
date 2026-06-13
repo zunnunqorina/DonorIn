@@ -42,7 +42,7 @@ $prefix = str_repeat('../', max(0, $depth - 2));
         }
 
         html { scroll-behavior: smooth; }
-        body { font-family: 'Inter', sans-serif; color: var(--teks); background: var(--putih); }
+        body { font-family: 'Inter', sans-serif; color: var(--teks); background: var(--putih); overflow-x: hidden; width: 100%; }
         .wadah { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
 
         /* ── NAVBAR ─────────────────────────────────────────── */
@@ -54,13 +54,16 @@ $prefix = str_repeat('../', max(0, $depth - 2));
             padding: 0 24px; height: 64px;
             display: flex; align-items: center; justify-content: space-between;
         }
-        .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .nav-toggle { display: none; }
+        .nav-toggle-btn { display: none; flex: 0 0 auto; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; background: var(--border); color: var(--merah); font-size: 1.2rem; cursor: pointer; }
+        .nav-toggle-btn:hover { background: var(--merah-muda); }
+        .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
         .nav-brand .dot { width: 32px; height: 32px; background: var(--merah); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; }
         .nav-brand .nama { font-size: 1.1rem; font-weight: 800; color: var(--teks); letter-spacing: -0.3px; }
-        .nav-links { display: flex; align-items: center; gap: 4px; }
+        .nav-links { position: absolute; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 4px; }
         .nav-links a { padding: 7px 14px; border-radius: 8px; font-size: 0.88rem; font-weight: 500; color: var(--teks-sub); text-decoration: none; transition: all .2s; }
         .nav-links a:hover, .nav-links a.aktif { background: var(--bg); color: var(--teks); }
-        .nav-cta { display: flex; gap: 8px; align-items: center; }
+        .nav-cta { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
         .btn-outline-red { padding: 8px 18px; border: 1.5px solid var(--merah); border-radius: 8px; font-size: 0.85rem; font-weight: 600; color: var(--merah); text-decoration: none; transition: all .2s; }
         .btn-outline-red:hover { background: var(--merah); color: white; }
         .btn-solid-red { padding: 8px 18px; background: var(--merah); border-radius: 8px; font-size: 0.85rem; font-weight: 600; color: white; text-decoration: none; transition: background .2s; box-shadow: 0 2px 10px rgba(139,0,0,0.25); }
@@ -165,8 +168,38 @@ $prefix = str_repeat('../', max(0, $depth - 2));
             .grid-layanan, .grid-event, .grid-manfaat, .grid-syarat { grid-template-columns: repeat(2, 1fr); }
             .footer-grid { grid-template-columns: 1fr 1fr; }
         }
+        @media (max-width: 850px) {
+            .nav-toggle-btn { display: flex; }
+            .nav-links {
+                position: fixed;
+                top: 64px;
+                left: 0;
+                right: 0;
+                transform: none;
+                background: white;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 4px;
+                padding: 12px 20px;
+                border-bottom: 1px solid var(--border);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+                position: fixed; top: 64px; left: 0; right: 0; background: white;
+                flex-direction: column; align-items: stretch; gap: 4px; padding: 12px 20px;
+                border-bottom: 1px solid var(--border); box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+                z-index: 999; display: none;
+            }
+            .nav-links.open { display: flex; }
+            .nav-links a { padding: 11px 14px; border-radius: 8px; width: 100%; }
+            .nav-cta {
+                position: fixed; left: 0; right: 0; top: auto; flex-direction: column;
+                align-items: stretch; padding: 12px 20px 16px; background: white;
+                z-index: 999; gap: 10px; display: none; border-bottom: 1px solid var(--border);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+            }
+            .nav-cta.open { display: flex; }
+            .nav-cta a { width: 100%; text-align: center; padding: 11px; }
+        }
         @media (max-width: 640px) {
-            .nav-links, .btn-outline-red { display: none; }
             .grid-layanan, .grid-event, .grid-manfaat, .grid-syarat { grid-template-columns: 1fr; }
             .footer-grid { grid-template-columns: 1fr; }
             .section { padding: 56px 0; }
@@ -179,18 +212,22 @@ $prefix = str_repeat('../', max(0, $depth - 2));
 <body>
 
 <!-- ══ NAVBAR ══ -->
-<nav class="navbar">
+<nav class="navbar" id="main-navbar">
     <a href="<?= $prefix ?>index.php" class="nav-brand">
         <div class="dot">🩸</div>
         <span class="nama">DonorIn</span>
     </a>
-    <div class="nav-links">
-        <a href="<?= $prefix ?>index.php#layanan"  class="<?= $halaman_aktif==='layanan' ?'aktif':'' ?>">Layanan</a>
-        <a href="<?= $prefix ?>index.php#event"    class="<?= $halaman_aktif==='event'   ?'aktif':'' ?>">Event</a>
-        <a href="<?= $prefix ?>index.php#manfaat"  class="<?= $halaman_aktif==='manfaat' ?'aktif':'' ?>">Manfaat</a>
-        <a href="<?= $prefix ?>index.php#syarat"   class="<?= $halaman_aktif==='syarat'  ?'aktif':'' ?>">Syarat</a>
+
+    <!-- Nav Links (centered on desktop, dropdown on mobile) -->
+    <div class="nav-links" id="nav-links">
+        <a href="<?= $prefix ?>index.php#layanan" class="<?= $halaman_aktif==='layanan' ?'aktif':'' ?>">Layanan</a>
+        <a href="<?= $prefix ?>index.php#event" class="<?= $halaman_aktif==='event' ?'aktif':'' ?>">Event</a>
+        <a href="<?= $prefix ?>index.php#manfaat" class="<?= $halaman_aktif==='manfaat' ?'aktif':'' ?>">Manfaat</a>
+        <a href="<?= $prefix ?>index.php#syarat" class="<?= $halaman_aktif==='syarat' ?'aktif':'' ?>">Syarat</a>
     </div>
-    <div class="nav-cta">
+
+    <!-- CTA Buttons (right on desktop) -->
+    <div class="nav-cta" id="nav-cta">
         <?php if ($pendonor_login): ?>
             <a href="<?= $prefix ?>pages/donor/dashboard_pendonor.php" class="btn-solid-red">
                 <i class="fas fa-user-circle"></i> Dashboard
@@ -204,4 +241,39 @@ $prefix = str_repeat('../', max(0, $depth - 2));
             <a href="<?= $prefix ?>pages/admin/daftar_pendonor.php" class="btn-solid-red">Daftar Pendonor</a>
         <?php endif; ?>
     </div>
+
+    <!-- Hamburger Button (mobile only) -->
+    <button class="nav-toggle-btn" id="nav-hamburger" onclick="toggleMobileNav()" aria-label="Menu">
+        <i class="fas fa-bars" id="hamburger-icon"></i>
+    </button>
 </nav>
+
+<script>
+function toggleMobileNav() {
+    var links  = document.getElementById('nav-links');
+    var cta    = document.getElementById('nav-cta');
+    var icon   = document.getElementById('hamburger-icon');
+    var isOpen = links.classList.contains('open');
+
+    if (isOpen) {
+        links.classList.remove('open');
+        cta.classList.remove('open');
+        icon.className = 'fas fa-bars';
+    } else {
+        links.classList.add('open');
+        cta.classList.add('open');
+        icon.className = 'fas fa-times';
+        // Position cta right below the links dropdown
+        cta.style.top = (64 + links.offsetHeight) + 'px';
+    }
+}
+
+// Close menu when a nav link is clicked
+document.querySelectorAll('#nav-links a').forEach(function(link) {
+    link.addEventListener('click', function() {
+        document.getElementById('nav-links').classList.remove('open');
+        document.getElementById('nav-cta').classList.remove('open');
+        document.getElementById('hamburger-icon').className = 'fas fa-bars';
+    });
+});
+</script>

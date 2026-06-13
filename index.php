@@ -26,12 +26,12 @@ $jml_event      = $conn->query("SELECT COUNT(*) FROM event_donor WHERE status='a
     background: linear-gradient(135deg, #7a0000 0%, #8B0000 40%, #a50010 70%, #8B0000 100%);
     padding: 80px 24px 100px; position: relative; overflow: hidden;">
     <div style="content:'';position:absolute;inset:0;background:url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\");"></div>
-    <div style="max-width:1160px;margin:0 auto;position:relative;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;">
+    <div class="hero-grid" style="max-width:1160px;margin:0 auto;position:relative;display:grid;gap:40px;align-items:center;">
         <div>
             <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:5px 14px;font-size:0.78rem;font-weight:600;color:rgba(255,255,255,0.9);margin-bottom:20px;">
                 <i class="fas fa-tint" style="font-size:10px;"></i> Sistem Informasi Donor Darah
             </div>
-            <h1 style="font-size:2.8rem;font-weight:900;color:white;line-height:1.15;letter-spacing:-1px;margin-bottom:18px;">
+            <h1 style="font-size:2.2rem;font-weight:900;color:white;line-height:1.2;letter-spacing:-0.5px;margin-bottom:18px;">
                 Karena Setiap<br>Tetes Darah<br><span style="color:#FFCCCC;">Sangat Berarti</span>
             </h1>
             <p style="font-size:1rem;color:rgba(255,255,255,0.78);line-height:1.7;margin-bottom:32px;max-width:480px;">
@@ -48,18 +48,18 @@ $jml_event      = $conn->query("SELECT COUNT(*) FROM event_donor WHERE status='a
                     <i class="fas fa-search" style="margin-right:7px;"></i>Cari Pendonor
                 </a>
             </div>
-            <div style="display:flex;gap:28px;margin-top:40px;padding-top:32px;border-top:1px solid rgba(255,255,255,0.15);">
+            <div class="hero-stats" style="display:flex;gap:20px;flex-wrap:wrap;margin-top:30px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.15);">
                 <div>
-                    <div style="font-size:1.8rem;font-weight:900;color:white;line-height:1;"><?= number_format($jml_pendonor) ?>+</div>
+                    <div style="font-size:1.6rem;font-weight:900;color:white;line-height:1;"><?= number_format($jml_pendonor) ?>+</div>
                     <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-top:4px;font-weight:500;">Pendonor Aktif</div>
                 </div>
                 <div>
-                    <div style="font-size:1.8rem;font-weight:900;color:white;line-height:1;"><?= number_format($jml_terselesai) ?>+</div>
+                    <div style="font-size:1.6rem;font-weight:900;color:white;line-height:1;"><?= number_format($jml_terselesai) ?>+</div>
                     <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-top:4px;font-weight:500;">Permintaan Terpenuhi</div>
                 </div>
                 <div>
-                    <div style="font-size:1.8rem;font-weight:900;color:white;line-height:1;"><?= $jml_event ?></div>
-                    <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-top:4px;font-weight:500;">Event Mendatang</div>
+                    <div style="font-size:1.6rem;font-weight:900;color:white;line-height:1;"><?= $jml_event ?></div>
+                    <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-top:4px;font-weight:500;">Event</div>
                 </div>
             </div>
         </div>
@@ -67,10 +67,10 @@ $jml_event      = $conn->query("SELECT COUNT(*) FROM event_donor WHERE status='a
         <div style="display:flex;flex-direction:column;gap:14px;">
             <div style="background:rgba(255,255,255,0.1);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.15);border-radius:14px;padding:18px 20px;color:white;">
                 <div style="font-size:0.78rem;font-weight:600;opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Stok Darah PMI</div>
-                <div style="font-size:1.5rem;font-weight:800;">🩸 Cek Ketersediaan</div>
+                <div style="font-size:1.4rem;font-weight:800;">🩸 Cek Ketersediaan</div>
                 <div style="font-size:0.8rem;opacity:.7;margin-top:3px;">Update real-time dari PMI</div>
             </div>
-            <div style="display:flex;gap:10px;">
+            <div class="hero-visual-row" style="display:flex;gap:10px;">
                 <div style="flex:1;background:rgba(255,255,255,0.1);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.15);border-radius:14px;padding:18px 20px;color:white;">
                     <div style="font-size:0.78rem;font-weight:600;opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Donor Berikutnya</div>
                     <?php if (!empty($ev_donor)): ?>
@@ -91,6 +91,30 @@ $jml_event      = $conn->query("SELECT COUNT(*) FROM event_donor WHERE status='a
         </div>
     </div>
 </section>
+
+<style>
+.hero-grid {
+    grid-template-columns: 1fr;
+}
+@media (min-width: 850px) {
+    .hero-grid {
+        grid-template-columns: 1.2fr 0.8fr;
+    }
+}
+@media (max-width: 576px) {
+    .hero-visual-row {
+        flex-direction: column;
+    }
+    .hero-stats {
+        justify-content: space-between;
+        gap: 12px !important;
+    }
+    .hero-stats > div {
+        flex: 1 1 auto;
+        min-width: 80px;
+    }
+}
+</style>
 
 <!-- ══ LAYANAN ══ -->
 <section class="section" id="layanan">
