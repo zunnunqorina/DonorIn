@@ -2,11 +2,21 @@
 include '../../config/koneksi.php';
 
 if (!isset($_SESSION['admin_login']) || $_SESSION['admin_login'] !== true) {
-    header("Location: ../../auth/login_admin.php");
+    header("Location: ../../login.php");
     exit();
 }
 
 $admin_username = $_SESSION['admin_username'] ?? 'Admin';
+
+// Sidebar badge counts
+$side_total_pasien = $conn->query("SELECT COUNT(*) FROM user WHERE role = 'pasien'")->fetchColumn() ?? 0;
+$side_total_pendonor = $conn->query("SELECT COUNT(*) FROM user WHERE role = 'pendonor'")->fetchColumn() ?? 0;
+$side_total_relawan = $conn->query("SELECT COUNT(*) FROM relawan")->fetchColumn() ?? 0;
+$side_total_event_donor = $conn->query("SELECT COUNT(*) FROM event_donor WHERE status = 'aktif'")->fetchColumn() ?? 0;
+$side_total_event_sosial = $conn->query("SELECT COUNT(*) FROM event_sosialisasi WHERE status = 'aktif'")->fetchColumn() ?? 0;
+$side_total_permintaan = $conn->query("SELECT COUNT(*) FROM permintaan_darah WHERE status = 'menunggu'")->fetchColumn() ?? 0;
+$side_total_ks = $conn->query("SELECT COUNT(*) FROM kritik_saran")->fetchColumn() ?? 0;
+
 
 // ── HAPUS ──
 if (isset($_GET['hapus']) && is_numeric($_GET['hapus'])) {
@@ -67,9 +77,13 @@ $total_pg = ceil($total / $per_page);
 $params_data   = array_merge($params, [$per_page, $offset]);
 // $stmt_data     = $conn->prepare("SELECT * FROM kritik_saran $where ORDER BY tanggal DESC LIMIT ? OFFSET ?");
 // $stmt_data->execute($params_data);
-$stmt_data = $conn->prepare("SELECT * FROM kritik_saran $where ORDER BY tanggal DESC LIMIT :limit OFFSET :offset");
-$stmt_data->bindValue(':limit',  $per_page, PDO::PARAM_INT);
-$stmt_data->bindValue(':offset', $offset,   PDO::PARAM_INT);
+$stmt_data = $conn->prepare("SELECT * FROM kritik_saran $where ORDER BY tanggal DESC LIMIT ? OFFSET ?");
+foreach ($params as $i => $val) {
+    $stmt_data->bindValue($i + 1, $val);
+}
+$param_count = count($params);
+$stmt_data->bindValue($param_count + 1, $per_page, PDO::PARAM_INT);
+$stmt_data->bindValue($param_count + 2, $offset,   PDO::PARAM_INT);
 $stmt_data->execute();
 $q_data     = $stmt_data->fetchAll(PDO::FETCH_ASSOC);
 $q_data_count = count($q_data);
@@ -90,47 +104,40 @@ $pesan = $_GET['pesan'] ?? '';
     <title>Kritik & Saran — DonorIn Admin</title>
     <link rel="stylesheet" href="../../assets/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 
 <!-- ══ SIDEBAR ══ -->
-<aside class="sidebar">
-    <div class="sidebar-brand">
-        <div class="brand-icon"><i class="fas fa-tint"></i></div>
-        <div>
-            <div class="brand-name">DonorIn</div>
-            <div class="brand-sub">Admin Panel</div>
-        </div>
-    </div>
-    <nav class="sidebar-nav">
-        <div class="nav-section">Menu Utama</div>
-        <a href="dashboard_admin.php" class="nav-item"><i class="fas fa-chart-pie"></i> Dashboard</a>
-        <a href="pendonor_admin.php" class="nav-item"><i class="fas fa-users"></i> Manajemen Pendonor</a>
-        <a href="kritik_saran_admin.php" class="nav-item active"><i class="fas fa-comments"></i> Kritik & Saran</a>
-        <div class="nav-section">Lainnya</div>
-        <a href="permintaan_darah_admin.php" class="nav-item"><i class="fas fa-hand-holding-heart"></i> Permintaan Darah</a>
-        <a href="tampil_kritik.php" class="nav-item"><i class="fas fa-eye"></i> Halaman Publik</a>
-    </nav>
-    <div class="sidebar-foot">
-        <div class="user-card">
-            <div class="user-avatar"><?= strtoupper(substr($admin_username, 0, 1)) ?></div>
-            <div class="user-info">
-                <div class="user-name"><?= htmlspecialchars($admin_username) ?></div>
-                <div class="user-role">Administrator</div>
-            </div>
-        </div>
-        <a href="../../auth/logout_admin.php" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Keluar</a>
-    </div>
-</aside>
+<?php
+$halaman_aktif_admin = 'kritik_saran';
+include '../../components/sidebar_admin.php';
+?>
 
 <!-- ══ MAIN ══ -->
 <main class="main">
-    <div class="topbar">
-        <div>
-            <div class="topbar-title"><i class="fas fa-comments" style="color:var(--merah);margin-right:8px;"></i>Kritik & Saran</div>
-            <div class="topbar-sub">Moderasi pesan masuk dari pengguna</div>
+<header class="topbar">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <button class="btn-toggle-sidebar" id="btnToggleSidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div>
+                <div class="topbar-title">Kritik &amp; Saran</div>
+                <div class="topbar-breadcrumb">
+                    <a href="dashboard_admin.php">DonorIn</a> /
+                    <span>Lainnya</span> /
+                    <span>Kritik &amp; Saran</span>
+                </div>
+            </div>
         </div>
-    </div>
+        <div class="topbar-right">
+            <div class="date-chip"><i class="fas fa-calendar-day"></i><?= date('d M Y') ?></div>
+            <a href="kritik_saran_admin.php" class="topbar-btn" title="Kritik & Saran">
+                <i class="fas fa-bell"></i>
+                <?php if ($side_total_ks > 0): ?><span class="notif-dot"></span><?php endif; ?>
+            </a>
+        </div>
+    </header>
 
     <div class="content">
 
@@ -356,9 +363,17 @@ $pesan = $_GET['pesan'] ?? '';
     </div>
 </div>
 
+<script src="../../assets/admin.js"></script>
 <script>
 function bukaModal(id)  { document.getElementById(id).classList.add('show'); document.body.style.overflow='hidden'; }
 function tutupModal(id) { document.getElementById(id).classList.remove('show'); document.body.style.overflow=''; }
+
+document.getElementById('btnToggleSidebar').addEventListener('click', function() {
+    document.querySelector('.sidebar').classList.add('open');
+});
+document.getElementById('btnCloseSidebar').addEventListener('click', function() {
+    document.querySelector('.sidebar').classList.remove('open');
+});
 
 document.querySelectorAll('.modal-overlay').forEach(function(el) {
     el.addEventListener('click', function(e) { if (e.target === el) tutupModal(el.id); });
@@ -379,21 +394,8 @@ function bukaModalDetail(data) {
 }
 
 function konfirmasiHapus(id, nama) {
-    document.getElementById('hapus_nama').textContent = nama;
-    document.getElementById('hapus_link').href = 'kritik_saran_admin.php?hapus=' + id;
-    bukaModal('modalHapus');
+    hapusDataSweet(id, nama, 'kritik_saran_admin.php?hapus=');
 }
-
-// Auto-hilangkan notifikasi
-setTimeout(function() {
-    var notif = document.querySelector('.notif');
-    if (notif) {
-        notif.style.opacity = '0';
-        notif.style.transform = 'translateY(-8px)';
-        notif.style.transition = 'all .4s ease';
-        setTimeout(function(){ notif.remove(); }, 400);
-    }
-}, 4000);
 </script>
 
 </body>

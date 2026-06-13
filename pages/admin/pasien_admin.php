@@ -2,11 +2,13 @@
 include '../../config/koneksi.php';
 
 if (!isset($_SESSION['admin_login']) || $_SESSION['admin_login'] !== true) {
-    header("Location: ../../auth/login_admin.php");
+    header("Location: ../../login.php");
     exit();
 }
 
 $admin_username = $_SESSION['admin_username'] ?? 'Admin';
+
+$halaman_aktif_admin = 'pasien';
 
 // HAPUS
 if (isset($_GET['hapus']) && is_numeric($_GET['hapus'])) {
@@ -94,10 +96,13 @@ $q_total->execute($params);
 $total    = (int) $q_total->fetchColumn();
 $total_pg = (int) ceil($total / $per_page);
 
-$q_pasien = $conn->prepare("SELECT * FROM user $where ORDER BY tanggal_daftar DESC LIMIT :lim OFFSET :off");
-foreach ($params as $i => $val) $q_pasien->bindValue($i + 1, $val);
-$q_pasien->bindValue(':lim', $per_page, PDO::PARAM_INT);
-$q_pasien->bindValue(':off', $offset,   PDO::PARAM_INT);
+$q_pasien = $conn->prepare("SELECT * FROM user $where ORDER BY tanggal_daftar DESC LIMIT ? OFFSET ?");
+foreach ($params as $i => $val) {
+    $q_pasien->bindValue($i + 1, $val);
+}
+$param_count = count($params);
+$q_pasien->bindValue($param_count + 1, $per_page, PDO::PARAM_INT);
+$q_pasien->bindValue($param_count + 2, $offset,   PDO::PARAM_INT);
 $q_pasien->execute();
 
 // Statistik
@@ -119,63 +124,33 @@ $pesan = $_GET['pesan'] ?? '';
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="../../assets/admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 
-<aside class="sidebar">
-    <div class="sidebar-brand">
-        <div class="brand-icon"><i class="fas fa-tint"></i></div>
-        <div>
-            <div class="brand-name">DonorIn</div>
-            <div class="brand-sub">Admin Panel</div>
-        </div>
-    </div>
-    <nav class="sidebar-nav">
-        <div class="nav-section">
-            <div class="nav-label">Utama</div>
-            <a href="dashboard_admin.php" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
-        </div>
-        <div class="nav-section">
-            <div class="nav-label">Pengguna</div>
-            <a href="pasien_admin.php" class="nav-item active"><i class="fas fa-user-injured"></i> Pasien</a>
-            <a href="pendonor_admin.php" class="nav-item"><i class="fas fa-hand-holding-heart"></i> Pendonor</a>
-            <a href="relawan_admin.php" class="nav-item"><i class="fas fa-people-carry-box"></i> Relawan PMI</a>
-        </div>
-        <div class="nav-section">
-            <div class="nav-label">Event</div>
-            <a href="event_donor.php" class="nav-item"><i class="fas fa-calendar-alt"></i> Event Donor</a>
-            <a href="event_sosialisasi.php" class="nav-item"><i class="fas fa-bullhorn"></i> Event Sosialisasi</a>
-        </div>
-        <div class="nav-section">
-            <div class="nav-label">Lainnya</div>
-            <a href="kritik_saran_admin.php" class="nav-item"><i class="fas fa-comments"></i> Kritik & Saran</a>
-        </div>
-    </nav>
-    <div class="sidebar-footer">
-        <div class="sidebar-user">
-            <div class="user-avatar"><?= strtoupper(substr($admin_username, 0, 1)) ?></div>
-            <div class="user-info">
-                <div class="user-name"><?= htmlspecialchars($admin_username) ?></div>
-                <div class="user-role">Administrator</div>
-            </div>
-        </div>
-        <a href="../../auth/logout_admin.php" class="btn-logout" onclick="return confirm('Yakin ingin keluar?')">
-            <i class="fas fa-sign-out-alt"></i> Keluar
-        </a>
-    </div>
-</aside>
+<?php include '../../components/sidebar_admin.php'; ?>
 
 <main class="main">
     <header class="topbar">
-        <div>
-            <div class="topbar-title">Manajemen Pasien</div>
-            <div class="topbar-breadcrumb">
-                <a href="dashboard_admin.php" style="color:var(--abu-sedang);text-decoration:none;">DonorIn</a>
-                › <span>Pasien</span>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <button class="btn-toggle-sidebar" id="btnToggleSidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div>
+                <div class="topbar-title">Manajemen Pasien</div>
+                <div class="topbar-breadcrumb">
+                    <a href="dashboard_admin.php">DonorIn</a> /
+                    <span>Pengguna</span> /
+                    <span>Pasien</span>
+                </div>
             </div>
         </div>
         <div class="topbar-right">
             <div class="date-chip"><i class="fas fa-calendar-day"></i><?= date('d M Y') ?></div>
+            <a href="kritik_saran_admin.php" class="topbar-btn" title="Kritik & Saran">
+                <i class="fas fa-bell"></i>
+                <?php if ($side_total_ks > 0): ?><span class="notif-dot"></span><?php endif; ?>
+            </a>
         </div>
     </header>
 
@@ -464,9 +439,17 @@ $pesan = $_GET['pesan'] ?? '';
     </div>
 </div>
 
+<script src="../../assets/admin.js"></script>
 <script>
 function bukaModal(id)  { document.getElementById(id).classList.add('show'); document.body.style.overflow='hidden'; }
 function tutupModal(id) { document.getElementById(id).classList.remove('show'); document.body.style.overflow=''; }
+
+document.getElementById('btnToggleSidebar').addEventListener('click', function() {
+    document.querySelector('.sidebar').classList.add('open');
+});
+document.getElementById('btnCloseSidebar').addEventListener('click', function() {
+    document.querySelector('.sidebar').classList.remove('open');
+});
 
 document.querySelectorAll('.modal-overlay').forEach(function(el) {
     el.addEventListener('click', function(e) { if (e.target === el) tutupModal(el.id); });
@@ -488,24 +471,11 @@ function bukaModalEdit(data) {
 }
 
 function konfirmasiHapus(id, nama) {
-    document.getElementById('hapus_nama').textContent = nama;
-    document.getElementById('hapus_link').href = 'pasien_admin.php?hapus=' + id;
-    bukaModal('modalHapus');
+    hapusDataSweet(id, nama, 'pasien_admin.php?hapus=');
 }
 
 <?php if ($error_tambah): ?> bukaModal('modalTambah'); <?php endif; ?>
 <?php if ($error_edit):   ?> bukaModal('modalEdit');   <?php endif; ?>
-
-setTimeout(function() {
-    var notif = document.querySelector('.notif');
-    if (notif) {
-        notif.style.opacity = '0';
-        notif.style.transform = 'translateY(-8px)';
-        notif.style.transition = 'all .4s ease';
-        setTimeout(function(){ notif.remove(); }, 400);
-    }
-}, 4000);
 </script>
-
 </body>
 </html>

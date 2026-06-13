@@ -1,11 +1,13 @@
 <?php
 include '../../config/koneksi.php';
 if (!isset($_SESSION['admin_login']) || $_SESSION['admin_login'] !== true) {
-    header("Location: ../../auth/login_admin.php");
+    header("Location: ../../login.php");
     exit();
 }
 
 $admin_username = $_SESSION['admin_username'] ?? 'Admin';
+
+$halaman_aktif_admin = 'pendonor';
 
 if (isset($_GET['hapus']) && is_numeric($_GET['hapus'])) {
     $id_hapus = (int) $_GET['hapus'];
@@ -132,66 +134,34 @@ $pesan = $_GET['pesan'] ?? '';
     <title>Manajemen Pendonor — DonorIn</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="../../assets/admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 
-<!-- ══════════ SIDEBAR ══════════ -->
-<aside class="sidebar">
-    <div class="sidebar-brand">
-        <div class="brand-icon"><i class="fas fa-tint"></i></div>
-        <div>
-            <div class="brand-name">DonorIn</div>
-            <div class="brand-sub">Admin Panel</div>
-        </div>
-    </div>
-    <nav class="sidebar-nav">
-        <div class="nav-section">
-            <div class="nav-label">Utama</div>
-            <a href="dashboard_admin.php" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
-        </div>
-        <div class="nav-section">
-            <div class="nav-label">Pengguna</div>
-            <a href="pasien_admin.php" class="nav-item"><i class="fas fa-user-injured"></i> Pasien</a>
-            <a href="pendonor_admin.php" class="nav-item active"><i class="fas fa-hand-holding-heart"></i> Pendonor</a>
-            <a href="relawan_admin.php" class="nav-item"><i class="fas fa-people-carry-box"></i> Relawan PMI</a>
-        </div>
-        <div class="nav-section">
-            <div class="nav-label">Event</div>
-            <a href="event_donor.php" class="nav-item"><i class="fas fa-calendar-alt"></i> Event Donor Darah</a>
-            <a href="event_sosialisasi.php" class="nav-item"><i class="fas fa-bullhorn"></i> Event Sosialisasi</a>
-        </div>
-        <div class="nav-section">
-            <div class="nav-label">Lainnya</div>
-            <a href="kritik_saran_admin.php" class="nav-item"><i class="fas fa-comments"></i> Kritik & Saran</a>
-        </div>
-    </nav>
-    <div class="sidebar-footer">
-        <div class="sidebar-user">
-            <div class="user-avatar"><?= strtoupper(substr($admin_username, 0, 1)) ?></div>
-            <div>
-                <div class="user-name"><?= htmlspecialchars($admin_username) ?></div>
-                <div class="user-role">Administrator</div>
-            </div>
-        </div>
-        <a href="../logout.php" class="btn-logout" onclick="return confirm('Yakin ingin keluar?')">
-            <i class="fas fa-sign-out-alt"></i> Keluar
-        </a>
-    </div>
-</aside>
+<?php include '../../components/sidebar_admin.php'; ?>
 
 <!-- ══════════ MAIN ══════════ -->
 <main class="main">
     <header class="topbar">
-        <div>
-            <div class="topbar-title">Manajemen Pendonor</div>
-            <div class="topbar-breadcrumb">
-                <a href="../dashboard.php">DonorIn</a> ›
-                <a href="pendonor_admin.php">Pengguna</a> ›
-                <span>Pendonor</span>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <button class="btn-toggle-sidebar" id="btnToggleSidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div>
+                <div class="topbar-title">Manajemen Pendonor</div>
+                <div class="topbar-breadcrumb">
+                    <a href="dashboard_admin.php">DonorIn</a> /
+                    <span>Pengguna</span> /
+                    <span>Pendonor</span>
+                </div>
             </div>
         </div>
         <div class="topbar-right">
             <div class="date-chip"><i class="fas fa-calendar-day"></i><?= date('d M Y') ?></div>
+            <a href="kritik_saran_admin.php" class="topbar-btn" title="Kritik & Saran">
+                <i class="fas fa-bell"></i>
+                <?php if ($side_total_ks > 0): ?><span class="notif-dot"></span><?php endif; ?>
+            </a>
         </div>
     </header>
 
@@ -298,11 +268,11 @@ $pesan = $_GET['pesan'] ?? '';
                         <tr>
                             <td style="color:var(--abu-sedang);font-size:12px;font-weight:600;"><?= $no++ ?></td>
                             <td>
-                                <div class="td-nama">
-                                    <div class="td-avatar"><?= strtoupper(substr($row['nama'],0,1)) ?></div>
+                                <div class="tbl-name">
+                                    <div class="tbl-avatar"><?= strtoupper(substr($row['nama'],0,1)) ?></div>
                                     <div>
-                                        <div class="td-nama-text"><?= htmlspecialchars($row['nama']) ?></div>
-                                        <div class="td-nama-sub"><?= htmlspecialchars($row['email']) ?></div>
+                                        <div class="tbl-name-text"><?= htmlspecialchars($row['nama']) ?></div>
+                                        <div class="tbl-name-sub"><?= htmlspecialchars($row['email']) ?></div>
                                     </div>
                                 </div>
                             </td>
@@ -507,6 +477,14 @@ $pesan = $_GET['pesan'] ?? '';
 </div>
 
 <script>
+// ── Toggle Sidebar helpers ──
+document.getElementById('btnToggleSidebar').addEventListener('click', function() {
+    document.querySelector('.sidebar').classList.add('open');
+});
+});
+</script>
+<script src="../../assets/admin.js"></script>
+<script>
 // ── Modal helpers ──
 function bukaModal(id) {
     document.getElementById(id).classList.add('show');
@@ -554,9 +532,7 @@ function bukaModalEdit(data) {
 
 // ── Konfirmasi hapus ──
 function konfirmasiHapus(id, nama) {
-    document.getElementById('hapus_nama').textContent = nama;
-    document.getElementById('hapus_link').href = 'pendonor_admin.php?hapus=' + id;
-    bukaModal('modalHapus');
+    hapusDataSweet(id, nama, 'pendonor_admin.php?hapus=');
 }
 
 // ── Auto-buka modal jika ada error ──

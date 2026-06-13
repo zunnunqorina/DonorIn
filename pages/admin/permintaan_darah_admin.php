@@ -2,11 +2,21 @@
 include '../../config/koneksi.php';
 
 if (!isset($_SESSION['admin_login']) || $_SESSION['admin_login'] !== true) {
-    header("Location: ../../auth/login_admin.php");
+    header("Location: ../../login.php");
     exit();
 }
 
 $admin_username = $_SESSION['admin_username'] ?? 'Admin';
+
+// Sidebar badge counts
+$side_total_pasien = $conn->query("SELECT COUNT(*) FROM user WHERE role = 'pasien'")->fetchColumn() ?? 0;
+$side_total_pendonor = $conn->query("SELECT COUNT(*) FROM user WHERE role = 'pendonor'")->fetchColumn() ?? 0;
+$side_total_relawan = $conn->query("SELECT COUNT(*) FROM relawan")->fetchColumn() ?? 0;
+$side_total_event_donor = $conn->query("SELECT COUNT(*) FROM event_donor WHERE status = 'aktif'")->fetchColumn() ?? 0;
+$side_total_event_sosial = $conn->query("SELECT COUNT(*) FROM event_sosialisasi WHERE status = 'aktif'")->fetchColumn() ?? 0;
+$side_total_permintaan = $conn->query("SELECT COUNT(*) FROM permintaan_darah WHERE status = 'menunggu'")->fetchColumn() ?? 0;
+$side_total_ks = $conn->query("SELECT COUNT(*) FROM kritik_saran")->fetchColumn() ?? 0;
+
 
 // ============================================================
 // HANDLE UBAH STATUS
@@ -68,10 +78,13 @@ $q_data = $conn->prepare("SELECT p.*, ps.nama as nama_pasien, ps.no_hp as hp_pas
     ORDER BY
         CASE p.status WHEN 'menunggu' THEN 1 WHEN 'diproses' THEN 2 WHEN 'terpenuhi' THEN 3 ELSE 4 END,
         p.tanggal DESC
-    LIMIT :lim OFFSET :off");
-foreach ($params as $i => $val) $q_data->bindValue($i + 1, $val);
-$q_data->bindValue(':lim', $per_page, PDO::PARAM_INT);
-$q_data->bindValue(':off', $offset,   PDO::PARAM_INT);
+    LIMIT ? OFFSET ?");
+foreach ($params as $i => $val) {
+    $q_data->bindValue($i + 1, $val);
+}
+$param_count = count($params);
+$q_data->bindValue($param_count + 1, $per_page, PDO::PARAM_INT);
+$q_data->bindValue($param_count + 2, $offset,   PDO::PARAM_INT);
 $q_data->execute();
 
 // ============================================================
@@ -99,71 +112,32 @@ $pesan = $_GET['pesan'] ?? '';
     <title>Kelola Permintaan Darah — DonorIn Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="../../assets/admin.css">
-    <script src="script.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../../assets/script.js" defer></script>
+    <script src="../../assets/admin.js" defer></script>
 </head>
 <body>
 
 <!-- ══ SIDEBAR ══ -->
-<aside class="sidebar">
-    <div class="sidebar-brand">
-        <div class="brand-icon"><i class="fas fa-tint"></i></div>
-        <div>
-            <div class="brand-name">DonorIn</div>
-            <div class="brand-sub">Admin Panel</div>
-        </div>
-    </div>
-    <nav class="sidebar-nav">
-        <div class="nav-section">
-            <div class="nav-label">Utama</div>
-            <a href="dashboard_admin.php" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
-        </div>
-        <div class="nav-section">
-            <div class="nav-label">Pengguna</div>
-            <a href="pasien_admin.php" class="nav-item"><i class="fas fa-user-injured"></i> Pasien</a>
-            <a href="pendonor_admin.php" class="nav-item"><i class="fas fa-hand-holding-heart"></i> Pendonor</a>
-            <a href="relawan_admin.php" class="nav-item"><i class="fas fa-people-carry-box"></i> Relawan PMI</a>
-        </div>
-        <div class="nav-section">
-            <div class="nav-label">Event</div>
-            <a href="event_donor_admin.php" class="nav-item"><i class="fas fa-calendar-alt"></i> Event Donor</a>
-            <a href="event_sosialisasi_admin.php" class="nav-item"><i class="fas fa-bullhorn"></i> Event Sosialisasi</a>
-        </div>
-        <div class="nav-section">
-            <div class="nav-label">Permintaan</div>
-            <a href="permintaan_admin.php" class="nav-item active">
-                <i class="fas fa-hand-holding-medical"></i> Permintaan Darah
-                <?php if ($stat_menunggu > 0): ?>
-                <span class="nav-badge"><?= $stat_menunggu ?></span>
-                <?php endif; ?>
-            </a>
-        </div>
-        <div class="nav-section">
-            <div class="nav-label">Lainnya</div>
-            <a href="kritik_saran_admin.php" class="nav-item"><i class="fas fa-comments"></i> Kritik & Saran</a>
-        </div>
-    </nav>
-    <div class="sidebar-footer">
-        <div class="sidebar-user">
-            <div class="user-avatar"><?= strtoupper(substr($admin_username, 0, 1)) ?></div>
-            <div class="user-info">
-                <div class="user-name"><?= htmlspecialchars($admin_username) ?></div>
-                <div class="user-role">Administrator</div>
-            </div>
-        </div>
-        <a href="../../auth/logout_admin.php" class="btn-logout" onclick="return confirm('Yakin ingin keluar?')">
-            <i class="fas fa-sign-out-alt"></i> Keluar
-        </a>
-    </div>
-</aside>
+<?php
+$halaman_aktif_admin = 'permintaan_darah';
+include '../../components/sidebar_admin.php';
+?>
 
 <!-- ══ MAIN ══ -->
 <main class="main">
     <header class="topbar">
-        <div>
-            <div class="topbar-title">Kelola Permintaan Darah</div>
-            <div class="topbar-breadcrumb">
-                <a href="dashboard_admin.php" style="color:var(--abu-sedang);text-decoration:none;">DonorIn</a>
-                › <span>Permintaan Darah</span>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <button class="btn-toggle-sidebar" id="btnToggleSidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div>
+                <div class="topbar-title">Kelola Permintaan Darah</div>
+                <div class="topbar-breadcrumb">
+                    <a href="dashboard_admin.php">DonorIn</a> /
+                    <span>Permintaan</span> /
+                    <span>Permintaan Darah</span>
+                </div>
             </div>
         </div>
         <div class="topbar-right">
@@ -174,6 +148,10 @@ $pesan = $_GET['pesan'] ?? '';
             </div>
             <?php endif; ?>
             <div class="date-chip"><i class="fas fa-calendar-day"></i><?= date('d M Y') ?></div>
+            <a href="kritik_saran_admin.php" class="topbar-btn" title="Kritik & Saran">
+                <i class="fas fa-bell"></i>
+                <?php if ($side_total_ks > 0): ?><span class="notif-dot"></span><?php endif; ?>
+            </a>
         </div>
     </header>
 

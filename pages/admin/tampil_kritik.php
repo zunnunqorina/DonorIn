@@ -54,7 +54,7 @@ $halaman_aktif = 'kritik';
     <section class="blok-konten">
         <h2>📋 Data Kritik & Saran Masuk</h2>
 
-        <a href="tampil_kritik.php" class="tombol-kembali">← Kirim Pesan Baru</a>
+        <a href="../../login.php" class="tombol-kembali" style="display:inline-block; margin-top:10px;">← Kirim Pesan Baru</a>
 
         <?php
         $stmt   = $conn->query("SELECT * FROM kritik_saran ORDER BY tanggal DESC");
