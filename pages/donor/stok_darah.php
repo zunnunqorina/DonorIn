@@ -8,7 +8,7 @@ foreach ($stmt->fetchAll() as $s) { $stok[$s['goldar']] = $s; }
 
 foreach (['A','B','O','AB'] as $g) {
     if (!isset($stok[$g])) {
-        $stok[$g] = ['goldar'=>$g, 'jumlah_kantong'=>0, 'updated_at'=>null, 'updated_by'=>'-'];
+        $stok[$g] = ['goldar'=>$g, 'jumlah'=>0, 'updated_at'=>null];
     }
 }
 
@@ -22,6 +22,21 @@ function statusStok($jumlah) {
     if ($jumlah <= 15) return ['label'=>'Terbatas', 'warna'=>'#f39c12', 'bg'=>'#fff3cd', 'ikon'=>'🟡'];
     return                    ['label'=>'Tersedia', 'warna'=>'#198754', 'bg'=>'#d1e7dd', 'ikon'=>'🟢'];
 }
+$is_logged_in  = isset($_SESSION['pendonor_login']) && $_SESSION['pendonor_login'] === true;
+$halaman_aktif = 'stok_darah';
+
+if ($is_logged_in) {
+    $pendonor_id = $_SESSION['pendonor_id'];
+    $q_pendonor_info = $conn->prepare("SELECT * FROM pendonor WHERE id = ?");
+    $q_pendonor_info->execute([$pendonor_id]);
+    $pendonor = $q_pendonor_info->fetch(PDO::FETCH_ASSOC);
+    $admin_username = $pendonor['nama'];
+    $pendonor_goldar = $pendonor['goldar'];
+
+    $st3 = $conn->prepare("SELECT COUNT(*) FROM notifikasi WHERE tujuan_tipe='pendonor' AND tujuan_id=? AND sudah_baca=0");
+    $st3->execute([$pendonor_id]);
+    $jml_notif_belum = $st3->fetchColumn();
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -29,7 +44,13 @@ function statusStok($jumlah) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DonorIn — Stok Darah</title>
-    <link rel="stylesheet" href="../../assets/styles.css">
+    <?php if ($is_logged_in): ?>
+        <link rel="stylesheet" href="../../assets/admin.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <?php else: ?>
+        <link rel="stylesheet" href="../../assets/styles.css">
+    <?php endif; ?>
     <style>
         .grid-stok { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:20px; margin-bottom:32px; }
         .kartu-stok { background:white; border-radius:14px; padding:28px 24px; box-shadow:0 2px 12px rgba(139,0,0,0.08); border:1px solid #f0e0e0; text-align:center; transition:transform .2s; }
@@ -50,11 +71,34 @@ function statusStok($jumlah) {
         @media(max-width:600px){ .grid-stok{grid-template-columns:1fr 1fr;} }
     </style>
 </head>
-<body style="background:#f4f6f9;">
+<body <?php if (!$is_logged_in) echo 'style="background:#f4f6f9;"'; ?>>
 
-<?php include '../../components/header.php'; ?>
-
-<main class="wadah" style="padding:40px 20px;">
+<?php if ($is_logged_in): ?>
+    <?php include '../../components/sidebar_pendonor.php'; ?>
+    <main class="main">
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <button class="btn-toggle-sidebar" id="btnToggleSidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div>
+                    <div class="topbar-title">Stok Darah</div>
+                    <div class="topbar-breadcrumb">DonorIn / <span>Ketersediaan Stok Darah</span></div>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <div class="date-chip">
+                    <i class="fas fa-calendar-day"></i>
+                    <?= date('d M Y') ?>
+                </div>
+            </div>
+        </header>
+        <div class="content">
+<?php else: ?>
+    <?php include '../../components/header.php'; ?>
+    <main class="wadah" style="padding: 40px 20px;">
+<?php endif; ?>
 
     <h2 style="color:#8b0000; margin-bottom:5px;">🩸 Ketersediaan Stok Darah</h2>
     <p style="color:#888; margin-bottom:20px;">Data stok darah PMI yang diperbarui secara berkala.</p>
@@ -68,7 +112,7 @@ function statusStok($jumlah) {
     <div class="grid-stok">
         <?php foreach (['A','B','O','AB'] as $g):
             $s      = $stok[$g];
-            $jml    = (int)$s['jumlah_kantong'];
+            $jml    = (int)$s['jumlah'];
             $status = statusStok($jml);
             $persen = min(100, ($jml / 50) * 100);
             $tgl_upd = $s['updated_at'] ? date('d M Y', strtotime($s['updated_at'])) : '-';
@@ -96,7 +140,7 @@ function statusStok($jumlah) {
             <thead><tr><th>Golongan</th><th>Jumlah Kantong</th><th>Status</th><th>Diperbarui</th><th>Petugas</th></tr></thead>
             <tbody>
                 <?php foreach (['A','B','O','AB'] as $g):
-                    $s = $stok[$g]; $jml = (int)$s['jumlah_kantong'];
+                    $s = $stok[$g]; $jml = (int)$s['jumlah'];
                     $status = statusStok($jml);
                     $tgl_upd = $s['updated_at'] ? date('d M Y, H:i', strtotime($s['updated_at'])) : '-';
                 ?>
@@ -134,9 +178,22 @@ function statusStok($jumlah) {
         </a>
     </div>
 
-</main>
-
-<?php include '../../components/footer.php'; ?>
+<?php if ($is_logged_in): ?>
+        </div>
+    </main>
+    <script src="../../assets/admin.js"></script>
+    <script>
+    document.getElementById('btnToggleSidebar').addEventListener('click', function() {
+        document.querySelector('.sidebar').classList.add('open');
+    });
+    document.getElementById('btnCloseSidebar').addEventListener('click', function() {
+        document.querySelector('.sidebar').classList.remove('open');
+    });
+    </script>
+<?php else: ?>
+    </main>
+    <?php include '../../components/footer.php'; ?>
+<?php endif; ?>
 <?php $conn = null; ?>
 </body>
 </html>

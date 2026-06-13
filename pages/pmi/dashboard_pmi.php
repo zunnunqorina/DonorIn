@@ -13,12 +13,12 @@ $pmi_username = $_SESSION['pmi_username'] ?? 'pmi';
 $pesan_stok = "";
 if (isset($_POST['update_stok'])) {
     $ok = true;
-    $stmt = $conn->prepare("INSERT INTO stok_darah (goldar, jumlah_kantong, updated_at, updated_by)
-                            VALUES (:g, :jml, NOW(), :by)
-                            ON DUPLICATE KEY UPDATE jumlah_kantong=:jml2, updated_at=NOW(), updated_by=:by2");
+    $stmt = $conn->prepare("INSERT INTO stok_darah (goldar, jumlah, updated_by, updated_at)
+                            VALUES (:g, :jml, :oleh, NOW())
+                            ON DUPLICATE KEY UPDATE jumlah=:jml2, updated_by=:oleh2, updated_at=NOW()");
     foreach (['A','B','O','AB'] as $g) {
         $jml = (int)($_POST['stok_'.$g] ?? 0);
-        $ok  = $stmt->execute([':g'=>$g,':jml'=>$jml,':by'=>$pmi_nama,':jml2'=>$jml,':by2'=>$pmi_nama]) && $ok;
+        $ok  = $stmt->execute([':g'=>$g,':jml'=>$jml,':oleh'=>$pmi_nama,':jml2'=>$jml,':oleh2'=>$pmi_nama]) && $ok;
     }
     $pesan_stok = $ok ? 'sukses' : 'gagal';
 }
@@ -36,7 +36,7 @@ $q_stok = $conn->query("SELECT * FROM stok_darah ORDER BY FIELD(goldar,'A','B','
 $stok   = [];
 foreach ($q_stok->fetchAll(PDO::FETCH_ASSOC) as $s) $stok[$s['goldar']] = $s;
 foreach (['A','B','O','AB'] as $g)
-    if (!isset($stok[$g])) $stok[$g] = ['goldar'=>$g,'jumlah_kantong'=>0,'updated_at'=>null,'updated_by'=>'-'];
+    if (!isset($stok[$g])) $stok[$g] = ['goldar'=>$g,'jumlah'=>0,'updated_at'=>null];
 
 // ── STATISTIK ──
 $stat_menunggu = $conn->query("SELECT COUNT(*) FROM permintaan_darah WHERE status='menunggu'")->fetchColumn() ?? 0;
@@ -44,7 +44,7 @@ $stat_diproses = $conn->query("SELECT COUNT(*) FROM permintaan_darah WHERE statu
 $stat_selesai  = $conn->query("SELECT COUNT(*) FROM permintaan_darah WHERE status='selesai'")->fetchColumn()  ?? 0;
 $stat_ditolak  = $conn->query("SELECT COUNT(*) FROM permintaan_darah WHERE status='ditolak'")->fetchColumn()  ?? 0;
 $stat_pendonor = $conn->query("SELECT COUNT(*) FROM pendonor WHERE status_aktif='aktif'")->fetchColumn()       ?? 0;
-$stat_stok_kritis = $conn->query("SELECT COUNT(*) FROM stok_darah WHERE jumlah_kantong <= 5")->fetchColumn()  ?? 0;
+$stat_stok_kritis = $conn->query("SELECT COUNT(*) FROM stok_darah WHERE jumlah <= 5")->fetchColumn()  ?? 0;
 
 // Total permintaan bulan ini
 $stat_bulan = $conn->query("SELECT COUNT(*) FROM permintaan_darah
@@ -99,6 +99,7 @@ $pesan_url = $_GET['pesan'] ?? '';
     <title>Dashboard PMI — DonorIn</title>
     <link rel="stylesheet" href="../../assets/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         /* ── STOK FORM ── */
         .stok-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:16px; }
@@ -168,69 +169,21 @@ $pesan_url = $_GET['pesan'] ?? '';
 </head>
 <body>
 
-<!-- ══════════ SIDEBAR ══════════ -->
-<aside class="sidebar">
-    <div class="sidebar-brand">
-        <div class="brand-icon"><i class="fas fa-tint"></i></div>
-        <div>
-            <div class="brand-name">DonorIn</div>
-            <div class="brand-sub">Portal PMI</div>
-        </div>
-    </div>
-
-    <nav class="sidebar-nav">
-        <div class="nav-section">
-            <div class="nav-label">Utama</div>
-            <a href="dashboard_pmi.php" class="nav-item active">
-                <i class="fas fa-th-large"></i> Dashboard
-            </a>
-        </div>
-        <div class="nav-section">
-            <div class="nav-label">Stok & Permintaan</div>
-            <a href="dashboard_pmi.php#stok" class="nav-item">
-                <i class="fas fa-tint"></i> Stok Darah
-                <?php if ($stat_stok_kritis > 0): ?>
-                <span class="nav-badge" style="background:#e65100;"><?= $stat_stok_kritis ?></span>
-                <?php endif; ?>
-            </a>
-            <a href="dashboard_pmi.php#permintaan" class="nav-item">
-                <i class="fas fa-clipboard-list"></i> Permintaan Aktif
-                <span class="nav-badge"><?= $stat_menunggu + $stat_diproses ?></span>
-            </a>
-        </div>
-        <div class="nav-section">
-            <div class="nav-label">Referensi</div>
-            <a href="../../pages/donor/cari_pendonor.php" target="_blank" class="nav-item">
-                <i class="fas fa-search"></i> Cari Pendonor
-            </a>
-            <a href="../../pages/donor/stok_darah.php" target="_blank" class="nav-item">
-                <i class="fas fa-eye"></i> Halaman Stok Publik
-            </a>
-        </div>
-    </nav>
-
-    <div class="sidebar-footer">
-        <div class="sidebar-user">
-            <div class="user-avatar"><?= strtoupper(substr($pmi_nama, 0, 1)) ?></div>
-            <div class="user-info">
-                <div class="user-name"><?= htmlspecialchars($pmi_nama) ?></div>
-                <div class="user-role">Petugas PMI</div>
-            </div>
-        </div>
-        <a href="../../auth/logout_pmi.php" class="btn-logout" onclick="return confirm('Yakin ingin keluar?')">
-            <i class="fas fa-sign-out-alt"></i> Keluar
-        </a>
-    </div>
-</aside>
+<?php $halaman_aktif_pmi = 'dashboard'; include '../../components/sidebar_pmi.php'; ?>
 
 <!-- ══════════ MAIN ══════════ -->
 <main class="main">
 
     <!-- TOPBAR -->
     <header class="topbar">
-        <div>
-            <div class="topbar-title">Dashboard PMI</div>
-            <div class="topbar-breadcrumb">DonorIn / <span>Portal PMI</span></div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <button class="btn-toggle-sidebar" id="btnToggleSidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div>
+                <div class="topbar-title">Dashboard PMI</div>
+                <div class="topbar-breadcrumb">DonorIn / <span>Portal PMI</span></div>
+            </div>
         </div>
         <div class="topbar-right">
             <div class="date-chip">
@@ -342,7 +295,7 @@ $pesan_url = $_GET['pesan'] ?? '';
                     <form method="POST" action="dashboard_pmi.php#stok">
                         <div class="stok-grid">
                             <?php foreach (['A','B','O','AB'] as $g):
-                                $jml    = (int)($stok[$g]['jumlah_kantong'] ?? 0);
+                                $jml    = (int)($stok[$g]['jumlah'] ?? 0);
                                 $st     = stokStatus($jml);
                                 $tgl    = $stok[$g]['updated_at']
                                     ? date('d M, H:i', strtotime($stok[$g]['updated_at']))
@@ -547,5 +500,14 @@ $pesan_url = $_GET['pesan'] ?? '';
     </div><!-- /content -->
 </main>
 
+<script src="../../assets/admin.js"></script>
+<script>
+document.getElementById('btnToggleSidebar').addEventListener('click', function() {
+    document.querySelector('.sidebar').classList.add('open');
+});
+document.getElementById('btnCloseSidebar').addEventListener('click', function() {
+    document.querySelector('.sidebar').classList.remove('open');
+});
+</script>
 </body>
 </html>

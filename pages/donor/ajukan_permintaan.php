@@ -77,11 +77,20 @@ if (isset($_POST['ajukan'])) {
 
 // Ambil stok darah untuk info referensi
 $q_stok = $conn->query("SELECT goldar, jumlah FROM stok_darah");
-$info_stok = [];
-if ($q_stok) {
-    foreach ($q_stok->fetchAll(PDO::FETCH_ASSOC) as $s) {
-        $info_stok[$s['goldar']] = $s['jumlah_kantong'];
-    }
+$is_logged_in  = isset($_SESSION['pendonor_login']) && $_SESSION['pendonor_login'] === true;
+$halaman_aktif = 'ajukan_permintaan';
+
+if ($is_logged_in) {
+    $pendonor_id = $_SESSION['pendonor_id'];
+    $q_pendonor_info = $conn->prepare("SELECT * FROM pendonor WHERE id = ?");
+    $q_pendonor_info->execute([$pendonor_id]);
+    $pendonor = $q_pendonor_info->fetch(PDO::FETCH_ASSOC);
+    $admin_username = $pendonor['nama'];
+    $pendonor_goldar = $pendonor['goldar'];
+
+    $st3 = $conn->prepare("SELECT COUNT(*) FROM notifikasi WHERE tujuan_tipe='pendonor' AND tujuan_id=? AND sudah_baca=0");
+    $st3->execute([$pendonor_id]);
+    $jml_notif_belum = $st3->fetchColumn();
 }
 ?>
 <!DOCTYPE html>
@@ -90,7 +99,13 @@ if ($q_stok) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DonorIn — Ajukan Permintaan Darah</title>
-    <link rel="stylesheet" href="../../assets/styles.css">
+    <?php if ($is_logged_in): ?>
+        <link rel="stylesheet" href="../../assets/admin.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <?php else: ?>
+        <link rel="stylesheet" href="../../assets/styles.css">
+    <?php endif; ?>
     <style>
         .form-wrap {
             max-width: 720px;
@@ -201,11 +216,34 @@ if ($q_stok) {
         }
     </style>
 </head>
-<body style="background:#f4f6f9;">
+<body <?php if (!$is_logged_in) echo 'style="background:#f4f6f9;"'; ?>>
 
-<?php include '../../components/header.php'; ?>
-
-<main class="wadah" style="padding:40px 20px;">
+<?php if ($is_logged_in): ?>
+    <?php include '../../components/sidebar_pendonor.php'; ?>
+    <main class="main">
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <button class="btn-toggle-sidebar" id="btnToggleSidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div>
+                    <div class="topbar-title">Ajukan Permintaan</div>
+                    <div class="topbar-breadcrumb">DonorIn / <span>Ajukan Permintaan Darah</span></div>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <div class="date-chip">
+                    <i class="fas fa-calendar-day"></i>
+                    <?= date('d M Y') ?>
+                </div>
+            </div>
+        </header>
+        <div class="content">
+<?php else: ?>
+    <?php include '../../components/header.php'; ?>
+    <main class="wadah" style="padding: 40px 20px;">
+<?php endif; ?>
 
     <div class="form-wrap">
         <h2 style="color:#8b0000; margin-bottom:5px;">📋 Ajukan Permintaan Darah</h2>
@@ -355,9 +393,22 @@ if ($q_stok) {
         <?php endif; ?>
 
     </div>
-</main>
-
-<?php include '../../components/footer.php'; ?>
+<?php if ($is_logged_in): ?>
+        </div>
+    </main>
+    <script src="../../assets/admin.js"></script>
+    <script>
+    document.getElementById('btnToggleSidebar').addEventListener('click', function() {
+        document.querySelector('.sidebar').classList.add('open');
+    });
+    document.getElementById('btnCloseSidebar').addEventListener('click', function() {
+        document.querySelector('.sidebar').classList.remove('open');
+    });
+    </script>
+<?php else: ?>
+    </main>
+    <?php include '../../components/footer.php'; ?>
+<?php endif; ?>
 <?php $conn = null; ?>
 
 <script>
