@@ -54,9 +54,6 @@
                 <span class="nav-badge"><?= $jml_notif_belum ?></span>
                 <?php endif; ?>
             </a>
-            <a href="edukasi_donor.php" class="nav-item <?= ($halaman_aktif=='edukasi_donor') ? 'active' : '' ?>">
-                <i class="fas fa-book"></i> Edukasi Donor
-            </a>
         </div>
     </nav>
 

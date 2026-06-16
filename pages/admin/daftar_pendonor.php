@@ -38,6 +38,8 @@ if (isset($_POST['daftar'])) {
         $pesan_status = "<div class='pesan-error'>❌ Berat badan minimal 45 kg. Berat Anda: {$berat_badan} kg.</div>";
     } elseif (strlen($password) < 6) {
         $pesan_status = '<div class="pesan-error">❌ Password minimal 6 karakter.</div>';
+    } elseif (strlen($no_hp) < 10 || strlen($no_hp) > 12) {
+        $pesan_status = '<div class="pesan-error">❌ Nomor HP harus antara 10-12 digit.</div>';
     } else {
         // Cek email sudah terdaftar
         $cek = $conn->prepare("SELECT id FROM pendonor WHERE email = ?");

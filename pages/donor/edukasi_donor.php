@@ -1,21 +1,6 @@
 <?php
 include '../../config/koneksi.php';
 
-if (!isset($_SESSION['pendonor_login']) || $_SESSION['pendonor_login'] !== true) {
-    header("Location: ../../login.php");
-    exit;
-}
-
-$pendonor_id = $_SESSION['pendonor_id'];
-
-$q_pendonor = $conn->prepare("SELECT * FROM pendonor WHERE id = ?");
-$q_pendonor->execute([$pendonor_id]);
-$pendonor = $q_pendonor->fetch(PDO::FETCH_ASSOC);
-$admin_username = $pendonor['nama'];
-
-$st3 = $conn->prepare("SELECT COUNT(*) FROM notifikasi WHERE tujuan_tipe='pendonor' AND tujuan_id=? AND sudah_baca=0");
-$st3->execute([$pendonor_id]);
-$jml_notif_belum = $st3->fetchColumn();
 $halaman_aktif = 'edukasi_donor';
 ?>
 <!DOCTYPE html>
@@ -24,7 +9,7 @@ $halaman_aktif = 'edukasi_donor';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edukasi Donor Darah — DonorIn</title>
-    <link rel="stylesheet" href="../../assets/admin.css">
+    <link rel="stylesheet" href="../../assets/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
@@ -92,30 +77,8 @@ $halaman_aktif = 'edukasi_donor';
 </head>
 <body>
 
-<!-- ══════════════ SIDEBAR ══════════════ -->
-<?php include '../../components/sidebar_pendonor.php'; ?>
-
-<!-- ══════════════ MAIN ══════════════ -->
 <main class="main">
-
-    <header class="topbar">
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <button class="btn-toggle-sidebar" id="btnToggleSidebar">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div>
-                <div class="topbar-title">Edukasi Donor</div>
-                <div class="topbar-breadcrumb">DonorIn / <span>Edukasi Donor Darah</span></div>
-            </div>
-        </div>
-        <div class="topbar-right">
-            <div class="date-chip">
-                <i class="fas fa-calendar-day"></i>
-                <?= date('d M Y') ?>
-            </div>
-        </div>
-    </header>
-
+    <?php include '../../components/header.php'; ?>
     <div class="content">
         <div class="edu-grid">
 
@@ -255,6 +218,7 @@ $halaman_aktif = 'edukasi_donor';
 
         </div><!-- /edu-grid -->
     </div><!-- /content -->
+    <?php include '../../components/footer.php'; ?>
 </main>
 
 <script src="../../assets/admin.js"></script>

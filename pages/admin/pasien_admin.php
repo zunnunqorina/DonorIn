@@ -21,23 +21,32 @@ if (isset($_GET['hapus']) && is_numeric($_GET['hapus'])) {
 // TAMBAH
 $error_tambah = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['aksi'] ?? '') === 'tambah') {
-    $nama  = trim($_POST['nama']);
-    $email = trim($_POST['email']);
-    $no_hp = trim($_POST['no_hp']);
-    $goldar= $_POST['goldar'];
-    $kota  = trim($_POST['kota']);
-    $pass  = password_hash(trim($_POST['password']), PASSWORD_DEFAULT);
+    $nama   = trim($_POST['nama']);
+    $email  = trim($_POST['email']);
+    $no_hp  = trim($_POST['no_hp']);
+    $goldar = $_POST['goldar_dibutuhkan']; // sesuaikan nama field dari form
+    $kota   = trim($_POST['kota']);
 
-    $cek = $conn->prepare("SELECT id FROM user WHERE email = ?");
-    $cek->execute([$email]);
-    if ($cek->rowCount() > 0) {
-        $error_tambah = 'Email sudah terdaftar!';
+    // Validasi dulu sebelum ke database
+    if ($nama === '' || $email === '' || $no_hp === '' || $goldar === '' || $kota === '') {
+        $error_tambah = 'Semua kolom wajib harus diisi!';
+    } elseif (strlen($no_hp) < 10 || strlen($no_hp) > 12) {
+        $error_tambah = 'Nomor HP harus antara 10-12 digit.';
+    } elseif (!is_numeric($no_hp)) {
+        $error_tambah = 'Nomor HP hanya boleh berisi angka.';
     } else {
-        $stmt = $conn->prepare("INSERT INTO user (nama, email, password, role, no_hp, goldar, kota) VALUES (?,?,?,'pasien',?,?,?)");
-        if ($stmt->execute([$nama, $email, $pass, $no_hp, $goldar, $kota])) {
-            header("Location: pasien_admin.php?pesan=tambah_sukses"); exit();
+        // Baru cek ke database
+        $cek = $conn->prepare("SELECT id FROM user WHERE email = ?");
+        $cek->execute([$email]);
+        if ($cek->rowCount() > 0) {
+            $error_tambah = 'Email sudah terdaftar!';
         } else {
-            $error_tambah = 'Gagal menambahkan pasien!';
+            $stmt = $conn->prepare("INSERT INTO user (nama, email, role, no_hp, goldar, kota) VALUES (?,?,'pasien',?,?,?)");
+            if ($stmt->execute([$nama, $email, $no_hp, $goldar, $kota])) {
+                header("Location: pasien_admin.php?pesan=tambah_sukses"); exit();
+            } else {
+                $error_tambah = 'Gagal menambahkan pasien!';
+            }
         }
     }
 }
@@ -49,25 +58,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['aksi'] ?? '') === 'edit') 
     $nama    = trim($_POST['nama']);
     $email   = trim($_POST['email']);
     $no_hp   = trim($_POST['no_hp']);
-    $goldar  = $_POST['goldar'];
+    $goldar  = $_POST['goldar_dibutuhkan'];
     $kota    = trim($_POST['kota']);
 
-    $cek = $conn->prepare("SELECT id FROM user WHERE email = ? AND id != ?");
-    $cek->execute([$email, $id_edit]);
-    if ($cek->rowCount() > 0) {
-        $error_edit = 'Email sudah digunakan akun lain!';
+    // Validasi dulu sebelum ke database
+    if ($nama === '' || $email === '' || $no_hp === '' || $goldar === '' || $kota === '') {
+        $error_edit = 'Semua kolom wajib harus diisi!';
+    } elseif (strlen($no_hp) < 10 || strlen($no_hp) > 12) {
+        $error_edit = 'Nomor HP harus antara 10-12 digit.';
+    } elseif (!is_numeric($no_hp)) {
+        $error_edit = 'Nomor HP hanya boleh berisi angka.';
     } else {
-        if (!empty($_POST['password'])) {
-            $stmt = $conn->prepare("UPDATE user SET nama=?,email=?,no_hp=?,goldar=?,kota=?,password=? WHERE id=? AND role='pasien'");
-            $ok = $stmt->execute([$nama, $email, $no_hp, $goldar, $kota, password_hash($_POST['password'], PASSWORD_DEFAULT), $id_edit]);
+        // Baru cek ke database
+        $cek = $conn->prepare("SELECT id FROM user WHERE email = ?");
+        $cek->execute([$email]);
+        if ($cek->rowCount() > 0) {
+            $error_edit = 'Email sudah terdaftar!';
         } else {
-            $stmt = $conn->prepare("UPDATE user SET nama=?,email=?,no_hp=?,goldar=?,kota=? WHERE id=? AND role='pasien'");
-            $ok = $stmt->execute([$nama, $email, $no_hp, $goldar, $kota, $id_edit]);
-        }
-        if ($ok) {
-            header("Location: pasien_admin.php?pesan=edit_sukses"); exit();
-        } else {
-            $error_edit = 'Gagal memperbarui data!';
+            $stmt = $conn->prepare("INSERT INTO user (nama, email, role, no_hp, goldar, kota) VALUES (?,?,'pasien',?,?,?)");
+            if ($stmt->execute([$nama, $email, $no_hp, $goldar, $kota])) {
+                header("Location: pasien_admin.php?pesan=tambah_sukses"); exit();
+            } else {
+                $error_edit = 'Gagal mengedit pasien!';
+            }
         }
     }
 }

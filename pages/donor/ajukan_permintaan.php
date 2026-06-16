@@ -331,12 +331,11 @@ if ($is_logged_in) {
                         <select name="goldar" id="sel_goldar" required>
                             <option value="">-- Pilih --</option>
                             <?php foreach (['A','B','O','AB'] as $g):
-                                $stok_g = $info_stok[$g] ?? 0;
                                 $selected = ($_POST['goldar'] ?? '') === $g ? 'selected' : '';
                             ?>
                             <option value="<?php echo $g; ?>" <?php echo $selected; ?>
                                     data-stok="<?php echo $stok_g; ?>">
-                                <?php echo $g; ?> (Stok: <?php echo $stok_g; ?> kantong)
+                                 <?php echo $g; ?>
                             </option>
                             <?php endforeach; ?>
                         </select>

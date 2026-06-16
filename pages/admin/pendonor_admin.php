@@ -26,19 +26,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['aksi']) && $_POST['ak
     $kota   = trim($_POST['kota']);
     $pass   = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-    // Cek email duplikat
-    $cek = $conn->prepare("SELECT id FROM user WHERE email = ?");
-    $cek->execute([$email]);
-    if ($cek->rowCount() > 0) {
-        $error_tambah = 'Email sudah terdaftar!';
+    // Validasi dulu sebelum ke database
+    if ($nama === '' || $email === '' || $no_hp === '' || $goldar === '' || $kota === '') {
+        $error_tambah = 'Semua kolom wajib harus diisi!';
+    } elseif (strlen($no_hp) < 10 || strlen($no_hp) > 12) {
+        $error_tambah = 'Nomor HP harus antara 10-12 digit.';
+    } elseif (!is_numeric($no_hp)) {
+        $error_tambah = 'Nomor HP hanya boleh berisi angka.';
     } else {
-        $stmt = $conn->prepare("INSERT INTO user (nama, email, password, role, no_hp, goldar, kota)
-              VALUES (?, ?, ?, 'pendonor', ?, ?, ?)");
-        if ($stmt->execute([$nama, $email, $pass, $no_hp, $goldar, $kota])) {
-            header("Location: pendonor_admin.php?pesan=tambah_sukses");
-            exit();
+        // Baru cek ke database
+        $cek = $conn->prepare("SELECT id FROM user WHERE email = ?");
+        $cek->execute([$email]);
+        if ($cek->rowCount() > 0) {
+            $error_tambah = 'Email sudah terdaftar!';
         } else {
-            $error_tambah = 'Gagal menambahkan pendonor.';
+            $stmt = $conn->prepare("INSERT INTO user (nama, email, password, role, no_hp, goldar, kota)
+              VALUES (?, ?, ?, 'pendonor', ?, ?, ?)");
+            if ($stmt->execute([$nama, $email, $pass, $no_hp, $goldar, $kota])) {
+                header("Location: pendonor_admin.php?pesan=tambah_sukses");
+                exit();
+            } else {
+                $error_tambah = 'Gagal menambahkan pendonor.';
+            }
         }
     }
 }
@@ -52,25 +61,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['aksi']) && $_POST['ak
     $goldar  = $_POST['goldar'];
     $kota    = trim($_POST['kota']);
 
-    // Cek email duplikat (selain diri sendiri)
-    $cek = $conn->prepare("SELECT id FROM user WHERE email = ? AND id != ?");
-    $cek->execute([$email, $id_edit]);
-    if ($cek->rowCount() > 0) {
-        $error_edit = 'Email sudah digunakan akun lain!';
+    // Validasi dulu sebelum ke database
+    if ($nama === '' || $email === '' || $no_hp === '' || $goldar === '' || $kota === '') {
+        $error_edit = 'Semua kolom wajib harus diisi!';
+    } elseif (strlen($no_hp) < 10 || strlen($no_hp) > 12) {
+        $error_edit = 'Nomor HP harus antara 10-12 digit.';
+    } elseif (!is_numeric($no_hp)) {
+        $error_edit = 'Nomor HP hanya boleh berisi angka.';
     } else {
-        if (!empty($_POST['password'])) {
-            $pass_baru = password_hash($_POST['password'], PASSWORD_DEFAULT);
-            $stmt = $conn->prepare("UPDATE user SET nama=?, email=?, no_hp=?, goldar=?, kota=?, password=? WHERE id=? AND role='pendonor'");
-            $params = [$nama, $email, $no_hp, $goldar, $kota, $pass_baru, $id_edit];
+        // Baru cek ke database
+        $cek = $conn->prepare("SELECT id FROM user WHERE email = ?");
+        $cek->execute([$email]);
+        if ($cek->rowCount() > 0) {
+            $error_edit = 'Email sudah terdaftar!';
         } else {
-            $stmt = $conn->prepare("UPDATE user SET nama=?, email=?, no_hp=?, goldar=?, kota=? WHERE id=? AND role='pendonor'");
-            $params = [$nama, $email, $no_hp, $goldar, $kota, $id_edit];
-        }
-        if ($stmt->execute($params)) {
-            header("Location: pendonor_admin.php?pesan=edit_sukses");
-            exit();
-        } else {
-            $error_edit = 'Gagal memperbarui data.';
+            $stmt = $conn->prepare("INSERT INTO user (nama, email, password, role, no_hp, goldar, kota)
+              VALUES (?, ?, ?, 'pendonor', ?, ?, ?)");
+            if ($stmt->execute([$nama, $email, $pass, $no_hp, $goldar, $kota])) {
+                header("Location: pendonor_admin.php?pesan=tambah_sukses");
+                exit();
+            } else {
+                $error_edit = 'Gagal menambahkan pendonor.';
+            }
         }
     }
 }
