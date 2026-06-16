@@ -23,54 +23,64 @@ if (isset($_POST['ajukan'])) {
     } elseif ($jumlah_kantong < 1 || $jumlah_kantong > 20) {
         $pesan_status = '<div class="pesan-error">❌ Jumlah kantong harus antara 1–20.</div>';
     } else {
-        // Cek apakah pasien sudah ada berdasarkan no_hp
-        $cek_pasien = $conn->prepare("SELECT id FROM pasien WHERE no_hp = ?");
-        $cek_pasien->execute([$no_hp]);
-        $pasien_existing = $cek_pasien->fetch(PDO::FETCH_ASSOC);
+        try {
+            // Cek pasien berdasarkan no_hp ATAU email (untuk hindari duplicate)
+            $email_cek = $email ?: 'noemail@donorin.id';
+            $cek_pasien = $conn->prepare("SELECT id FROM pasien WHERE no_hp = ? OR email = ? LIMIT 1");
+            $cek_pasien->execute([$no_hp, $email_cek]);
+            $pasien_existing = $cek_pasien->fetch(PDO::FETCH_ASSOC);
 
-        if ($pasien_existing) {
-            $pasien_id = $pasien_existing['id'];
-            // Update nama dan email jika berubah
-            $upd = $conn->prepare("UPDATE pasien SET nama = ?, email = ? WHERE id = ?");
-            $upd->execute([$nama_pasien, $email, $pasien_id]);
-        } else {
-            // Insert pasien baru — password placeholder untuk pengajuan anonim
-            $placeholder_pass = password_hash(uniqid('', true), PASSWORD_DEFAULT);
-            $ins = $conn->prepare(
-                "INSERT INTO pasien (nama, email, password, no_hp, goldar_dibutuhkan, kota) VALUES (?, ?, ?, ?, ?, ?)"
-            );
-            $ins->execute([$nama_pasien, $email ?: 'noemail@donorin.id', $placeholder_pass, $no_hp, $goldar, $kota]);
-            $pasien_id = (int)$conn->lastInsertId();
-        }
-
-        // Simpan permintaan darah (tanpa kolom 'kebutuhan' yg tidak ada di DB)
-        $q_insert = $conn->prepare(
-            "INSERT INTO permintaan_darah (pasien_id, goldar, jumlah_kantong, nama_rs, kota, alamat_rs, keterangan, status, tanggal)
-             VALUES (?, ?, ?, ?, ?, ?, ?, 'menunggu', NOW())"
-        );
-        $q_insert->execute([$pasien_id, $goldar, $jumlah_kantong, $nama_rs, $kota, $alamat_rs, $keterangan]);
-
-        if ($q_insert->rowCount() > 0) {
-            $id_permintaan = (int)$conn->lastInsertId();
-
-            // Notifikasi ke pendonor yang goldarnya cocok
-            $q_pendonor_cocok = $conn->prepare("SELECT id FROM pendonor WHERE goldar = ? AND status_aktif = 'aktif'");
-            $q_pendonor_cocok->execute([$goldar]);
-            foreach ($q_pendonor_cocok->fetchAll(PDO::FETCH_ASSOC) as $pd) {
-                $notif = $conn->prepare(
-                    "INSERT INTO notifikasi (tujuan_tipe, tujuan_id, judul, pesan) VALUES ('pendonor', ?, ?, ?)"
+            if ($pasien_existing) {
+                $pasien_id = $pasien_existing['id'];
+                // Update nama, no_hp, dan email jika berubah
+                $upd = $conn->prepare("UPDATE pasien SET nama = ?, email = ?, no_hp = ? WHERE id = ?");
+                $upd->execute([$nama_pasien, $email_cek, $no_hp, $pasien_id]);
+            } else {
+                // Insert pasien baru — password placeholder untuk pengajuan anonim
+                $placeholder_pass = password_hash(uniqid('', true), PASSWORD_DEFAULT);
+                $ins = $conn->prepare(
+                    "INSERT INTO pasien (nama, email, password, no_hp, goldar_dibutuhkan, kota) VALUES (?, ?, ?, ?, ?, ?)"
                 );
-                $notif->execute([
-                    $pd['id'],
-                    "Ada Permintaan Darah Golongan $goldar!",
-                    "Pasien membutuhkan $jumlah_kantong kantong darah golongan $goldar di $nama_rs, $kota. Segera cek di halaman permintaan."
-                ]);
+                $ins->execute([$nama_pasien, $email_cek, $placeholder_pass, $no_hp, $goldar, $kota]);
+                $pasien_id = (int)$conn->lastInsertId();
             }
 
-            $sukses = true;
-            $pesan_status = '<div class="pesan-sukses">✅ Permintaan darah berhasil diajukan! ID Permintaan: <strong>#' . $id_permintaan . '</strong>. Pendonor yang cocok akan mendapat notifikasi.</div>';
-        } else {
-            $pesan_status = '<div class="pesan-error">❌ Gagal menyimpan permintaan. Silakan coba lagi.</div>';
+            // Simpan permintaan darah
+            $q_insert = $conn->prepare(
+                "INSERT INTO permintaan_darah (pasien_id, goldar, jumlah_kantong, nama_rs, kota, alamat_rs, keterangan, status, tanggal)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, 'menunggu', NOW())"
+            );
+            $q_insert->execute([$pasien_id, $goldar, $jumlah_kantong, $nama_rs, $kota, $alamat_rs, $keterangan]);
+
+            if ($q_insert->rowCount() > 0) {
+                $id_permintaan = (int)$conn->lastInsertId();
+
+                // Notifikasi ke pendonor yang goldarnya cocok
+                $q_pendonor_cocok = $conn->prepare("SELECT id FROM pendonor WHERE goldar = ? AND status_aktif = 'aktif'");
+                $q_pendonor_cocok->execute([$goldar]);
+                foreach ($q_pendonor_cocok->fetchAll(PDO::FETCH_ASSOC) as $pd) {
+                    $notif = $conn->prepare(
+                        "INSERT INTO notifikasi (tujuan_tipe, tujuan_id, judul, pesan) VALUES ('pendonor', ?, ?, ?)"
+                    );
+                    $notif->execute([
+                        $pd['id'],
+                        "Ada Permintaan Darah Golongan $goldar!",
+                        "Pasien membutuhkan $jumlah_kantong kantong darah golongan $goldar di $nama_rs, $kota. Segera cek di halaman permintaan."
+                    ]);
+                }
+
+                $sukses = true;
+                $pesan_status = '<div class="pesan-sukses">✅ Permintaan darah berhasil diajukan! ID Permintaan: <strong>#' . $id_permintaan . '</strong>. Pendonor yang cocok akan mendapat notifikasi.</div>';
+            } else {
+                $pesan_status = '<div class="pesan-error">❌ Gagal menyimpan permintaan. Silakan coba lagi.</div>';
+            }
+        } catch (PDOException $e) {
+            // Tangkap error database (termasuk duplicate email/no_hp)
+            if ($e->getCode() == 23000) {
+                $pesan_status = '<div class="pesan-error">❌ Email atau nomor HP ini sudah terdaftar dengan data berbeda. Silakan gunakan email atau nomor HP yang sesuai dengan pendaftaran Anda sebelumnya.</div>';
+            } else {
+                $pesan_status = '<div class="pesan-error">❌ Terjadi kesalahan sistem. Silakan coba lagi beberapa saat.</div>';
+            }
         }
     }
 }
