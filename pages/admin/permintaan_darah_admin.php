@@ -414,7 +414,7 @@ include '../../components/sidebar_admin.php';
             <div class="divider"></div>
 
             <!-- Form ubah status -->
-            <form method="POST" action="permintaan_admin.php" id="formStatus">
+            <form method="POST" action="permintaan_darah_admin.php" id="formStatus">
                 <input type="hidden" name="aksi" value="ubah_status">
                 <input type="hidden" name="id_permintaan" id="d_id">
                 <div style="display:flex;align-items:flex-end;gap:10px;">

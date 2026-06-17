@@ -147,7 +147,7 @@ function salinPesan() {
 // ── Konfirmasi hapus ──
 function konfirmasiHapus(id, nama) {
     document.getElementById('hapus_nama').textContent = nama;
-    document.getElementById('hapus_link').href = 'permintaan_admin.php?hapus=' + id;
+    document.getElementById('hapus_link').href = 'permintaan_darah_admin.php?hapus=' + id;
     bukaModal('modalHapus');
 }
 

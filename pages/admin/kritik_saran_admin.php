@@ -42,17 +42,17 @@ if (isset($_GET['toggle']) && is_numeric($_GET['toggle'])) {
     exit();
 }
 
-// ── BALAS (simpan balasan admin) ──
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['aksi']) && $_POST['aksi'] === 'balas') {
-    $id_pesan = (int) $_POST['id_pesan'];
-    $balasan  = trim($_POST['balasan']);
-    if ($balasan !== '') {
-        $stmt = $conn->prepare("UPDATE kritik_saran SET balasan = ?, sudah_baca = 1, tgl_balas = NOW() WHERE id = ?");
-        $stmt->execute([$balasan, $id_pesan]);
-        header("Location: kritik_saran_admin.php?pesan=balas_sukses");
-        exit();
-    }
-}
+// // ── BALAS (simpan balasan admin) ──
+// if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['aksi']) && $_POST['aksi'] === 'balas') {
+//     $id_pesan = (int) $_POST['id_pesan'];
+//     $balasan  = trim($_POST['balasan']);
+//     if ($balasan !== '') {
+//         $stmt = $conn->prepare("UPDATE kritik_saran SET balasan = ?, sudah_baca = 1, tgl_balas = NOW() WHERE id = ?");
+//         $stmt->execute([$balasan, $id_pesan]);
+//         header("Location: kritik_saran_admin.php?pesan=balas_sukses");
+//         exit();
+//     }
+// }
 
 // ── FILTER & PAGINASI ──
 $filter_kat  = isset($_GET['kategori']) ? trim($_GET['kategori']) : '';
@@ -144,8 +144,8 @@ include '../../components/sidebar_admin.php';
         <!-- NOTIFIKASI -->
         <?php if ($pesan === 'hapus_sukses'): ?>
             <div class="notif notif-sukses"><i class="fas fa-check-circle"></i> Pesan berhasil dihapus.</div>
-        <?php elseif ($pesan === 'balas_sukses'): ?>
-            <div class="notif notif-sukses"><i class="fas fa-check-circle"></i> Balasan berhasil disimpan.</div>
+        <!-- <?php elseif ($pesan === 'balas_sukses'): ?>
+            <div class="notif notif-sukses"><i class="fas fa-check-circle"></i> Balasan berhasil disimpan.</div> -->
         <?php elseif ($pesan === 'update_sukses'): ?>
             <div class="notif notif-sukses"><i class="fas fa-check-circle"></i> Status berhasil diperbarui.</div>
         <?php endif; ?>
@@ -228,7 +228,7 @@ include '../../components/sidebar_admin.php';
                             'email'   => $baris['email'],
                             'kategori'=> $baris['kategori'],
                             'pesan'   => $baris['pesan'],
-                            'balasan' => $baris['balasan'] ?? '',
+                            // 'balasan' => $baris['balasan'] ?? '',
                             'tanggal' => $tgl,
                         ]), ENT_QUOTES);
                     ?>
@@ -243,9 +243,9 @@ include '../../components/sidebar_admin.php';
                             </td>
                             <td class="pesan-cell">
                                 <div class="pesan-teks"><?= htmlspecialchars($baris['pesan']) ?></div>
-                                <?php if (!empty($baris['balasan'])): ?>
+                                <!-- <?php if (!empty($baris['balasan'])): ?>
                                     <div class="balasan-chip"><i class="fas fa-reply"></i> Sudah dibalas</div>
-                                <?php endif; ?>
+                                <?php endif; ?> -->
                             </td>
                             <td style="font-size:12px; color:var(--abu-sedang); white-space:nowrap;"><?= $tgl ?></td>
                             <td>
@@ -257,7 +257,7 @@ include '../../components/sidebar_admin.php';
                             </td>
                             <td>
                                 <div class="aksi-grup">
-                                    <button class="btn btn-sm btn-ghost" onclick='bukaModalDetail(<?= $data_js ?>)' title="Lihat detail & balas">
+                                    <button class="btn btn-sm btn-ghost" onclick='bukaModalDetail(<?= $data_js ?>)' title="Lihat detail"> 
                                         <i class="fas fa-eye"></i>
                                     </button>
                                     <a href="kritik_saran_admin.php?toggle=<?= $baris['id'] ?>" class="btn btn-sm btn-ghost" title="<?= $sudah ? 'Tandai belum dibaca' : 'Tandai sudah dibaca' ?>">
@@ -297,7 +297,7 @@ include '../../components/sidebar_admin.php';
     </div><!-- /content -->
 </main>
 
-<!-- ══ MODAL DETAIL & BALAS ══ -->
+<!-- ══ MODAL DETAIL ══ -->
 <div class="modal-overlay" id="modalDetail">
     <div class="modal">
         <div class="modal-head">
@@ -324,22 +324,22 @@ include '../../components/sidebar_admin.php';
                 <div class="label">Isi Pesan</div>
                 <div class="val" id="d_pesan" style="white-space:pre-wrap;">—</div>
             </div>
-
+            <input type="hidden" name="id_pesan" id="d_id">
             <!-- Form balas -->
-            <form method="POST" action="kritik_saran_admin.php" id="formBalas">
+            <!-- <form method="POST" action="kritik_saran_admin.php" id="formBalas">
                 <input type="hidden" name="aksi"     value="balas">
-                <input type="hidden" name="id_pesan" id="d_id">
+                
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-reply"></i> Balasan Admin</label>
                     <textarea name="balasan" id="d_balasan" class="form-textarea" placeholder="Tulis balasan untuk pengirim..."></textarea>
                 </div>
-            </form>
+            </form> -->
         </div>
         <div class="modal-foot">
             <button class="btn btn-ghost" onclick="tutupModal('modalDetail')">Tutup</button>
-            <button class="btn btn-primary" onclick="document.getElementById('formBalas').submit()">
+            <!-- <button class="btn btn-primary" onclick="document.getElementById('formBalas').submit()">
                 <i class="fas fa-paper-plane"></i> Kirim Balasan
-            </button>
+            </button> -->
         </div>
     </div>
 </div>
@@ -389,7 +389,7 @@ function bukaModalDetail(data) {
     document.getElementById('d_kategori').textContent = data.kategori.charAt(0).toUpperCase() + data.kategori.slice(1);
     document.getElementById('d_tanggal').textContent  = data.tanggal;
     document.getElementById('d_pesan').textContent    = data.pesan;
-    document.getElementById('d_balasan').value        = data.balasan || '';
+    // document.getElementById('d_balasan').value        = data.balasan || '';
     bukaModal('modalDetail');
 }
 

@@ -152,7 +152,7 @@ $total_pendonor = 1;
                         </div>
                         <p style="margin: 8px 0; font-size: 0.9rem;">
                             👤 Pasien: <strong><?= htmlspecialchars($pm['nama_pasien']) ?></strong><br>
-                            🩸 Jumlah: <strong><?= $pm['jumlah'] ?> kantong</strong><br>
+                            🩸 Jumlah: <strong><?= $pm['jumlah_kantong'] ?> kantong</strong><br>
                             📍 <?= htmlspecialchars($pm['kota'] ?? '-') ?><br>
                             🕐 <?= $tgl_pm ?>
                         </p>
