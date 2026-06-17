@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['aksi'] ?? '') === 'ubah_st
     if (in_array($status, $allowed)) {
         $stmt = $conn->prepare("UPDATE permintaan_darah SET status = ? WHERE id = ?");
         $stmt->execute([$status, $id_ubah]);
-        header("Location: permintaan_admin.php?pesan=status_sukses");
+        header("Location: permintaan_darah_admin.php?pesan=status_sukses");
         exit();
     }
 }
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['aksi'] ?? '') === 'ubah_st
 if (isset($_GET['hapus']) && is_numeric($_GET['hapus'])) {
     $stmt = $conn->prepare("DELETE FROM permintaan_darah WHERE id = ?");
     $stmt->execute([(int) $_GET['hapus']]);
-    header("Location: permintaan_admin.php?pesan=hapus_sukses");
+    header("Location: permintaan_darah_admin.php?pesan=hapus_sukses");
     exit();
 }
 
@@ -166,31 +166,31 @@ include '../../components/sidebar_admin.php';
 
         <!-- MINI STATS — bisa diklik untuk filter -->
         <div class="mini-stats">
-            <a href="permintaan_admin.php" style="text-decoration:none;">
+            <a href="permintaan_darah_admin.php" style="text-decoration:none;">
                 <div class="mini-card <?= $filter_status===''?'aktif-filter':'' ?>">
                     <div class="mini-icon mi-merah"><i class="fas fa-list"></i></div>
                     <div><div class="mini-val"><?= $stat_total ?></div><div class="mini-label">Semua</div></div>
                 </div>
             </a>
-            <a href="permintaan_admin.php?filter_status=menunggu" style="text-decoration:none;">
+            <a href="permintaan_darah_admin.php?filter_status=menunggu" style="text-decoration:none;">
                 <div class="mini-card <?= $filter_status==='menunggu'?'aktif-filter':'' ?>">
                     <div class="mini-icon mi-kuning"><i class="fas fa-clock"></i></div>
                     <div><div class="mini-val"><?= $stat_menunggu ?></div><div class="mini-label">Menunggu</div></div>
                 </div>
             </a>
-            <a href="permintaan_admin.php?filter_status=diproses" style="text-decoration:none;">
+            <a href="permintaan_darah_admin.php?filter_status=diproses" style="text-decoration:none;">
                 <div class="mini-card <?= $filter_status==='diproses'?'aktif-filter':'' ?>">
                     <div class="mini-icon mi-biru"><i class="fas fa-spinner"></i></div>
                     <div><div class="mini-val"><?= $stat_diproses ?></div><div class="mini-label">Diproses</div></div>
                 </div>
             </a>
-            <a href="permintaan_admin.php?filter_status=terpenuhi" style="text-decoration:none;">
+            <a href="permintaan_darah_admin.php?filter_status=terpenuhi" style="text-decoration:none;">
                 <div class="mini-card <?= $filter_status==='terpenuhi'?'aktif-filter':'' ?>">
                     <div class="mini-icon mi-hijau"><i class="fas fa-check-circle"></i></div>
                     <div><div class="mini-val"><?= $stat_terpenuhi ?></div><div class="mini-label">Terpenuhi</div></div>
                 </div>
             </a>
-            <a href="permintaan_admin.php?filter_status=dibatalkan" style="text-decoration:none;">
+            <a href="permintaan_darah_admin.php?filter_status=dibatalkan" style="text-decoration:none;">
                 <div class="mini-card <?= $filter_status==='dibatalkan'?'aktif-filter':'' ?>">
                     <div class="mini-icon mi-abu"><i class="fas fa-ban"></i></div>
                     <div><div class="mini-val"><?= $stat_batal ?></div><div class="mini-label">Dibatalkan</div></div>
@@ -260,7 +260,7 @@ include '../../components/sidebar_admin.php';
                         </select>
                         <button type="submit" class="btn btn-outline btn-sm"><i class="fas fa-filter"></i> Filter</button>
                         <?php if ($search||$filter_status||$filter_goldar): ?>
-                        <a href="permintaan_admin.php" class="btn btn-ghost btn-sm"><i class="fas fa-times"></i> Reset</a>
+                        <a href="permintaan_darah_admin.php" class="btn btn-ghost btn-sm"><i class="fas fa-times"></i> Reset</a>
                         <?php endif; ?>
                     </form>
                 </div>
