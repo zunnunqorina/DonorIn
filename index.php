@@ -15,13 +15,13 @@ $ev_sosial = $conn->query(
      ORDER BY tanggal ASC LIMIT 3"
 )->fetchAll(PDO::FETCH_ASSOC);
 
-// Statistik hero
+// Statistik user
 $jml_pendonor   = $conn->query("SELECT COUNT(*) FROM pendonor WHERE status_aktif='aktif'")->fetchColumn() ?? 0;
 $jml_terselesai = $conn->query("SELECT COUNT(*) FROM permintaan_darah WHERE status='selesai'")->fetchColumn() ?? 0;
 $jml_event      = $conn->query("SELECT COUNT(*) FROM event_donor WHERE status='aktif' AND tanggal >= CURDATE()")->fetchColumn() ?? 0;
 ?>
 
-<!-- ══ HERO ══ -->
+<!-- ══ User ══ -->
 <section style="
     background: linear-gradient(135deg, #7a0000 0%, #8B0000 40%, #a50010 70%, #8B0000 100%);
     padding: 80px 24px 100px; position: relative; overflow: hidden;">

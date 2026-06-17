@@ -21,10 +21,10 @@
         <div>
             <div class="footer-title">Akun</div>
             <ul class="footer-links">
-                <li><a href="<?= $prefix ?? '../../' ?>auth/login_pendonor.php">Masuk</a></li>
-                <li><a href="<?= $prefix ?? '../../' ?>pages/donor/daftar_pendonor.php">Daftar Pendonor</a></li>
+                <li><a href="<?= $prefix ?? '../../' ?>login.php">Masuk</a></li>
+                <li><a href="<?= $prefix ?? '../../' ?>pages/admin/daftar_pendonor.php">Daftar Pendonor</a></li>
                 <li><a href="<?= $prefix ?? '../../' ?>pages/donor/kritik_saran.php">Kritik & Saran</a></li>
-                <li><a href="<?= $prefix ?? '../../' ?>auth/login_admin.php">Admin</a></li>
+                <li><a href="<?= $prefix ?? '../../' ?>login.php">Admin</a></li>
             </ul>
         </div>
     </div>

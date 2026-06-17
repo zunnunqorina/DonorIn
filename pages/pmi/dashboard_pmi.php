@@ -13,12 +13,12 @@ $pmi_username = $_SESSION['pmi_username'] ?? 'pmi';
 $pesan_stok = "";
 if (isset($_POST['update_stok'])) {
     $ok = true;
-    $stmt = $conn->prepare("INSERT INTO stok_darah (goldar, jumlah, updated_by, updated_at)
-                            VALUES (:g, :jml, :oleh, NOW())
-                            ON DUPLICATE KEY UPDATE jumlah=:jml2, updated_by=:oleh2, updated_at=NOW()");
+    $stmt = $conn->prepare("INSERT INTO stok_darah (goldar, jumlah, updated_at) 
+                            VALUES (:g, :jml, NOW())
+                            ON DUPLICATE KEY UPDATE jumlah=:jml2, updated_at=NOW()");//updated_by=:oleh2,updated_by,:oleh,
     foreach (['A','B','O','AB'] as $g) {
         $jml = (int)($_POST['stok_'.$g] ?? 0);
-        $ok  = $stmt->execute([':g'=>$g,':jml'=>$jml,':oleh'=>$pmi_nama,':jml2'=>$jml,':oleh2'=>$pmi_nama]) && $ok;
+        $ok  = $stmt->execute([':g'=>$g,':jml'=>$jml,':jml2'=>$jml]) && $ok;//':oleh2'=>$pmi_nama':oleh'=>$pmi_nama,
     }
     $pesan_stok = $ok ? 'sukses' : 'gagal';
 }
