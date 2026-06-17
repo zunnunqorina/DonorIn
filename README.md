@@ -468,7 +468,7 @@ DonorIn bertujuan untuk mengatasi kesulitan pencarian donor darah yang selama in
 ## AI Usage Statement
 
 ### Penggunaan 1 — Perbaikan Bug PDO Exception & Duplicate Email
-- **Tool :** Antigravity AI (Google DeepMind)
+- **Tool :** Claude.AI  
 - **Untuk apa:** Menganalisis penyebab crash pada halaman `ajukan_permintaan.php` ketika email duplikat diinput, dan memperbaiki penanganan error database.
 - **2-3 prompt utama:**
   1. *"kenapa pada file ajukan_permintaan.php jika menggunakan email yang pernah dipakai sebelumnya untuk mengajukan dia bakal error, dan kenapa saat error dia tidak menampilkan pesan error dan tidak kembali ke halaman sebelumnya?"*
@@ -477,13 +477,11 @@ DonorIn bertujuan untuk mengatasi kesulitan pencarian donor darah yang selama in
   - Penjelasan bahwa kolom `email` di tabel `pasien` memiliki constraint `UNIQUE` yang menyebabkan `PDOException` saat INSERT duplikat
   - Kode perbaikan query pengecekan pasien: `WHERE no_hp = ? OR email = ?`
   - Kode penambahan blok `try-catch (PDOException $e)` di sekitar operasi database
-- **Bagian yang saya ubah + alasan:**
-  - Tidak ada perubahan manual — output AI langsung diterapkan karena analisisnya tepat sesuai struktur database dan kode yang ada
 
 ---
 
 ### Penggunaan 2 — Debugging Session Pendonor Tidak Terhubung
-- **Tool :** Antigravity AI (Google DeepMind)
+- **Tool :** Claude.AI
 - **Untuk apa:** Mengidentifikasi mengapa session pendonor tidak terbaca di beberapa halaman setelah login berhasil.
 - **2-3 prompt utama:**
   1. *"session pendonor belum terhubung, setelah login redirect ke dashboard tapi data pendonor tidak muncul"*
@@ -493,18 +491,6 @@ DonorIn bertujuan untuk mengatasi kesulitan pencarian donor darah yang selama in
   - Rekomendasi memastikan `include 'koneksi.php'` ada di baris pertama setiap halaman yang mengakses `$_SESSION`
 - **Bagian yang saya ubah + alasan:**
   - Disesuaikan dengan struktur include yang sudah ada di project — hanya memindahkan posisi `session_start()` ke paling awal file `koneksi.php`
-
----
-
-### Penggunaan 3 — Pembuatan Table Specifications README
-- **Tool :** Antigravity AI (Google DeepMind)
-- **Untuk apa:** Membuat dokumentasi Table Specifications yang akurat berdasarkan file SQL database `donorin (3).sql`.
-- **2-3 prompt utama:**
-  1. *"buatkanlah saya Table Specifications pada readme menggunakan file dari donorin.sql"*
-- **Bagian output AI yang dipakai:**
-  - Seluruh tabel spesifikasi (12 tabel) dengan kolom Field, Type, Constraint, dan Description yang dihasilkan langsung dari parsing SQL
-- **Bagian yang saya ubah + alasan:**
-  - Tidak ada perubahan — dokumentasi sudah sesuai dengan struktur tabel di database nyata
 
 ---
 
