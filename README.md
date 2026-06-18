@@ -17,9 +17,9 @@ DonorIn adalah sistem informasi pencarian pendonor darah berbasis web yang diran
 
 | Nama | NIM | Role | Responsibilities |
 |------|-----|------|-----------------|
-| Zunnun Qorina | F1D02410030 | Project Manager & Frontend Developer | Koordinasi tim, manajemen proyek, desain antarmuka website, pembuatan halaman frontend, analisis kebutuhan sistem, dokumentasi UI/UX |
-| Lalu Tirta Putra Tandela | F1D02410119 | Backend Developer | Pengembangan backend sistem, autentikasi pengguna, integrasi API, koneksi database, pengelolaan logika server |
-| Imas Nazalia Rahmawati | F1D02410055 | Database Designer | Mendesain database, membuat ERD, struktur tabel |
+| Zunnun Qorina | F1D02410030 | Fullstack Developer | Frontend: Membangun seluruh halaman untuk aktor pendonor menggunakan HTML5, CSS3 custom (styles.css), dan JavaScript — Backend: Logika PHP Native untuk pendaftaran pendonor, pengiriman permintaan darah, dan form kritik & saran menggunakan PDO Prepared Statement — UI/UX: Desain sistem visual (palet warna merah darah, tipografi Inter, layout responsif) — Koordinasi: Manajemen tim, analisis kebutuhan sistem, dan dokumentasi proyek|
+| Lalu Tirta Putra Tandela | F1D02410119 | Fullstack Developer | Frontend: Membangun seluruh halaman publik dan PMI menggunakan HTML5, CSS3 custom (styles.css), dan JavaScript vanilla — Backend: Logika PHP Native untuk pendaftaran pendonor, pengiriman permintaan darah, dan form kritik & saran menggunakan PDO Prepared Statement — UI/UX: Desain sistem visual (palet warna merah darah, tipografi Inter, layout responsif) — Koordinasi: Manajemen tim, analisis kebutuhan sistem, dan dokumentasi proyek |
+| Imas Nazalia Rahmawati | F1D02410055 | Fullstack Developer | Frontend: Membangun seluruh halaman admin menggunakan HTML5, CSS3 custom (styles.css), dan JavaScript vanilla — Backend: Logika PHP Native untuk pendaftaran pendonor, pengiriman permintaan darah, dan form kritik & saran menggunakan PDO Prepared Statement — UI/UX: Desain sistem visual (palet warna merah darah, tipografi Inter, layout responsif) — Koordinasi: Manajemen tim, analisis kebutuhan sistem, dan dokumentasi proyek |
 
 ---
 
