@@ -502,7 +502,7 @@ DonorIn bertujuan untuk mengatasi kesulitan pencarian donor darah yang selama in
 ![Alt Text](images/2.png)
 
 
-![Alt Text](images/2.png)
+![Alt Text](images/3.png)
 
 ---
 
