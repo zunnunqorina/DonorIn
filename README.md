@@ -506,7 +506,7 @@ DonorIn bertujuan untuk mengatasi kesulitan pencarian donor darah yang selama in
 
 ---
 
-> **Mata Kuliah:** Analisis dan Perancangan Berorientasi Objek  
+> **Mata Kuliah:** Pemrograman Web  
 > **Dosen Pengampu:** Royana Afwani, S.Kom., M.T.  
 > **Program Studi:** Teknik Informatika — Fakultas Teknik, Universitas Mataram  
 > **Tahun:** 2026
